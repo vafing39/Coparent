@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## État actuel du dépôt (à lire en premier)
 
-Application **React Native CLI 0.88** (pas Expo), TypeScript strict. Déjà construit : accueil, connexion par email, inscription, reprise de session, textes dans `src/i18n`, et la première connexion complète : vérification de l'email (1), famille (2), enfants (3), rythme de garde et vacances scolaires (4), invitation de l'autre parent (5, facultative). Ensuite, l'app est un écran d'accueil provisoire en attendant les onglets. Les dossiers et bibliothèques listés plus bas qui n'existent pas encore sont la cible.
+Application **React Native CLI 0.88** (pas Expo), TypeScript strict. Déjà construit : accueil, connexion par email, inscription, reprise de session, textes dans `src/i18n`, et la première connexion complète : vérification de l'email (1), famille (2), enfants (3), rythme de garde et vacances scolaires (4), invitation de l'autre parent (5, facultative). Côté invité : le lien d'invitation ouvre l'app (aperçu, inscription ou connexion, puis acceptation automatique). Ensuite, l'app est un écran d'accueil provisoire en attendant les onglets. Les dossiers et bibliothèques listés plus bas qui n'existent pas encore sont la cible.
 
 L'app appelle le backend Spring Boot (`../Coparent backend`) : URL dans `.env` (`API_URL`, voir `.env.example`), par défaut `http://localhost:8080` (iOS) ou `http://10.0.2.2:8080` (émulateur Android). En développement, les emails arrivent dans Mailpit : http://localhost:8025.
 
@@ -21,6 +21,8 @@ npx jest -t "renders correctly"             # un seul test par nom
 npx tsc --noEmit                            # vérification des types
 cd ios && bundle exec pod install           # après tout ajout de module natif (bundle install la 1re fois)
 ```
+
+Liens d'invitation : `coparent://invitation?token=…` ouvre l'app dès maintenant. Le lien envoyé par le backend (`PUBLIC_BASE_URL/invitation?token=…`) mène à une page web qui l'ouvre. Les liens https directs (Universal Links / App Links) demandent un domaine public : `APP_LINKS_DOMAIN` dans `.env` (app et Android), le même domaine dans `ios/AwesomeProject/AwesomeProject.entitlements` (`applinks:…`, à modifier à la main), et les valeurs `app.links.*` du backend (Team ID, identifiants, empreintes). Tester dans le simulateur : `xcrun simctl openurl booted "coparent://invitation?token=<jeton>"`.
 
 ## Références
 
@@ -70,6 +72,7 @@ cd ios && bundle exec pod install           # après tout ajout de module natif 
 - Dans le contexte, chaque `useMutation` est déstructuré et renommé, puis exposé à plat : `const { mutate: addChild, isPending: isAddingChild, error: addChildError, reset: resetAddChild } = useMutation(...)`. Les écrans lisent ces noms : `const { login, isLoggingIn, loginError, resetLogin } = useAuth(); login(values)`. Seul `mutate` est exposé (pas `mutateAsync`).
 - `AuthProvider` (dans `App.tsx`, via `useAuth`) : session lue dans le store Zustand (`status`, `user`, `authEntry`) et toutes les actions d'authentification (`login`, `signup`, `verifyEmail`, `resendEmailVerification`, `signOut`, `restore`). Le store (`src/stores/session.ts`) est un état pur, sans appel d'API. Seule exception : le renouvellement des jetons (`src/api/session.ts`, `refreshSession`), mécanique du client HTTP (rejeu après un 401), réutilisée par `restore`. Hors React (client HTTP), lire le store avec `useSession.getState()`.
 - `FamilyProvider` (autour de tout l'espace connecté, dans `SignedInNavigator`, via `useFamily`) : charge la famille une fois et affiche lui-même le chargement et l'erreur ; expose `family` (null si pas encore créée) et ses actions (`saveFamily`, `saveChildren`, `proposeSchedule`, `createInvitation`…). Les écrans qui supposent une famille passent par `RequireFamily`.
+- `InvitationProvider` (dans `App.tsx`, via `useInvitation`) : invitation reçue par lien côté invité. Reçoit les liens (`Linking`), garde le jeton dans le trousseau jusqu'à l'acceptation, expose l'aperçu (`preview`) et `acceptInvitation`. Hors connexion, l'`AuthNavigator` s'ouvre sur l'aperçu ; connecté et email vérifié, `SignedInNavigator` affiche l'aperçu (lien ouvert déjà connecté) ou accepte automatiquement (invité passé par l'aperçu).
 - `SignedInNavigator` choisit à l'ouverture entre l'app (famille avec au moins un enfant et un rythme) et la première connexion ; pendant celle-ci, c'est la fin de l'étape 5 (`finish` du brouillon) qui ouvre l'app.
 - `OnboardingDraftProvider` (via `useOnboardingDraft`) : choix gardés entre deux écrans avant leur envoi (rythme de l'étape 4) et `finish` (fin de la première connexion).
 - L'état d'une mutation étant partagé, chaque formulaire appelle `useResetOnUnmount(resetX, …)` avec les fonctions `reset` de ses actions pour ne pas retrouver une ancienne erreur au retour.

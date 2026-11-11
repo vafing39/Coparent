@@ -75,7 +75,6 @@ export type CustodySchedule = {
   status: 'PROPOSED' | 'ACTIVE' | 'REPLACED' | 'REJECTED';
 };
 
-/** FamilyResponse côté backend : la famille vue par l'un de ses membres. */
 /** Étape 5 : lien à partager avec l'autre parent (le jeton n'est renvoyé qu'ici). */
 export type Invitation = {
   link: string;
@@ -83,6 +82,16 @@ export type Invitation = {
   expiresAt: string;
 };
 
+/** Ce que voit l'invité avant d'accepter : rien d'autre n'est partagé (cahier des charges §3). */
+export type InvitationPreview = {
+  inviterFirstName: string;
+  children: { firstName: string; age: number }[];
+  custodySchedule: CustodySchedule | null;
+  /** Instant ISO 8601. */
+  expiresAt: string;
+};
+
+/** FamilyResponse côté backend : la famille vue par l'un de ses membres. */
 export type Family = {
   id: string;
   name: string;

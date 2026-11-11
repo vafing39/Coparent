@@ -19,12 +19,11 @@ import {
   CheckIcon,
   CopyIcon,
   InfoIcon,
-  PlusIcon,
   ShareIcon,
 } from '../../components/icons';
 import { TextField } from '../../components/TextField';
 import { invitationErrorMessage } from '../../api/family';
-import type { Family, FamilyRole } from '../../api/types';
+import type { Family } from '../../api/types';
 import { useAuth } from '../../hooks/useAuth';
 import { useFamily } from '../../hooks/useFamily';
 import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
@@ -35,12 +34,7 @@ import {
   InvitationValues,
 } from '../../schemas/invitation';
 import { useTheme } from '../../theme/ThemeProvider';
-
-/** Couleurs de garde : toujours accompagnées de l'initiale (ou du « + » pour l'invité). */
-const PARENT_AVATAR: Record<FamilyRole, string> = {
-  PARENT_A: 'border-parent-a bg-parent-a-soft',
-  PARENT_B: 'border-parent-b bg-parent-b-soft',
-};
+import { ParentAvatars } from './ParentAvatars';
 
 const renderShareIcon = (color: string) => <ShareIcon color={color} />;
 const renderCopyIcon = (color: string) => <CopyIcon color={color} />;
@@ -85,8 +79,6 @@ export function InvitationForm({ family, onDone }: Props) {
     [color],
   );
   const myName = user?.firstName ?? '';
-  const otherRole: FamilyRole =
-    family.myRole === 'PARENT_A' ? 'PARENT_B' : 'PARENT_A';
 
   /** Lance l'action avec le lien du prénom saisi, en le créant d'abord s'il le faut. */
   const withLink = (action: (link: string) => void) =>
@@ -135,26 +127,7 @@ export function InvitationForm({ family, onDone }: Props) {
         contentContainerClassName="grow px-6 pt-6 pb-8 gap-5"
         keyboardShouldPersistTaps="handled"
       >
-        <View
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
-          className="flex-row items-center"
-        >
-          <View
-            className={`h-14 w-14 items-center justify-center rounded-full border-[3px] ${
-              PARENT_AVATAR[family.myRole]
-            }`}
-          >
-            <Text className="font-extrabold text-[20px] text-text">
-              {myName.charAt(0).toUpperCase()}
-            </Text>
-          </View>
-          <View
-            className={`-ml-2.5 h-14 w-14 items-center justify-center rounded-full border-[3px] border-dashed ${PARENT_AVATAR[otherRole]}`}
-          >
-            <PlusIcon color={color('text')} />
-          </View>
-        </View>
+        <ParentAvatars initial={myName} role={family.myRole} />
 
         <View className="gap-1.5">
           <Text

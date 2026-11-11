@@ -72,3 +72,12 @@ export function formatTime(time: string): string {
   const [hours, minutes] = time.split(':');
   return `${Number(hours)} h ${minutes}`;
 }
+
+/** Instant ISO → « 17 novembre », à Paris. */
+export function formatDayMonth(instant: string): string {
+  return new Intl.DateTimeFormat('fr-FR', {
+    timeZone: APP_TIME_ZONE,
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date(instant));
+}

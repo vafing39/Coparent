@@ -85,6 +85,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        // Domaine des liens https d'invitation (APP_LINKS_DOMAIN dans .env) ; sans domaine, une valeur inerte.
+        manifestPlaceholders += [appLinksDomain: project.env.get("APP_LINKS_DOMAIN") ?: "example.invalid"]
     }
     signingConfigs {
         debug {

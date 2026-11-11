@@ -5,7 +5,9 @@ import { BienvenueScreen } from '../screens/auth/BienvenueScreen';
 import { ConnexionScreen } from '../screens/auth/ConnexionScreen';
 import { InscriptionScreen } from '../screens/auth/InscriptionScreen';
 import { PlaceholderScreen } from '../screens/auth/PlaceholderScreen';
+import { AccepterInvitationScreen } from '../screens/invitation/AccepterInvitationScreen';
 import { useAuth } from '../hooks/useAuth';
+import { useInvitation } from '../hooks/useInvitation';
 import { useTheme } from '../theme/ThemeProvider';
 import { fonts } from '../theme/tokens';
 import type { AuthStackParamList } from './types';
@@ -23,10 +25,16 @@ export function AuthNavigator() {
   const { t } = useTranslation();
   // Après « Modifier l'adresse », on revient directement sur l'inscription.
   const { authEntry } = useAuth();
+  // Invitation reçue par lien : on commence par son aperçu (sauf retour à l'inscription demandé).
+  const { pendingInvitation } = useInvitation();
+  const initialRoute =
+    pendingInvitation && authEntry !== 'Inscription'
+      ? 'AccepterInvitation'
+      : authEntry;
 
   return (
     <Stack.Navigator
-      initialRouteName={authEntry}
+      initialRouteName={initialRoute}
       screenOptions={{
         headerBackButtonDisplayMode: 'minimal',
         // Libellé lu par VoiceOver/TalkBack sur la flèche de retour.
@@ -54,6 +62,11 @@ export function AuthNavigator() {
         component={ConnexionScreen}
         // Le titre est dans l'écran (maquette) : en-tête réduit à la flèche de retour.
         options={{ title: '' }}
+      />
+      <Stack.Screen
+        name="AccepterInvitation"
+        component={AccepterInvitationScreen}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="MotDePasse"

@@ -2,6 +2,10 @@ import React, { useCallback, useState } from 'react';
 import type { Family } from '../api/types';
 import { FamilyProvider } from '../context/FamilyContext';
 import { useFamily } from '../hooks/useFamily';
+import { useInvitation } from '../hooks/useInvitation';
+import { InvitationBlockedScreen } from '../screens/invitation/InvitationBlockedScreen';
+import { InvitationConfirmScreen } from '../screens/invitation/InvitationConfirmScreen';
+import { JoinFamilyScreen } from '../screens/invitation/JoinFamilyScreen';
 import { AppNavigator } from './AppNavigator';
 import { OnboardingNavigator } from './OnboardingNavigator';
 
@@ -37,6 +41,18 @@ function SignedInContent({ emailVerified }: { emailVerified: boolean }) {
     isFamilySetUp(family),
   );
   const finishOnboarding = useCallback(() => setOnboardingDone(true), []);
+  const { pendingInvitation } = useInvitation();
+
+  // Invitation reçue par lien, une fois l'email vérifié : rejoindre plutôt que créer une famille.
+  if (pendingInvitation && emailVerified) {
+    if (family !== null) {
+      return <InvitationBlockedScreen />;
+    }
+    if (!pendingInvitation.confirmed) {
+      return <InvitationConfirmScreen />;
+    }
+    return <JoinFamilyScreen onJoined={finishOnboarding} />;
+  }
 
   if (onboardingDone) {
     return <AppNavigator />;

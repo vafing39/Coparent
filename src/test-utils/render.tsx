@@ -3,6 +3,7 @@ import { render } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '../context/AuthContext';
 import { FamilyProvider } from '../context/FamilyContext';
+import { InvitationProvider } from '../context/InvitationContext';
 import { OnboardingDraftProvider } from '../context/OnboardingDraftContext';
 
 type Options = {
@@ -31,7 +32,9 @@ export async function renderWithProviders(
   );
   return render(
     <QueryClientProvider client={client}>
-      <AuthProvider>{content}</AuthProvider>
+      <AuthProvider>
+        <InvitationProvider>{content}</InvitationProvider>
+      </AuthProvider>
     </QueryClientProvider>,
   );
 }

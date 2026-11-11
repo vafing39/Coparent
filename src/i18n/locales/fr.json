@@ -7,7 +7,8 @@
     "comingSoon": "Bientôt disponible",
     "screenComingSoon": "Écran à venir.",
     "or": "ou",
-    "ok": "OK"
+    "ok": "OK",
+    "and": "et"
   },
   "weekdays": {
     "short": {
@@ -302,5 +303,35 @@
   "home": {
     "greeting": "Bonjour {{firstName}}",
     "placeholder": "Vous êtes connecté. Les onglets arrivent bientôt."
+  },
+  "invitation": {
+    "preview": {
+      "title": "{{inviter}} vous invite à rejoindre la famille de {{children}}",
+      "titleNoChildren": "{{inviter}} vous invite à rejoindre sa famille",
+      "subtitle": "Vous partagerez un calendrier de garde, une messagerie, les dépenses et les documents des enfants.",
+      "summaryLabel": "Ce qui a été préparé",
+      "prepared": "Déjà renseigné par {{inviter}}",
+      "children": "Enfants :",
+      "childAge_one": "{{firstName}} ({{count}} an)",
+      "childAge_other": "{{firstName}} ({{count}} ans)",
+      "childBaby": "{{firstName}} (moins d'un an)",
+      "schedule": "Rythme proposé :",
+      "scheduleValue": "{{pattern}}, bascule le {{weekday}} à {{time}}",
+      "scheduleNote": "Le rythme reste « proposé » tant que vous ne l'avez pas validé. Vous pourrez proposer une modification.",
+      "signup": "Créer mon compte et rejoindre",
+      "login": "J'ai déjà un compte",
+      "join": "Rejoindre la famille",
+      "ignore": "Ignorer cette invitation",
+      "validity": "Invitation valable jusqu'au {{date}}. Rien n'est partagé avec vous avant votre acceptation."
+    },
+    "invalid": "Cette invitation n'est plus valide. Demandez un nouveau lien à l'autre parent.",
+    "continueWithout": "Continuer sans invitation",
+    "loadFailed": "L'invitation n'a pas pu être chargée. Vérifiez votre accès à Internet, puis réessayez.",
+    "joining": "Vous rejoignez la famille…",
+    "alreadyInFamily": "Vous faites déjà partie d'une famille : cette invitation ne peut pas être acceptée.",
+    "continue": "Continuer",
+    "errors": {
+      "cannotJoin": "Cette invitation ne peut pas être acceptée."
+    }
   }
 }

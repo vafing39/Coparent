@@ -6,6 +6,7 @@ import type {
   CustodyScheduleRequest,
   Family,
   Invitation,
+  InvitationPreview,
   User,
 } from '../api/types';
 import type { LoginValues, SignupValues } from '../schemas/auth';
@@ -40,6 +41,15 @@ export const authApi = {
   refresh: jest.fn<Promise<AuthResponse>, [string]>(),
   logout: jest.fn<Promise<void>, [string]>(),
 };
+
+/** Invitation côté invité : aperçu public (null simule le 404 « plus valide ») et acceptation. */
+export const invitationApi = {
+  preview: jest.fn<Promise<InvitationPreview | null>, [string]>(),
+  accept: jest.fn<Promise<Family>, [string]>(),
+};
+
+const INVITATION_PREVIEW = /^\/api\/v1\/invitations\/([^/]+)$/;
+const INVITATION_ACCEPT = /^\/api\/v1\/invitations\/([^/]+)\/accept$/;
 
 const FAMILY = /^\/api\/v1\/families\/([^/]+)$/;
 const CHILDREN = /^\/api\/v1\/families\/([^/]+)\/children$/;
@@ -76,6 +86,16 @@ async function route(method: string, url: string, body?: unknown) {
     if (response) {
       return response;
     }
+  }
+  if (method === 'GET' && (match = url.match(INVITATION_PREVIEW))) {
+    const preview = await invitationApi.preview(decodeURIComponent(match[1]));
+    if (preview === null) {
+      throw new ApiError(404);
+    }
+    return preview;
+  }
+  if (method === 'POST' && (match = url.match(INVITATION_ACCEPT))) {
+    return invitationApi.accept(decodeURIComponent(match[1]));
   }
   if (method === 'GET' && url === '/api/v1/families/me') {
     const found = await familyApi.fetchMyFamily();

@@ -8,6 +8,7 @@ import {
 import { RestoringScreen } from '../screens/session/RestoringScreen';
 import { UnreachableScreen } from '../screens/session/UnreachableScreen';
 import { useAuth } from '../hooks/useAuth';
+import { useInvitation } from '../hooks/useInvitation';
 import { useTheme } from '../theme/ThemeProvider';
 import { AuthNavigator } from './AuthNavigator';
 import { SignedInNavigator } from './SignedInNavigator';
@@ -16,6 +17,7 @@ export function RootNavigator() {
   const { scheme, color } = useTheme();
   const { status, user, restore } = useAuth();
   const emailVerified = user?.emailVerified ?? false;
+  const { isRestoringInvitation, pendingInvitation } = useInvitation();
 
   useEffect(() => {
     restore();
@@ -37,7 +39,7 @@ export function RootNavigator() {
     };
   }, [scheme, color]);
 
-  if (status === 'restoring') {
+  if (status === 'restoring' || isRestoringInvitation) {
     return <RestoringScreen />;
   }
   if (status === 'unreachable') {
@@ -46,7 +48,8 @@ export function RootNavigator() {
   return (
     <NavigationContainer theme={navigationTheme}>
       {status !== 'signedIn' ? (
-        <AuthNavigator />
+        // Un nouveau lien d'invitation remonte le navigateur sur son aperçu.
+        <AuthNavigator key={pendingInvitation?.token ?? 'sans-invitation'} />
       ) : (
         <SignedInNavigator emailVerified={emailVerified} />
       )}

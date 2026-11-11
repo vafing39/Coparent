@@ -5,6 +5,8 @@ export type AuthStackParamList = {
   Inscription: undefined;
   ConnexionEmail: undefined;
   MotDePasse: undefined;
+  /** Aperçu d'une invitation reçue par lien (jeton dans InvitationProvider). */
+  AccepterInvitation: undefined;
 };
 
 /** Première connexion : étapes avant l'accès à l'app. */
