@@ -18,6 +18,8 @@ export const colors = {
   'parent-b-soft': { light: '#F6E7D3', dark: '#3A2C1A' },
   background: { light: '#FAF8F4', dark: '#141A17' },
   surface: { light: '#FFFDF9', dark: '#1E2622' },
+  /** Carte posée sur le fond (ex. un enfant à l'inscription) : blanc pur pour se détacher. */
+  card: { light: '#FFFFFF', dark: '#1E2622' },
   border: { light: '#E4E0D8', dark: '#2F3833' },
   'text-secondary': { light: '#5E6A64', dark: '#A3ADA7' },
   text: { light: '#24302B', dark: '#ECEFEA' },

@@ -1,7 +1,7 @@
 import type { FamilyValues } from '../schemas/family';
 import { apiClient } from './client';
 import { ApiError } from './errors';
-import type { Family } from './types';
+import type { Child, Family } from './types';
 
 const FAMILIES_PATH = '/api/v1/families';
 
@@ -41,4 +41,39 @@ export async function updateFamily(
     toRequest(values),
   );
   return data;
+}
+
+type ChildPayload = { firstName: string; birthDate: string };
+
+function childPath(familyId: string, childId?: string) {
+  const base = `${FAMILIES_PATH}/${familyId}/children`;
+  return childId ? `${base}/${childId}` : base;
+}
+
+/** Ajoute un enfant (birthDate « AAAA-MM-JJ »). */
+export async function addChild(
+  familyId: string,
+  child: ChildPayload,
+): Promise<Child> {
+  const { data } = await apiClient.post<Child>(childPath(familyId), child);
+  return data;
+}
+
+export async function updateChild(
+  familyId: string,
+  childId: string,
+  child: ChildPayload,
+): Promise<Child> {
+  const { data } = await apiClient.put<Child>(
+    childPath(familyId, childId),
+    child,
+  );
+  return data;
+}
+
+export async function deleteChild(
+  familyId: string,
+  childId: string,
+): Promise<void> {
+  await apiClient.delete(childPath(familyId, childId));
 }

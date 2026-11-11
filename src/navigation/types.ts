@@ -12,6 +12,7 @@ export type OnboardingStackParamList = {
   Verification: undefined;
   Famille: undefined;
   Enfants: undefined;
+  Rythme: undefined;
 };
 
 /** Espace connecté (provisoire, avant les onglets). */

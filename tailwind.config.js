@@ -15,6 +15,7 @@ const colorNames = [
   'parent-b-soft',
   'background',
   'surface',
+  'card',
   'border',
   'text-secondary',
   'text',

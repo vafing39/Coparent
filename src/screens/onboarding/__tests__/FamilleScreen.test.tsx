@@ -234,6 +234,8 @@ test('pas de flèche de retour à l’étape 2', async () => {
 });
 
 test('retour depuis l’étape 3 : valeurs conservées, renvoi en modification', async () => {
+  // Pas de famille à l'ouverture ; l'étape 3 relit ensuite la famille créée.
+  mockedFetch.mockResolvedValueOnce(null).mockResolvedValue(family());
   mockedUpdate.mockResolvedValue(family({ vacationZone: 'B' }));
   await renderNavigator();
   await fireEvent.changeText(
