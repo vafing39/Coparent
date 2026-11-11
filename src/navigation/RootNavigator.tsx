@@ -10,7 +10,7 @@ import { UnreachableScreen } from '../screens/session/UnreachableScreen';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../theme/ThemeProvider';
 import { AuthNavigator } from './AuthNavigator';
-import { OnboardingNavigator } from './OnboardingNavigator';
+import { SignedInNavigator } from './SignedInNavigator';
 
 export function RootNavigator() {
   const { scheme, color } = useTheme();
@@ -48,13 +48,7 @@ export function RootNavigator() {
       {status !== 'signedIn' ? (
         <AuthNavigator />
       ) : (
-        // PROVISOIRE : sans API famille, un utilisateur connecté reste dans la première
-        // connexion. Plus tard : <AppNavigator /> quand sa famille existe.
-        // La clé remonte le navigateur après la vérification, qui s'ouvre alors sur la famille.
-        <OnboardingNavigator
-          key={emailVerified ? 'famille' : 'verification'}
-          emailVerified={emailVerified}
-        />
+        <SignedInNavigator emailVerified={emailVerified} />
       )}
     </NavigationContainer>
   );

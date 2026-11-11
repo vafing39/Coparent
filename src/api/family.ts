@@ -46,3 +46,19 @@ export function scheduleErrorMessage(error: unknown): string {
   }
   return i18n.t('errors.network');
 }
+
+/** Message d'échec de la création du lien d'invitation. */
+export function invitationErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.status === 409) {
+      return i18n.t('onboarding.invitation.errors.familyFull');
+    }
+    if (error.status === 400) {
+      return i18n.t('onboarding.invitation.errors.invalid');
+    }
+    if (error.status === 403 || error.status === 404) {
+      return i18n.t('onboarding.children.errors.familyNotFound');
+    }
+  }
+  return i18n.t('errors.network');
+}

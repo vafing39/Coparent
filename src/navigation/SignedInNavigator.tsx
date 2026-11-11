@@ -1,0 +1,52 @@
+import React, { useCallback, useState } from 'react';
+import type { Family } from '../api/types';
+import { FamilyProvider } from '../context/FamilyContext';
+import { useFamily } from '../hooks/useFamily';
+import { AppNavigator } from './AppNavigator';
+import { OnboardingNavigator } from './OnboardingNavigator';
+
+/** Famille prête : au moins un enfant et un rythme de garde enregistré. */
+function isFamilySetUp(family: Family | null): boolean {
+  return (
+    family !== null &&
+    family.children.length > 0 &&
+    family.custodySchedule !== null
+  );
+}
+
+/**
+ * Espace connecté : la famille est chargée une fois (FamilyProvider), puis l'app ou la
+ * première connexion. Le choix est fait à l'ouverture : pendant la première connexion,
+ * le rythme est enregistré à l'étape 4, et c'est la fin de l'étape 5 qui ouvre l'app.
+ */
+export function SignedInNavigator({
+  emailVerified,
+}: {
+  emailVerified: boolean;
+}) {
+  return (
+    <FamilyProvider>
+      <SignedInContent emailVerified={emailVerified} />
+    </FamilyProvider>
+  );
+}
+
+function SignedInContent({ emailVerified }: { emailVerified: boolean }) {
+  const { family } = useFamily();
+  const [onboardingDone, setOnboardingDone] = useState(() =>
+    isFamilySetUp(family),
+  );
+  const finishOnboarding = useCallback(() => setOnboardingDone(true), []);
+
+  if (onboardingDone) {
+    return <AppNavigator />;
+  }
+  return (
+    <OnboardingNavigator
+      // La clé remonte le navigateur après la vérification, qui s'ouvre alors sur la famille.
+      key={emailVerified ? 'famille' : 'verification'}
+      emailVerified={emailVerified}
+      onFinish={finishOnboarding}
+    />
+  );
+}

@@ -42,3 +42,8 @@ jest.mock('@react-native-community/datetimepicker', () => ({
   default: require('react-native').View,
   DateTimePickerAndroid: { open: jest.fn(), dismiss: jest.fn() },
 }));
+
+// Presse-papiers natif simulé.
+jest.mock('@react-native-clipboard/clipboard', () =>
+  require('@react-native-clipboard/clipboard/jest/clipboard-mock'),
+);

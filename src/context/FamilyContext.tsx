@@ -17,6 +17,7 @@ import type {
   CustodySchedule,
   CustodyScheduleRequest,
   Family,
+  Invitation,
 } from '../api/types';
 import type { ChildValues } from '../schemas/children';
 import type { FamilyValues } from '../schemas/family';
@@ -107,6 +108,18 @@ async function proposeScheduleRequest(
   return data;
 }
 
+/** Crée un lien d'invitation pour l'autre parent ; les liens précédents ne fonctionnent plus. */
+async function createInvitationRequest(
+  familyId: string,
+  inviteeFirstName: string,
+): Promise<Invitation> {
+  const { data } = await apiClient.post<Invitation>(
+    `${FAMILIES_PATH}/${familyId}/invitations`,
+    { inviteeFirstName },
+  );
+  return data;
+}
+
 /** Corps d'un enfant (birthDate « AAAA-MM-JJ »). */
 export type ChildPayload = { firstName: string; birthDate: string };
 
@@ -155,6 +168,12 @@ export type FamilyContextValue = {
   isProposingSchedule: boolean;
   proposeScheduleError: Error | null;
   resetProposeSchedule: () => void;
+
+  /** Étape 5 : lien d'invitation de l'autre parent (prénom de l'invité). */
+  createInvitation: UseMutateFunction<Invitation, Error, string>;
+  isCreatingInvitation: boolean;
+  createInvitationError: Error | null;
+  resetCreateInvitation: () => void;
 
   // Enregistrements des formulaires, faits de plusieurs requêtes.
   /** Étape 2 : crée la famille, ou la modifie si elle existe déjà. */
@@ -291,6 +310,16 @@ export function FamilyProvider({ children }: { children: React.ReactNode }) {
   });
 
   const {
+    mutate: createInvitation,
+    isPending: isCreatingInvitation,
+    error: createInvitationError,
+    reset: resetCreateInvitation,
+  } = useMutation({
+    mutationFn: (inviteeFirstName: string) =>
+      createInvitationRequest(requireFamily(family).id, inviteeFirstName),
+  });
+
+  const {
     mutate: saveFamily,
     isPending: isSavingFamily,
     error: saveFamilyError,
@@ -368,6 +397,10 @@ export function FamilyProvider({ children }: { children: React.ReactNode }) {
     isProposingSchedule,
     proposeScheduleError,
     resetProposeSchedule,
+    createInvitation,
+    isCreatingInvitation,
+    createInvitationError,
+    resetCreateInvitation,
     saveFamily,
     isSavingFamily,
     saveFamilyError,

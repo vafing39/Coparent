@@ -76,6 +76,13 @@ export type CustodySchedule = {
 };
 
 /** FamilyResponse côté backend : la famille vue par l'un de ses membres. */
+/** Étape 5 : lien à partager avec l'autre parent (le jeton n'est renvoyé qu'ici). */
+export type Invitation = {
+  link: string;
+  /** Instant ISO 8601. */
+  expiresAt: string;
+};
+
 export type Family = {
   id: string;
   name: string;

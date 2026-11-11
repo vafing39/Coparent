@@ -270,7 +270,27 @@
       }
     },
     "invitation": {
-      "title": "Invitez l'autre parent"
+      "title": "Invitez l'autre parent",
+      "subtitle": "Une fois l'invitation acceptée, vous partagerez le même calendrier, les dépenses et les documents des enfants.",
+      "firstName": {
+        "label": "Prénom de l'autre parent",
+        "placeholder": "Ex. : Julien",
+        "required": "Indiquez le prénom de l'autre parent.",
+        "tooLong": "{{max}} caractères maximum."
+      },
+      "share": "Partager le lien d'invitation",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "copiedAnnouncement": "Lien d'invitation copié.",
+      "shareMessage": "{{name}} vous invite à rejoindre {{appName}} pour organiser ensemble la vie des enfants. Le lien est valable 7 jours : {{link}}",
+      "validity": "Le lien est valable 7 jours.",
+      "skip": "Passer cette étape",
+      "skipHint": "L'app fonctionne aussi en solo, en attendant.",
+      "done": "Terminer",
+      "errors": {
+        "familyFull": "La famille compte déjà deux parents.",
+        "invalid": "Le prénom n'a pas été accepté. Vérifiez-le, puis réessayez."
+      }
     }
   },
   "session": {

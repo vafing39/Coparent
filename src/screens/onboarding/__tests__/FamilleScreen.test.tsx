@@ -32,11 +32,12 @@ async function renderScreen({ waitForForm = true } = {}) {
 }
 
 async function renderNavigator() {
-  // Le navigateur fournit lui-même la famille et le brouillon.
+  // La famille vient de FamilyProvider (au-dessus du navigateur dans l'app).
   await renderWithProviders(
     <NavigationContainer>
-      <OnboardingNavigator emailVerified />
+      <OnboardingNavigator emailVerified onFinish={jest.fn()} />
     </NavigationContainer>,
+    { onboarding: true },
   );
 }
 

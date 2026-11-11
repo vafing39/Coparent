@@ -5,6 +5,7 @@ import type {
   CustodySchedule,
   CustodyScheduleRequest,
   Family,
+  Invitation,
   User,
 } from '../api/types';
 import type { LoginValues, SignupValues } from '../schemas/auth';
@@ -23,6 +24,7 @@ export const familyApi = {
   addChild: jest.fn<Promise<Child>, [string, ChildPayload]>(),
   updateChild: jest.fn<Promise<Child>, [string, string, ChildPayload]>(),
   deleteChild: jest.fn<Promise<void>, [string, string]>(),
+  createInvitation: jest.fn<Promise<Invitation>, [string, string]>(),
   proposeSchedule: jest.fn<
     Promise<CustodySchedule>,
     [string, CustodyScheduleRequest]
@@ -42,6 +44,7 @@ export const authApi = {
 const FAMILY = /^\/api\/v1\/families\/([^/]+)$/;
 const CHILDREN = /^\/api\/v1\/families\/([^/]+)\/children$/;
 const CHILD = /^\/api\/v1\/families\/([^/]+)\/children\/([^/]+)$/;
+const INVITATIONS = /^\/api\/v1\/families\/([^/]+)\/invitations$/;
 const SCHEDULE = /^\/api\/v1\/families\/([^/]+)\/custody-schedule$/;
 
 function authRoute(url: string, body: unknown) {
@@ -95,6 +98,10 @@ async function route(method: string, url: string, body?: unknown) {
   }
   if (method === 'DELETE' && (match = url.match(CHILD))) {
     return familyApi.deleteChild(match[1], match[2]);
+  }
+  if (method === 'POST' && (match = url.match(INVITATIONS))) {
+    const { inviteeFirstName } = body as { inviteeFirstName: string };
+    return familyApi.createInvitation(match[1], inviteeFirstName);
   }
   if (method === 'PUT' && (match = url.match(SCHEDULE))) {
     return familyApi.proposeSchedule(match[1], body as CustodyScheduleRequest);
