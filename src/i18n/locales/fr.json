@@ -73,6 +73,7 @@
     "title": "Mot de passe oublié"
   },
   "onboarding": {
+    "previousStepHint": "Revenir à l'étape précédente",
     "progress": {
       "label": "Étape {{step}} sur {{total}}",
       "accessibilityLabel": "Progression de l'inscription : étape {{step}} sur {{total}}"
@@ -91,6 +92,62 @@
       "errors": {
         "invalidCode": "Code incorrect ou expiré. Vérifiez-le ou demandez un nouveau code."
       }
+    },
+    "family": {
+      "title": "Créez votre famille",
+      "subtitle": "Ce nom n'est visible que par les membres que vous validerez ensemble.",
+      "name": {
+        "label": "Nom de la famille",
+        "placeholder": "Par exemple : Famille de Léa et Hugo",
+        "required": "Saisissez le nom de la famille.",
+        "tooLong": "Nom trop long ({{max}} caractères maximum)."
+      },
+      "zone": {
+        "legend": "Zone de vacances scolaires",
+        "help": "Elle sert à calculer le partage des vacances.",
+        "required": "Choisissez une zone de vacances scolaires.",
+        "infoButton": "En savoir plus sur les zones",
+        "info": {
+          "title": "Les zones de vacances scolaires",
+          "intro": "Les dates des vacances d'hiver et de printemps dépendent de l'académie de l'école de vos enfants.",
+          "academies": {
+            "A": "Besançon, Bordeaux, Clermont-Ferrand, Dijon, Grenoble, Limoges, Lyon, Poitiers",
+            "B": "Aix-Marseille, Amiens, Lille, Nancy-Metz, Nantes, Nice, Normandie, Orléans-Tours, Reims, Rennes, Strasbourg",
+            "C": "Créteil, Montpellier, Paris, Toulouse, Versailles",
+            "OTHER": "Corse, outre-mer et étranger : les dates suivent le calendrier local ou celui de l'établissement."
+          },
+          "source": "Source : calendrier scolaire de l'Éducation nationale.",
+          "close": "Fermer"
+        },
+        "options": {
+          "A": {
+            "label": "Zone A",
+            "hint": "Bordeaux, Grenoble, Lyon…"
+          },
+          "B": {
+            "label": "Zone B",
+            "hint": "Lille, Marseille, Nantes, Rennes…"
+          },
+          "C": {
+            "label": "Zone C",
+            "hint": "Paris, Créteil, Versailles, Toulouse…"
+          },
+          "OTHER": {
+            "label": "Autre",
+            "hint": "Corse, outre-mer, étranger"
+          }
+        }
+      },
+      "continue": "Continuer",
+      "loadFailed": "Impossible de récupérer votre famille. Vérifiez votre accès à Internet, puis réessayez.",
+      "errors": {
+        "emailNotVerified": "Vérifiez d'abord votre adresse email.",
+        "alreadyInFamily": "Vous faites déjà partie d'une famille.",
+        "saveFailed": "La famille n'a pas pu être enregistrée. Vérifiez le nom et la zone, puis réessayez."
+      }
+    },
+    "children": {
+      "title": "Ajoutez vos enfants"
     }
   },
   "session": {

@@ -102,7 +102,6 @@ cd ios && bundle exec pod install           # après tout ajout de module natif 
 
 - Une seule fonction à la fois, plan validé avant le code, en commençant par la priorité 1.
 - Avant de coder une fonction : relire sa section du cahier des charges et ses écrans dans les maquettes.
-- Un commit Git après chaque étape qui fonctionne.
 - Une fonction est terminée seulement si elle a ses tests (Jest + React Native Testing Library) et gère les quatre états.
 - Parcours critiques en Maestro : inscription, création de famille, envoi de message, ajout de dépense, publication.
 - Builds et publication avec EAS ; trois environnements (développement, préproduction, production), chacun avec l'URL de son API.

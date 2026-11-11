@@ -9,7 +9,6 @@ import { RestoringScreen } from '../screens/session/RestoringScreen';
 import { UnreachableScreen } from '../screens/session/UnreachableScreen';
 import { useSession } from '../stores/session';
 import { useTheme } from '../theme/ThemeProvider';
-import { AppNavigator } from './AppNavigator';
 import { AuthNavigator } from './AuthNavigator';
 import { OnboardingNavigator } from './OnboardingNavigator';
 
@@ -49,10 +48,14 @@ export function RootNavigator() {
     <NavigationContainer theme={navigationTheme}>
       {status !== 'signedIn' ? (
         <AuthNavigator />
-      ) : emailVerified ? (
-        <AppNavigator />
       ) : (
-        <OnboardingNavigator />
+        // PROVISOIRE : sans API famille, un utilisateur connecté reste dans la première
+        // connexion. Plus tard : <AppNavigator /> quand sa famille existe.
+        // La clé remonte le navigateur après la vérification, qui s'ouvre alors sur la famille.
+        <OnboardingNavigator
+          key={emailVerified ? 'famille' : 'verification'}
+          emailVerified={emailVerified}
+        />
       )}
     </NavigationContainer>
   );

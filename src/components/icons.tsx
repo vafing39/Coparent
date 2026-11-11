@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 type IconProps = { size?: number; color: string };
 
@@ -73,6 +73,28 @@ export function ChevronLeftIcon({
       strokeLinejoin="round"
     >
       <Path d="M15 6l-6 6 6 6" />
+    </Svg>
+  );
+}
+
+export function InfoIcon({
+  size = 22,
+  color,
+  strokeWidth = 2,
+}: StrokeIconProps) {
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Circle cx={12} cy={12} r={10} />
+      <Path d="M12 16v-5M12 8h.01" />
     </Svg>
   );
 }

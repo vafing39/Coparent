@@ -10,9 +10,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Trans, useTranslation } from 'react-i18next';
 import { Button } from '../../components/Button';
-import { OnboardingProgress } from '../../components/OnboardingProgress';
+import { OnboardingHeader } from '../../components/OnboardingHeader';
 import { TextField } from '../../components/TextField';
-import { CheckIcon, ChevronLeftIcon, MailIcon } from '../../components/icons';
+import { CheckIcon, MailIcon } from '../../components/icons';
 import {
   EMAIL_CODE_LENGTH,
   useResendEmailVerification,
@@ -94,18 +94,11 @@ export function VerificationScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
-      <View className="flex-row items-center gap-2 pl-2 pr-6 pt-2">
-        <Pressable
-          onPress={changeAddress}
-          accessibilityRole="button"
-          accessibilityLabel={t('common.back')}
-          accessibilityHint={t('onboarding.verification.backHint')}
-          className="h-12 w-12 items-center justify-center rounded-full"
-        >
-          <ChevronLeftIcon color={color('text')} />
-        </Pressable>
-        <OnboardingProgress step={1} />
-      </View>
+      <OnboardingHeader
+        step={1}
+        onBack={changeAddress}
+        backHint={t('onboarding.verification.backHint')}
+      />
 
       <KeyboardAvoidingView
         className="flex-1"
