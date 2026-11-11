@@ -1,0 +1,4 @@
+/* Les valeurs des couleurs sont injectées depuis src/theme/tokens.ts (voir ThemeProvider). */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

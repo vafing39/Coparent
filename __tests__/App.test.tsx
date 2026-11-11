@@ -1,13 +1,10 @@
-/**
- * @format
- */
-
 import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
+import { render, screen } from '@testing-library/react-native';
 import App from '../App';
 
-test('renders correctly', async () => {
-  await ReactTestRenderer.act(() => {
-    ReactTestRenderer.create(<App />);
-  });
+test("l'app démarre sur l'écran Bienvenue", async () => {
+  await render(<App />);
+  expect(
+    await screen.findByRole('button', { name: 'Créer mon compte' }),
+  ).toBeOnTheScreen();
 });
