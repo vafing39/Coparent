@@ -4,6 +4,7 @@ export type AuthStackParamList = {
   Bienvenue: undefined;
   Inscription: undefined;
   ConnexionEmail: undefined;
+  MotDePasse: undefined;
 };
 
 export type AuthScreenProps<T extends keyof AuthStackParamList> =

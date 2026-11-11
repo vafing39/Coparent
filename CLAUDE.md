@@ -65,6 +65,7 @@ cd ios && bundle exec pod install           # après tout ajout de module natif 
 7. Accessibilité : `accessibilityLabel` en français sur tout élément interactif et toute icône seule, contraste AA, `allowFontScaling` actif (plafond 1,4 seulement sur la barre d'onglets et les cases du calendrier mois), cibles ≥ 44 px.
 8. Mode sombre via `useColorScheme()`.
 9. Ton neutre : vouvoiement, faits plutôt qu'intentions, parents nommés par leur prénom. L'app ne prend jamais parti.
+10. Always ask validations before implementing
 
 ## Règles de couleur
 
