@@ -1861,6 +1861,29 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - RNLocalize (3.7.2):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-cxxstableapi
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNReanimated (4.7.1):
     - hermes-engine
     - RCTRequired
@@ -2228,6 +2251,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
+  - RNLocalize (from `../node_modules/react-native-localize`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -2411,6 +2435,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
+  RNLocalize:
+    :path: "../node_modules/react-native-localize"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -2512,6 +2538,7 @@ SPEC CHECKSUMS:
   ReactCommon: b815fa26d04751d8b1a076de6888634fb34fb44e
   ReactNativeDependencies: a5164c3ebbe90d992022b5d9cbabbf770a6d7d05
   RNKeychain: a9fe626cf60f67d3d7ce9458340a7adf0728004e
+  RNLocalize: 5189c34897ff63b8014cb0f706ea745554d2f9d6
   RNReanimated: 02d6b0d54a0d4e9e02659f19be971935a371d12d
   RNScreens: 67fd45f1f30aa2849ab847156c133bd592a26533
   RNSVG: 484563bc58315ede6c7d1a5b7b63af1fb4416edc

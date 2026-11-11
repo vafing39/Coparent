@@ -10,13 +10,16 @@ jest.mock('react-native-keychain', () => {
   let store = {};
   return {
     ACCESSIBLE: {
-      AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY: 'AccessibleAfterFirstUnlockThisDeviceOnly',
+      AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY:
+        'AccessibleAfterFirstUnlockThisDeviceOnly',
     },
     setGenericPassword: jest.fn(async (username, password, options = {}) => {
       store[options.service] = { username, password };
       return { service: options.service, storage: 'mock' };
     }),
-    getGenericPassword: jest.fn(async (options = {}) => store[options.service] ?? false),
+    getGenericPassword: jest.fn(
+      async (options = {}) => store[options.service] ?? false,
+    ),
     resetGenericPassword: jest.fn(async (options = {}) => {
       delete store[options.service];
       return true;
@@ -28,3 +31,7 @@ jest.mock('react-native-keychain', () => {
 });
 
 jest.mock('react-native-config', () => ({ __esModule: true, default: {} }));
+
+// Langue du téléphone simulée (français), puis textes de l'app chargés pour tous les tests.
+jest.mock('react-native-localize', () => require('react-native-localize/mock'));
+require('./src/i18n');

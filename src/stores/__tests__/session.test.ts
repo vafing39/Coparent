@@ -49,7 +49,10 @@ test('restore avec session valide : reconnecté avec de nouveaux jetons', async 
   await saveRefreshToken('refresh-old');
   mockedRefresh.mockResolvedValue(authResponse('new'));
   await useSession.getState().restore();
-  expect(useSession.getState()).toMatchObject({ status: 'signedIn', accessToken: 'access-new' });
+  expect(useSession.getState()).toMatchObject({
+    status: 'signedIn',
+    accessToken: 'access-new',
+  });
   expect(await loadRefreshToken()).toBe('refresh-new');
 });
 

@@ -2,7 +2,8 @@ import React from 'react';
 import { Text } from 'react-native';
 
 type Props = {
-  children: string;
+  /** Texte du lien ; fourni par <Trans> quand le lien est dans une phrase traduite. */
+  children?: React.ReactNode;
   onPress: () => void;
   accessibilityLabel?: string;
 };
@@ -13,7 +14,10 @@ export function TextLink({ children, onPress, accessibilityLabel }: Props) {
     <Text
       onPress={onPress}
       accessibilityRole="link"
-      accessibilityLabel={accessibilityLabel ?? children}
+      accessibilityLabel={
+        accessibilityLabel ??
+        (typeof children === 'string' ? children : undefined)
+      }
       className="text-primary underline"
     >
       {children}

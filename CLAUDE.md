@@ -6,7 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## État actuel du dépôt (à lire en premier)
 
-Le dépôt est encore le template **React Native CLI 0.88 nu** (`AwesomeProject`), **pas Expo**. La stack et les dossiers décrits plus bas sont la cible, pas l'existant. La première étape est la migration vers Expo + Expo Router (TypeScript strict) ; d'ici là :
+Application **React Native CLI 0.88** (pas Expo), TypeScript strict. Déjà construit : accueil, connexion par email, inscription, vérification de l'email par code à 8 chiffres (étape 1 sur 5 de la première connexion), reprise de session, textes dans `src/i18n`. Les dossiers et bibliothèques listés plus bas qui n'existent pas encore sont la cible.
+
+L'app appelle le backend Spring Boot (`../Coparent backend`) : URL dans `.env` (`API_URL`, voir `.env.example`), par défaut `http://localhost:8080` (iOS) ou `http://10.0.2.2:8080` (émulateur Android). En développement, les emails arrivent dans Mailpit : http://localhost:8025.
+
+Commandes :
 
 ```sh
 npm start / npm run android / npm run ios   # Metro, builds natifs (Node >= 22.11)
@@ -39,6 +43,7 @@ cd ios && bundle exec pod install           # après tout ajout de module natif 
 - Abonnement : react-native-purchases (RevenueCat)
 - Erreurs : @sentry/react-native
 - Variables d'environnement : react-native-config + .env
+- Textes : i18next + react-i18next, langue du téléphone via react-native-localize (français par défaut)
 - Polices : Nunito (400, 600, 700, 800) intégrée en fichiers dans `assets/fonts`, liée avec react-native-asset
 
 ## Dossiers
@@ -52,12 +57,12 @@ cd ios && bundle exec pod install           # après tout ajout de module natif 
 - `src/schemas` : schémas Zod alignés sur le backend
 - `src/lib` : Sentry, notifications, RevenueCat, formats de date et de montant en français
 - `src/theme` : jetons clair et sombre exposés à NativeWind
-- `src/context` : jetons clair et sombre exposés à NativeWind
+- `src/i18n` : configuration i18next et textes de l'app (`locales/fr.json`)
 
 ## Règles absolues
 
 1. Le front ne décide de rien de sensible : droits, calcul de garde, montants, immuabilité des messages sont vérifiés par le backend.
-2. Jetons uniquement dans expo-secure-store, jamais AsyncStorage. Aucune clé d'API dans l'app.
+2. Jetons uniquement dans le trousseau sécurisé (react-native-keychain, via `src/lib/tokenStorage.ts`), jamais AsyncStorage. Aucune clé d'API dans l'app.
 3. Un message envoyé ne peut être ni modifié ni supprimé : aucune action ne le propose.
 4. Toute photo est réencodée avant envoi pour supprimer les métadonnées (GPS).
 5. Dates en français, fuseau Europe/Paris, via les helpers de `src/lib` (« mar. 10 nov. », « 17 h 50 »). Montants en euros (« 42,50 € », espace insécable), reçus en centimes.
@@ -65,7 +70,7 @@ cd ios && bundle exec pod install           # après tout ajout de module natif 
 7. Accessibilité : `accessibilityLabel` en français sur tout élément interactif et toute icône seule, contraste AA, `allowFontScaling` actif (plafond 1,4 seulement sur la barre d'onglets et les cases du calendrier mois), cibles ≥ 44 px.
 8. Mode sombre via `useColorScheme()`.
 9. Ton neutre : vouvoiement, faits plutôt qu'intentions, parents nommés par leur prénom. L'app ne prend jamais parti.
-10. Always ask validations before implementing a functionnality
+10. Always ask validations before implementing a functionnality and only implement what asked, not more
 11. Never commit by yourself, i will do it manually
 
 ## Règles de couleur
@@ -74,6 +79,16 @@ cd ios && bundle exec pod install           # après tout ajout de module natif 
 - Deux couleurs de garde (`parent-a`, `parent-b`), toujours accompagnées de l'initiale ou du prénom ; jamais en couleur de texte.
 - `shared` (violet) = Partagé ; `pending` (ardoise) + icône pour « En attente » et « Contesté » ; `error` pour les erreurs techniques uniquement.
 - `accent` (jaune) réservé au bouton rond « + », sans signification.
+
+## Règles de texte
+
+- Aucun texte visible en dur dans le code : écrans, boutons, `accessibilityLabel`/`accessibilityHint`, messages Zod et messages d'erreur passent par `src/i18n/locales/fr.json`.
+- Dans un composant : `const { t } = useTranslation()` puis `t('groupe.cle')`. Hors composant (schémas, `src/api`) : `i18n.t(...)` depuis `src/i18n`, et pour Zod un message en fonction (`{ error: () => i18n.t(...) }`) pour suivre la langue active.
+- Phrase avec lien ou gras : une seule clé avec balises (`<terms>…</terms>`, `<bold>…</bold>`) rendue par `<Trans>`, jamais une phrase découpée en morceaux.
+- Valeurs variables par interpolation (`{{firstName}}`), jamais par concaténation.
+- Clés regroupées par écran ou domaine (`signup.title`, `fields.email.label`, `errors.network`) ; les clés sont typées, une clé inconnue ne compile pas.
+- Nouvelle langue : `locales/<code>.json` avec les mêmes clés, puis l'ajouter à `resources` dans `src/i18n/index.ts`.
+- Exceptions : noms de marque (Apple, Google) et nom de l'app (`APP_NAME`).
 
 ## Règles d'interface
 

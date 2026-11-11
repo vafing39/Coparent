@@ -1,6 +1,7 @@
 import React from 'react';
 import { Linking, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Trans, useTranslation } from 'react-i18next';
 import { Button } from '../../components/Button';
 import { TextLink } from '../../components/TextLink';
 import { APP_NAME, PRIVACY_URL, TERMS_URL } from '../../lib/app';
@@ -23,6 +24,7 @@ function Logo() {
 }
 
 export function BienvenueScreen({ navigation }: AuthScreenProps<'Bienvenue'>) {
+  const { t } = useTranslation();
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
       <ScrollView
@@ -36,37 +38,36 @@ export function BienvenueScreen({ navigation }: AuthScreenProps<'Bienvenue'>) {
             accessibilityRole="header"
             className="font-extrabold text-[30px] leading-9 text-text"
           >
-            Organisez la garde, échangez sereinement.
+            {t('welcome.title')}
           </Text>
           <Text className="font-regular text-[15px] leading-[22px] text-text-secondary">
-            Un seul espace pour le calendrier, les messages et les dépenses des
-            enfants. Neutre pour les deux parents.
+            {t('welcome.subtitle')}
           </Text>
         </View>
 
         <View className="mt-auto gap-2.5">
           <Button
-            label="Créer mon compte"
+            label={t('welcome.createAccount')}
             onPress={() => navigation.navigate('Inscription')}
           />
           <Button
-            label="Accéder à mon espace"
+            label={t('welcome.signIn')}
             variant="secondary"
-            accessibilityHint="Se connecter à un compte existant"
+            accessibilityHint={t('welcome.signInHint')}
             onPress={() => navigation.navigate('ConnexionEmail')}
           />
         </View>
 
         <Text className="font-regular text-[13px] leading-[18px] text-text-secondary text-center">
-          En continuant, vous acceptez les{' '}
-          <TextLink onPress={() => Linking.openURL(TERMS_URL)}>
-            conditions d'utilisation
-          </TextLink>{' '}
-          et la{' '}
-          <TextLink onPress={() => Linking.openURL(PRIVACY_URL)}>
-            politique de confidentialité
-          </TextLink>
-          .
+          <Trans
+            i18nKey="legal.acceptOnContinue"
+            components={{
+              terms: <TextLink onPress={() => Linking.openURL(TERMS_URL)} />,
+              privacy: (
+                <TextLink onPress={() => Linking.openURL(PRIVACY_URL)} />
+              ),
+            }}
+          />
         </Text>
       </ScrollView>
     </SafeAreaView>

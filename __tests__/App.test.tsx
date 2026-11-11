@@ -21,3 +21,13 @@ test('« Accéder à mon espace » mène à l’écran de connexion', async () =
     screen.getByRole('button', { name: 'Se connecter' }),
   ).toBeOnTheScreen();
 });
+
+test('« Créer mon compte » mène à l’inscription', async () => {
+  await render(<App />);
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Créer mon compte' }),
+  );
+  expect(
+    await screen.findByRole('header', { name: 'Créer votre compte' }),
+  ).toBeOnTheScreen();
+});

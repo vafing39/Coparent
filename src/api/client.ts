@@ -11,6 +11,16 @@ export const apiClient = axios.create({
 });
 
 const AUTH_PATH = '/api/v1/auth/';
+/** Routes d'authentification qui exigent une session : un 401 y signifie un jeton expiré. */
+const SIGNED_IN_AUTH_PATH = '/api/v1/auth/email/';
+
+/**
+ * Un 401 sur connexion, inscription, rafraîchissement, etc. est une vraie réponse (identifiants refusés) :
+ * on ne tente pas de rafraîchir la session.
+ */
+function canRefreshOn401(url: string | undefined): boolean {
+  return !url?.startsWith(AUTH_PATH) || url.startsWith(SIGNED_IN_AUTH_PATH);
+}
 
 type RetriableConfig = InternalAxiosRequestConfig & { _retried?: boolean };
 
@@ -38,13 +48,15 @@ function refreshOnce(): Promise<boolean> {
 apiClient.interceptors.response.use(
   response => response,
   async (error: unknown) => {
-    const original = (error as AxiosError).config as RetriableConfig | undefined;
+    const original = (error as AxiosError).config as
+      | RetriableConfig
+      | undefined;
     const isExpiredSession =
       axios.isAxiosError(error) &&
       error.response?.status === 401 &&
       original !== undefined &&
       !original._retried &&
-      !original.url?.startsWith(AUTH_PATH);
+      canRefreshOn401(original.url);
 
     if (isExpiredSession) {
       original._retried = true;
@@ -67,7 +79,10 @@ export function toApiError(error: unknown): ApiError {
   if (axios.isAxiosError(error)) {
     const detail = (error.response?.data as { detail?: string } | undefined)
       ?.detail;
-    return new ApiError(error.response?.status ?? null, detail ?? error.message);
+    return new ApiError(
+      error.response?.status ?? null,
+      detail ?? error.message,
+    );
   }
   return new ApiError(null, String(error));
 }

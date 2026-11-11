@@ -14,36 +14,53 @@ import {
  * - unreachable : session enregistrée mais serveur injoignable (on peut réessayer) ;
  * - signedOut / signedIn.
  */
-export type SessionStatus = 'restoring' | 'unreachable' | 'signedOut' | 'signedIn';
+export type AuthEntry = 'Bienvenue' | 'Inscription';
+
+export type SessionStatus =
+  | 'restoring'
+  | 'unreachable'
+  | 'signedOut'
+  | 'signedIn';
 
 type SessionState = {
   status: SessionStatus;
   user: User | null;
   /** En mémoire uniquement ; le refresh token est dans le trousseau. */
   accessToken: string | null;
+  /** Écran ouvert quand on revient à l'espace non connecté. */
+  authEntry: AuthEntry;
   signIn: (auth: AuthResponse) => Promise<void>;
-  signOut: () => Promise<void>;
+  /** Met à jour l'utilisateur (ex. après vérification de l'email). */
+  setUser: (user: User) => void;
+  signOut: (options?: { then?: AuthEntry }) => Promise<void>;
   /** Au démarrage : reprend la session enregistrée, s'il y en a une. */
   restore: () => Promise<void>;
   /** Renouvelle les jetons. Faux si la session n'est plus valide ou si le serveur ne répond pas. */
   refreshSession: () => Promise<boolean>;
 };
 
-const signedOut = { status: 'signedOut', user: null, accessToken: null } as const;
+const signedOut = {
+  status: 'signedOut',
+  user: null,
+  accessToken: null,
+} as const;
 
 export const useSession = create<SessionState>()((set, get) => ({
   status: 'restoring',
   user: null,
   accessToken: null,
+  authEntry: 'Bienvenue',
 
   signIn: async auth => {
     await saveRefreshToken(auth.refreshToken);
     set({ status: 'signedIn', user: auth.user, accessToken: auth.accessToken });
   },
 
-  signOut: async () => {
+  setUser: user => set({ user }),
+
+  signOut: async ({ then = 'Bienvenue' } = {}) => {
     const refreshToken = await loadRefreshToken();
-    set(signedOut);
+    set({ ...signedOut, authEntry: then });
     queryClient.clear();
     await clearRefreshToken();
     if (refreshToken) {

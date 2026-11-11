@@ -11,10 +11,12 @@ import { useSession } from '../stores/session';
 import { useTheme } from '../theme/ThemeProvider';
 import { AppNavigator } from './AppNavigator';
 import { AuthNavigator } from './AuthNavigator';
+import { OnboardingNavigator } from './OnboardingNavigator';
 
 export function RootNavigator() {
   const { scheme, color } = useTheme();
   const status = useSession(state => state.status);
+  const emailVerified = useSession(state => state.user?.emailVerified ?? false);
   const restore = useSession(state => state.restore);
 
   useEffect(() => {
@@ -45,7 +47,13 @@ export function RootNavigator() {
   }
   return (
     <NavigationContainer theme={navigationTheme}>
-      {status === 'signedIn' ? <AppNavigator /> : <AuthNavigator />}
+      {status !== 'signedIn' ? (
+        <AuthNavigator />
+      ) : emailVerified ? (
+        <AppNavigator />
+      ) : (
+        <OnboardingNavigator />
+      )}
     </NavigationContainer>
   );
 }

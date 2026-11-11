@@ -1,0 +1,106 @@
+{
+  "common": {
+    "back": "Retour",
+    "retry": "Réessayer",
+    "signOut": "Se déconnecter",
+    "loading": "Chargement",
+    "comingSoon": "Bientôt disponible",
+    "screenComingSoon": "Écran à venir.",
+    "or": "ou"
+  },
+  "errors": {
+    "network": "Connexion impossible pour le moment. Vérifiez votre accès à Internet, puis réessayez.",
+    "tooManyAttempts": "Trop de tentatives. Réessayez dans quelques minutes."
+  },
+  "legal": {
+    "acceptOnContinue": "En continuant, vous acceptez les <terms>conditions d'utilisation</terms> et la <privacy>politique de confidentialité</privacy>.",
+    "acceptOnSignup": "En créant un compte, vous acceptez les <terms>conditions d'utilisation</terms> et la <privacy>politique de confidentialité</privacy>."
+  },
+  "fields": {
+    "email": {
+      "label": "Adresse email",
+      "placeholder": "vous@exemple.fr",
+      "required": "Saisissez votre adresse email.",
+      "invalid": "Adresse email invalide, par exemple vous@exemple.fr."
+    },
+    "firstName": {
+      "label": "Prénom",
+      "required": "Saisissez votre prénom.",
+      "tooLong": "Prénom trop long ({{max}} caractères maximum)."
+    },
+    "password": {
+      "label": "Mot de passe",
+      "required": "Saisissez votre mot de passe.",
+      "minLength": "{{min}} caractères minimum."
+    },
+    "confirmPassword": {
+      "label": "Confirmer le mot de passe",
+      "required": "Saisissez à nouveau votre mot de passe.",
+      "mismatch": "Les mots de passe ne correspondent pas."
+    }
+  },
+  "welcome": {
+    "title": "Organisez la garde, échangez sereinement.",
+    "subtitle": "Un seul espace pour le calendrier, les messages et les dépenses des enfants. Neutre pour les deux parents.",
+    "createAccount": "Créer mon compte",
+    "signIn": "Accéder à mon espace",
+    "signInHint": "Se connecter à un compte existant"
+  },
+  "login": {
+    "title": "Accéder à mon espace",
+    "forgotPassword": "Mot de passe oublié ?",
+    "submit": "Se connecter",
+    "continueWith": "Continuer avec {{provider}}",
+    "socialUnavailable": "La connexion avec {{provider}} sera disponible prochainement.",
+    "noAccount": "Pas encore de compte ?",
+    "createAccount": "Créer mon compte",
+    "errors": {
+      "invalidCredentials": "Adresse email ou mot de passe incorrect."
+    }
+  },
+  "signup": {
+    "title": "Créer votre compte",
+    "subtitle": "Il vous servira à organiser la garde avec l'autre parent. L'app ne prend jamais parti.",
+    "submit": "Créer mon compte",
+    "haveAccount": "Déjà un compte ?",
+    "signIn": "Se connecter",
+    "errors": {
+      "emailTaken": "Un compte existe déjà avec cette adresse email.",
+      "passwordRejected": "Ce mot de passe ne peut pas être utilisé. Choisissez-en un autre."
+    }
+  },
+  "forgotPassword": {
+    "title": "Mot de passe oublié"
+  },
+  "onboarding": {
+    "progress": {
+      "label": "Étape {{step}} sur {{total}}",
+      "accessibilityLabel": "Progression de l'inscription : étape {{step}} sur {{total}}"
+    },
+    "verification": {
+      "title": "Vérifiez votre adresse email",
+      "body": "Nous avons envoyé un code à {{length}} chiffres à <bold>{{email}}</bold>. Saisissez-le ci-dessous pour continuer.",
+      "codeLabel": "Code de vérification",
+      "codeHint": "Valable 15 minutes.",
+      "codeTooShort": "Le code contient {{length}} chiffres.",
+      "submit": "Valider",
+      "resend": "Renvoyer le code",
+      "resent": "Un nouveau code vient d’être envoyé.",
+      "changeAddress": "Modifier l'adresse",
+      "backHint": "Revenir à la création du compte",
+      "errors": {
+        "invalidCode": "Code incorrect ou expiré. Vérifiez-le ou demandez un nouveau code."
+      }
+    }
+  },
+  "session": {
+    "unreachable": {
+      "title": "Connexion impossible",
+      "body": "Le service ne répond pas. Vérifiez votre accès à Internet, puis réessayez."
+    }
+  },
+  "home": {
+    "greeting": "Bonjour {{firstName}}",
+    "placeholder": "Vous êtes connecté. Les onglets arrivent bientôt."
+  }
+}

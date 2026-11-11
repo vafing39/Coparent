@@ -1,31 +1,36 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import { BienvenueScreen } from '../screens/auth/BienvenueScreen';
 import { ConnexionScreen } from '../screens/auth/ConnexionScreen';
+import { InscriptionScreen } from '../screens/auth/InscriptionScreen';
 import { PlaceholderScreen } from '../screens/auth/PlaceholderScreen';
+import { useSession } from '../stores/session';
 import { useTheme } from '../theme/ThemeProvider';
 import { fonts } from '../theme/tokens';
 import type { AuthStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
-// À remplacer par les vrais écrans lors des fonctions correspondantes.
-const InscriptionScreen = () => (
-  <PlaceholderScreen title="Créer un compte avec un email" />
-);
-const MotDePasseScreen = () => (
-  <PlaceholderScreen title="Mot de passe oublié" />
-);
+// À remplacer par le vrai écran lors de la fonction correspondante.
+function MotDePasseScreen() {
+  const { t } = useTranslation();
+  return <PlaceholderScreen title={t('forgotPassword.title')} />;
+}
 
 export function AuthNavigator() {
   const { color } = useTheme();
+  const { t } = useTranslation();
+  // Après « Modifier l'adresse », on revient directement sur l'inscription.
+  const authEntry = useSession(state => state.authEntry);
 
   return (
     <Stack.Navigator
+      initialRouteName={authEntry}
       screenOptions={{
         headerBackButtonDisplayMode: 'minimal',
         // Libellé lu par VoiceOver/TalkBack sur la flèche de retour.
-        headerBackTitle: 'Retour',
+        headerBackTitle: t('common.back'),
         headerShadowVisible: false,
         headerStyle: { backgroundColor: color('background') },
         headerTintColor: color('text'),
@@ -41,7 +46,8 @@ export function AuthNavigator() {
       <Stack.Screen
         name="Inscription"
         component={InscriptionScreen}
-        options={{ title: 'Créer un compte' }}
+        // Le titre est dans l'écran (maquette) : en-tête réduit à la flèche de retour.
+        options={{ title: '' }}
       />
       <Stack.Screen
         name="ConnexionEmail"
@@ -52,7 +58,7 @@ export function AuthNavigator() {
       <Stack.Screen
         name="MotDePasse"
         component={MotDePasseScreen}
-        options={{ title: 'Mot de passe oublié' }}
+        options={{ title: t('forgotPassword.title') }}
       />
     </Stack.Navigator>
   );
