@@ -58,14 +58,8 @@ export function ConnexionScreen({
     defaultValues: { email: '', password: '' },
   });
 
-  const onSubmit = handleSubmit(values => {
-    loginMutation.mutate(values, {
-      onSuccess: () => {
-        // À brancher avec la session : jetons dans react-native-keychain,
-        // puis bascule vers les onglets.
-      },
-    });
-  });
+  // En cas de succès, la session s'ouvre et la navigation bascule vers l'app.
+  const onSubmit = handleSubmit(values => loginMutation.mutate(values));
   const submit = () => {
     onSubmit();
   };

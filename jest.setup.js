@@ -4,3 +4,27 @@ jest.mock(
   'react-native-safe-area-context',
   () => require('react-native-safe-area-context/jest/mock').default,
 );
+
+// Trousseau sécurisé simulé en mémoire (réinitialisé par __reset entre les tests).
+jest.mock('react-native-keychain', () => {
+  let store = {};
+  return {
+    ACCESSIBLE: {
+      AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY: 'AccessibleAfterFirstUnlockThisDeviceOnly',
+    },
+    setGenericPassword: jest.fn(async (username, password, options = {}) => {
+      store[options.service] = { username, password };
+      return { service: options.service, storage: 'mock' };
+    }),
+    getGenericPassword: jest.fn(async (options = {}) => store[options.service] ?? false),
+    resetGenericPassword: jest.fn(async (options = {}) => {
+      delete store[options.service];
+      return true;
+    }),
+    __reset: () => {
+      store = {};
+    },
+  };
+});
+
+jest.mock('react-native-config', () => ({ __esModule: true, default: {} }));

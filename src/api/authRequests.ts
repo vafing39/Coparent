@@ -1,15 +1,23 @@
 import type { LoginValues } from '../schemas/auth';
-import { ApiError } from './errors';
+import { apiClient } from './client';
+import type { AuthResponse } from './types';
 
-export type Session = {
-  accessToken: string;
-  refreshToken: string;
-};
+export async function login(values: LoginValues): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponse>(
+    '/api/v1/auth/login',
+    values,
+  );
+  return data;
+}
 
-/**
- * PROVISOIRE : le backend et le client HTTP (axios + react-native-config) ne sont
- * pas encore en place. Remplacer par l'appel réel (types générés depuis l'OpenAPI).
- */
-export async function login(_values: LoginValues): Promise<Session> {
-  throw new ApiError(null, 'API not configured');
+/** Échange le refresh token contre une nouvelle paire de jetons (rotation). */
+export async function refresh(refreshToken: string): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponse>('/api/v1/auth/refresh', {
+    refreshToken,
+  });
+  return data;
+}
+
+export async function logout(refreshToken: string): Promise<void> {
+  await apiClient.post('/api/v1/auth/logout', { refreshToken });
 }

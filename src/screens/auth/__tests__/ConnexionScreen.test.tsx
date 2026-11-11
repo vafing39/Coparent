@@ -1,10 +1,17 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConnexionScreen } from '../ConnexionScreen';
 import { loginErrorMessage } from '../../../api/auth';
 import { login } from '../../../api/authRequests';
 import { ApiError } from '../../../api/errors';
+import { useSession } from '../../../stores/session';
+import { authResponse } from '../../../test-utils/authFixtures';
 
 jest.mock('../../../api/authRequests', () => ({ login: jest.fn() }));
 
@@ -79,6 +86,15 @@ test('identifiants refusés : message neutre', async () => {
     email: 'camille@exemple.fr',
     password: 'secret',
   });
+});
+
+test('identifiants acceptés : la session est ouverte', async () => {
+  mockedLogin.mockResolvedValue(authResponse());
+  await renderScreen();
+  await fill('camille@exemple.fr', 'secret');
+  await submit();
+  await waitFor(() => expect(useSession.getState().status).toBe('signedIn'));
+  expect(useSession.getState().user?.firstName).toBe('Camille');
 });
 
 test('échec réseau : message avec la cause', async () => {

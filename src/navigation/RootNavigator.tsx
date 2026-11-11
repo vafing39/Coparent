@@ -1,15 +1,25 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   DarkTheme,
   DefaultTheme,
   NavigationContainer,
   Theme,
 } from '@react-navigation/native';
+import { RestoringScreen } from '../screens/session/RestoringScreen';
+import { UnreachableScreen } from '../screens/session/UnreachableScreen';
+import { useSession } from '../stores/session';
 import { useTheme } from '../theme/ThemeProvider';
+import { AppNavigator } from './AppNavigator';
 import { AuthNavigator } from './AuthNavigator';
 
 export function RootNavigator() {
   const { scheme, color } = useTheme();
+  const status = useSession(state => state.status);
+  const restore = useSession(state => state.restore);
+
+  useEffect(() => {
+    restore();
+  }, [restore]);
 
   const navigationTheme = useMemo<Theme>(() => {
     const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
@@ -27,10 +37,15 @@ export function RootNavigator() {
     };
   }, [scheme, color]);
 
-  // La vérification de session (Auth ou Tabs) viendra avec la fonction « Connexion ».
+  if (status === 'restoring') {
+    return <RestoringScreen />;
+  }
+  if (status === 'unreachable') {
+    return <UnreachableScreen />;
+  }
   return (
     <NavigationContainer theme={navigationTheme}>
-      <AuthNavigator />
+      {status === 'signedIn' ? <AppNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }

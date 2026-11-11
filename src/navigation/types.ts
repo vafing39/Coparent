@@ -7,5 +7,10 @@ export type AuthStackParamList = {
   MotDePasse: undefined;
 };
 
+/** Espace connecté (provisoire, avant les onglets). */
+export type AppStackParamList = {
+  Accueil: undefined;
+};
+
 export type AuthScreenProps<T extends keyof AuthStackParamList> =
   NativeStackScreenProps<AuthStackParamList, T>;

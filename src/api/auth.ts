@@ -1,11 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
+import { useSession } from '../stores/session';
 import { login } from './authRequests';
 import { ApiError } from './errors';
 
-export type { Session } from './authRequests';
-
+/** Connexion par email : en cas de succès, la session est ouverte (bascule vers l'app). */
 export function useLogin() {
-  return useMutation({ mutationFn: login });
+  const signIn = useSession(state => state.signIn);
+  return useMutation({ mutationFn: login, onSuccess: signIn });
 }
 
 /** Message affiché pour un échec de connexion. Neutre : ne dit pas si le compte existe. */
