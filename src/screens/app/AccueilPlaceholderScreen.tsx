@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../components/Button';
-import { useSession } from '../../stores/session';
+import { useAuth } from '../../hooks/useAuth';
 
 /**
  * PROVISOIRE : écran affiché une fois connecté, en attendant les 5 onglets
@@ -11,8 +11,8 @@ import { useSession } from '../../stores/session';
  */
 export function AccueilPlaceholderScreen() {
   const { t } = useTranslation();
-  const firstName = useSession(state => state.user?.firstName);
-  const signOut = useSession(state => state.signOut);
+  const { user, signOut } = useAuth();
+  const firstName = user?.firstName;
 
   return (
     <SafeAreaView

@@ -16,7 +16,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '../../components/Button';
 import { TextField } from '../../components/TextField';
 import { AppleIcon } from '../../components/icons';
-import { loginErrorMessage, useLogin } from '../../api/auth';
+import { loginErrorMessage } from '../../api/auth';
+import { useAuth } from '../../hooks/useAuth';
+import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
 import { loginSchema, LoginInput, LoginValues } from '../../schemas/auth';
 import i18n from '../../i18n';
 import type { AuthScreenProps } from '../../navigation/types';
@@ -57,7 +59,8 @@ export function ConnexionScreen({
 }: AuthScreenProps<'ConnexionEmail'>) {
   const { t } = useTranslation();
   const passwordRef = useRef<TextInputInstance>(null);
-  const loginMutation = useLogin();
+  const { login, isLoggingIn, loginError, resetLogin } = useAuth();
+  useResetOnUnmount(resetLogin);
 
   const { control, handleSubmit } = useForm<LoginInput, unknown, LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -65,7 +68,7 @@ export function ConnexionScreen({
   });
 
   // En cas de succès, la session s'ouvre et la navigation bascule vers l'app.
-  const onSubmit = handleSubmit(values => loginMutation.mutate(values));
+  const onSubmit = handleSubmit(values => login(values));
   const submit = () => {
     onSubmit();
   };
@@ -146,20 +149,20 @@ export function ConnexionScreen({
               </Text>
             </Pressable>
 
-            {loginMutation.isError ? (
+            {loginError ? (
               <Text
                 accessibilityRole="alert"
                 accessibilityLiveRegion="assertive"
                 className="font-semibold text-[15px] leading-[22px] text-error"
               >
-                {loginErrorMessage(loginMutation.error)}
+                {loginErrorMessage(loginError)}
               </Text>
             ) : null}
 
             <Button
               label={t('login.submit')}
               onPress={submit}
-              loading={loginMutation.isPending}
+              loading={isLoggingIn}
             />
           </View>
 

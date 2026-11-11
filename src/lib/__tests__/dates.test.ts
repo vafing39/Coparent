@@ -1,5 +1,8 @@
 import {
   formatDateInput,
+  formatTime,
+  isoWeekday,
+  nextWeekday,
   parseDisplayDate,
   toDisplayDate,
   todayInParis,
@@ -27,4 +30,22 @@ test('toDisplayDate', () => {
 test('todayInParis suit le fuseau de Paris', () => {
   // 23 h 30 UTC le 31 décembre = déjà le 1er janvier à Paris.
   expect(todayInParis(new Date('2025-12-31T23:30:00Z'))).toBe('2026-01-01');
+});
+
+test('isoWeekday : lundi = 1, dimanche = 7', () => {
+  expect(isoWeekday('2026-11-09')).toBe(1);
+  expect(isoWeekday('2026-11-15')).toBe(7);
+});
+
+test('nextWeekday : prochaine occurrence, aujourd’hui exclu', () => {
+  // Mercredi 11 novembre 2026.
+  expect(nextWeekday('2026-11-11', 5)).toBe('2026-11-13');
+  expect(nextWeekday('2026-11-11', 3)).toBe('2026-11-18');
+  expect(nextWeekday('2026-11-11', 1)).toBe('2026-11-16');
+  expect(nextWeekday('2026-12-30', 5)).toBe('2027-01-01');
+});
+
+test('formatTime', () => {
+  expect(formatTime('17:50')).toBe('17 h 50');
+  expect(formatTime('09:05')).toBe('9 h 05');
 });

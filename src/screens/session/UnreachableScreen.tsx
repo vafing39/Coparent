@@ -3,13 +3,12 @@ import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../components/Button';
-import { useSession } from '../../stores/session';
+import { useAuth } from '../../hooks/useAuth';
 
 /** Session enregistrée, mais le serveur n'a pas répondu au démarrage. */
 export function UnreachableScreen() {
   const { t } = useTranslation();
-  const restore = useSession(state => state.restore);
-  const signOut = useSession(state => state.signOut);
+  const { restore, isRestoring, signOut } = useAuth();
 
   return (
     <SafeAreaView
@@ -28,7 +27,11 @@ export function UnreachableScreen() {
         </Text>
       </View>
       <View className="mt-8 gap-2.5">
-        <Button label={t('common.retry')} onPress={() => restore()} />
+        <Button
+          label={t('common.retry')}
+          onPress={() => restore()}
+          loading={isRestoring}
+        />
         <Button
           label={t('common.signOut')}
           variant="secondary"

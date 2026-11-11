@@ -1,33 +1,20 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { EnfantsScreen } from '../EnfantsScreen';
-import {
-  addChild,
-  deleteChild,
-  fetchMyFamily,
-  updateChild,
-} from '../../../api/familyRequests';
 import { ApiError } from '../../../api/errors';
 import type { Child } from '../../../api/types';
 import { family } from '../../../test-utils/familyFixtures';
+import { familyApi } from '../../../test-utils/fakeApiClient';
+import { renderWithProviders } from '../../../test-utils/render';
 
-jest.mock('../../../api/familyRequests', () => ({
-  fetchMyFamily: jest.fn(),
-  addChild: jest.fn(),
-  updateChild: jest.fn(),
-  deleteChild: jest.fn(),
-}));
+jest.mock('../../../api/client', () =>
+  jest.requireActual('../../../test-utils/fakeApiClient'),
+);
 
-const mockedFetch = fetchMyFamily as jest.MockedFunction<typeof fetchMyFamily>;
-const mockedAdd = addChild as jest.MockedFunction<typeof addChild>;
-const mockedUpdate = updateChild as jest.MockedFunction<typeof updateChild>;
-const mockedDelete = deleteChild as jest.MockedFunction<typeof deleteChild>;
+const mockedFetch = familyApi.fetchMyFamily;
+const mockedAdd = familyApi.addChild;
+const mockedUpdate = familyApi.updateChild;
+const mockedDelete = familyApi.deleteChild;
 
 const navigate = jest.fn();
 const goBack = jest.fn();
@@ -49,14 +36,7 @@ const hugo: Child = {
 };
 
 async function renderScreen({ waitForForm = true } = {}) {
-  const client = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  await render(
-    <QueryClientProvider client={client}>
-      <EnfantsScreen {...props} />
-    </QueryClientProvider>,
-  );
+  await renderWithProviders(<EnfantsScreen {...props} />, { onboarding: true });
   if (waitForForm) {
     await screen.findByRole('header', { name: 'Ajoutez vos enfants' });
   }

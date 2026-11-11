@@ -1,39 +1,26 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { InscriptionScreen } from '../InscriptionScreen';
-import { signup } from '../../../api/authRequests';
 import { ApiError } from '../../../api/errors';
 import { useSession } from '../../../stores/session';
 import { authResponse } from '../../../test-utils/authFixtures';
+import { authApi } from '../../../test-utils/fakeApiClient';
+import { renderWithProviders } from '../../../test-utils/render';
 
-jest.mock('../../../api/authRequests', () => ({
-  signup: jest.fn(),
-  logout: jest.fn(() => Promise.resolve()),
-}));
+jest.mock('../../../api/client', () =>
+  jest.requireActual('../../../test-utils/fakeApiClient'),
+);
 
-const mockedSignup = signup as jest.MockedFunction<typeof signup>;
+const mockedSignup = authApi.signup;
 const navigate = jest.fn();
 const PASSWORD = 'correct horse battery';
 
 async function renderScreen() {
-  const client = new QueryClient({
-    defaultOptions: { mutations: { retry: false } },
-  });
   const props = {
     navigation: { navigate },
     route: { key: 'Inscription', name: 'Inscription' },
   } as unknown as React.ComponentProps<typeof InscriptionScreen>;
-  await render(
-    <QueryClientProvider client={client}>
-      <InscriptionScreen {...props} />
-    </QueryClientProvider>,
-  );
+  await renderWithProviders(<InscriptionScreen {...props} />);
 }
 
 async function fill({
@@ -60,7 +47,7 @@ async function submit() {
 beforeEach(() => {
   navigate.mockClear();
   mockedSignup.mockReset();
-  useSession.getState().signOut();
+  useSession.getState().clearSession();
 });
 
 test('affiche le titre et les quatre champs', async () => {

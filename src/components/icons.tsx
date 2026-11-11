@@ -184,3 +184,25 @@ export function EyeOffIcon({
     </Svg>
   );
 }
+
+export function ClockIcon({
+  size = 20,
+  color,
+  strokeWidth = 2,
+}: StrokeIconProps) {
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Circle cx={12} cy={12} r={10} />
+      <Path d="M12 6v6l4 2" />
+    </Svg>
+  );
+}

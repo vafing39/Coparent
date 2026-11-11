@@ -1,51 +1,42 @@
 import { create } from 'zustand';
-import { logout, refresh } from '../api/authRequests';
-import { ApiError } from '../api/errors';
 import type { AuthResponse, User } from '../api/types';
 import { queryClient } from '../lib/queryClient';
-import {
-  clearRefreshToken,
-  loadRefreshToken,
-  saveRefreshToken,
-} from '../lib/tokenStorage';
+import { clearRefreshToken, saveRefreshToken } from '../lib/tokenStorage';
+
+/** Écran ouvert quand on revient à l'espace non connecté. */
+export type AuthEntry = 'Bienvenue' | 'Inscription';
 
 /**
  * - restoring : au démarrage, reprise de la session enregistrée ;
  * - unreachable : session enregistrée mais serveur injoignable (on peut réessayer) ;
  * - signedOut / signedIn.
  */
-export type AuthEntry = 'Bienvenue' | 'Inscription';
-
 export type SessionStatus =
   | 'restoring'
   | 'unreachable'
   | 'signedOut'
   | 'signedIn';
 
+/**
+ * État de la session, sans appel d'API : les actions qui appellent le serveur sont dans
+ * AuthContext (connexion, déconnexion, reprise) et src/api/session.ts (renouvellement).
+ */
 type SessionState = {
   status: SessionStatus;
   user: User | null;
   /** En mémoire uniquement ; le refresh token est dans le trousseau. */
   accessToken: string | null;
-  /** Écran ouvert quand on revient à l'espace non connecté. */
   authEntry: AuthEntry;
+  /** Ouvre la session avec les jetons reçus (refresh token rangé dans le trousseau). */
   signIn: (auth: AuthResponse) => Promise<void>;
   /** Met à jour l'utilisateur (ex. après vérification de l'email). */
   setUser: (user: User) => void;
-  signOut: (options?: { then?: AuthEntry }) => Promise<void>;
-  /** Au démarrage : reprend la session enregistrée, s'il y en a une. */
-  restore: () => Promise<void>;
-  /** Renouvelle les jetons. Faux si la session n'est plus valide ou si le serveur ne répond pas. */
-  refreshSession: () => Promise<boolean>;
+  setStatus: (status: SessionStatus) => void;
+  /** Ferme la session localement : mémoire, cache des requêtes et trousseau. */
+  clearSession: (options?: { then?: AuthEntry }) => Promise<void>;
 };
 
-const signedOut = {
-  status: 'signedOut',
-  user: null,
-  accessToken: null,
-} as const;
-
-export const useSession = create<SessionState>()((set, get) => ({
+export const useSession = create<SessionState>()(set => ({
   status: 'restoring',
   user: null,
   accessToken: null,
@@ -58,45 +49,16 @@ export const useSession = create<SessionState>()((set, get) => ({
 
   setUser: user => set({ user }),
 
-  signOut: async ({ then = 'Bienvenue' } = {}) => {
-    const refreshToken = await loadRefreshToken();
-    set({ ...signedOut, authEntry: then });
+  setStatus: status => set({ status }),
+
+  clearSession: async ({ then } = {}) => {
+    set({
+      status: 'signedOut',
+      user: null,
+      accessToken: null,
+      ...(then && { authEntry: then }),
+    });
     queryClient.clear();
     await clearRefreshToken();
-    if (refreshToken) {
-      // Révocation côté serveur ; sans réseau, le jeton expirera de lui-même.
-      logout(refreshToken).catch(() => undefined);
-    }
-  },
-
-  refreshSession: async () => {
-    const refreshToken = await loadRefreshToken();
-    if (!refreshToken) {
-      set(signedOut);
-      return false;
-    }
-    try {
-      await get().signIn(await refresh(refreshToken));
-      return true;
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
-        // Session expirée ou révoquée : retour à l'écran de connexion.
-        await clearRefreshToken();
-        set(signedOut);
-      }
-      return false;
-    }
-  },
-
-  restore: async () => {
-    set({ status: 'restoring' });
-    if (!(await loadRefreshToken())) {
-      set(signedOut);
-      return;
-    }
-    const refreshed = await get().refreshSession();
-    if (!refreshed && get().status === 'restoring') {
-      set({ status: 'unreachable' });
-    }
   },
 }));

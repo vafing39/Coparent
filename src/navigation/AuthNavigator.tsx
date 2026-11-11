@@ -5,7 +5,7 @@ import { BienvenueScreen } from '../screens/auth/BienvenueScreen';
 import { ConnexionScreen } from '../screens/auth/ConnexionScreen';
 import { InscriptionScreen } from '../screens/auth/InscriptionScreen';
 import { PlaceholderScreen } from '../screens/auth/PlaceholderScreen';
-import { useSession } from '../stores/session';
+import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../theme/ThemeProvider';
 import { fonts } from '../theme/tokens';
 import type { AuthStackParamList } from './types';
@@ -22,7 +22,7 @@ export function AuthNavigator() {
   const { color } = useTheme();
   const { t } = useTranslation();
   // Après « Modifier l'adresse », on revient directement sur l'inscription.
-  const authEntry = useSession(state => state.authEntry);
+  const { authEntry } = useAuth();
 
   return (
     <Stack.Navigator

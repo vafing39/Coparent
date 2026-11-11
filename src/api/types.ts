@@ -40,21 +40,38 @@ export type Child = {
   birthDate: string;
 };
 
-/** CustodyScheduleResponse côté backend. */
-export type CustodySchedule = {
-  id: string;
-  pattern:
-    | 'ALTERNATE_WEEKS'
-    | 'TWO_TWO_THREE'
-    | 'TWO_TWO_FIVE_FIVE'
-    | 'ALTERNATE_WEEKENDS_WEDNESDAY'
-    | 'CUSTOM';
-  customSequence: string | null;
+export type CustodyPattern =
+  | 'ALTERNATE_WEEKS'
+  | 'TWO_TWO_THREE'
+  | 'TWO_TWO_FIVE_FIVE'
+  | 'ALTERNATE_WEEKENDS_WEDNESDAY'
+  | 'CUSTOM';
+
+export type SummerSplit = 'FORTNIGHTS' | 'MONTHS';
+
+/** CustodyScheduleRequest côté backend (étape 4). Heure de Paris, « HH:mm ». */
+export type CustodyScheduleRequest = {
+  pattern: CustodyPattern;
+  /** CUSTOM uniquement : une lettre par nuit, A ou B. */
+  customSequence?: string;
+  /** Première bascule ; son jour de la semaine est le jour de bascule. */
   startDate: string;
   handoverTime: string;
   startingParent: FamilyRole;
   holidayFirstHalfEvenYears: FamilyRole;
-  summerSplit: 'FORTNIGHTS' | 'MONTHS';
+  summerSplit: SummerSplit;
+};
+
+/** CustodyScheduleResponse côté backend. */
+export type CustodySchedule = {
+  id: string;
+  pattern: CustodyPattern;
+  customSequence: string | null;
+  startDate: string;
+  handoverTime: string;
+  startingParent: FamilyRole;
+  holidayFirstHalfEvenYears: FamilyRole | null;
+  summerSplit: SummerSplit | null;
   status: 'PROPOSED' | 'ACTIVE' | 'REPLACED' | 'REJECTED';
 };
 

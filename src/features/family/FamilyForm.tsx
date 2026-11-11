@@ -15,8 +15,9 @@ import { ErrorText } from '../../components/ErrorText';
 import { InfoIcon } from '../../components/icons';
 import { RadioCard } from '../../components/RadioCard';
 import { TextField } from '../../components/TextField';
-import { familyErrorMessage, useSaveFamily } from '../../api/family';
-import type { Family } from '../../api/types';
+import { familyErrorMessage } from '../../api/family';
+import { useFamily } from '../../hooks/useFamily';
+import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
 import {
   familySchema,
   FamilyInput,
@@ -27,17 +28,25 @@ import { useTheme } from '../../theme/ThemeProvider';
 import { ZonesInfoSheet } from './ZonesInfoSheet';
 
 type Props = {
-  /** Famille déjà enregistrée (formulaire prérempli, enregistrement en modification), sinon null. */
-  existing: Family | null;
   /** Appelé une fois la famille enregistrée sur le serveur. */
   onSaved: () => void;
 };
 
-/** Formulaire de la famille : nom et zone de vacances scolaires. */
-export function FamilyForm({ existing, onSaved }: Props) {
+/**
+ * Formulaire de la famille : nom et zone de vacances scolaires. Prérempli si la famille
+ * existe déjà (enregistrement en modification).
+ */
+export function FamilyForm({ onSaved }: Props) {
   const { t } = useTranslation();
   const { color } = useTheme();
-  const save = useSaveFamily();
+  const {
+    family: existing,
+    saveFamily,
+    isSavingFamily,
+    saveFamilyError,
+    resetSaveFamily,
+  } = useFamily();
+  useResetOnUnmount(resetSaveFamily);
   const [zonesInfoOpen, setZonesInfoOpen] = useState(false);
   const { control, handleSubmit } = useForm<FamilyInput, unknown, FamilyValues>(
     {
@@ -49,10 +58,10 @@ export function FamilyForm({ existing, onSaved }: Props) {
   );
 
   const onSubmit = handleSubmit(values =>
-    save.mutate({ existing, values }, { onSuccess: onSaved }),
+    saveFamily(values, { onSuccess: onSaved }),
   );
   const submit = () => {
-    if (!save.isPending) {
+    if (!isSavingFamily) {
       onSubmit();
     }
   };
@@ -142,13 +151,13 @@ export function FamilyForm({ existing, onSaved }: Props) {
         />
 
         <View className="mt-auto gap-3">
-          {save.isError ? (
-            <ErrorText text={familyErrorMessage(save.error)} />
+          {saveFamilyError ? (
+            <ErrorText text={familyErrorMessage(saveFamilyError)} />
           ) : null}
           <Button
             label={t('onboarding.family.continue')}
             onPress={submit}
-            loading={save.isPending}
+            loading={isSavingFamily}
           />
         </View>
       </ScrollView>

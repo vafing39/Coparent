@@ -35,3 +35,10 @@ jest.mock('react-native-config', () => ({ __esModule: true, default: {} }));
 // Langue du téléphone simulée (français), puis textes de l'app chargés pour tous les tests.
 jest.mock('react-native-localize', () => require('react-native-localize/mock'));
 require('./src/i18n');
+
+// Sélecteur d'heure natif : un simple View ; le test appelle onChange lui-même.
+jest.mock('@react-native-community/datetimepicker', () => ({
+  __esModule: true,
+  default: require('react-native').View,
+  DateTimePickerAndroid: { open: jest.fn(), dismiss: jest.fn() },
+}));

@@ -13,7 +13,9 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/Button';
 import { ErrorText } from '../../components/ErrorText';
 import { PlusIcon } from '../../components/icons';
-import { childrenErrorMessage, useSaveChildren } from '../../api/family';
+import { childrenErrorMessage } from '../../api/family';
+import { useFamily } from '../../hooks/useFamily';
+import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
 import type { Family } from '../../api/types';
 import { toDisplayDate } from '../../lib/dates';
 import {
@@ -39,7 +41,13 @@ type Props = {
 export function ChildrenForm({ family, onSaved }: Props) {
   const { t } = useTranslation();
   const { color } = useTheme();
-  const save = useSaveChildren();
+  const {
+    saveChildren,
+    isSavingChildren,
+    saveChildrenError,
+    resetSaveChildren,
+  } = useFamily();
+  useResetOnUnmount(resetSaveChildren);
   const { control, handleSubmit, setValue } = useForm<
     ChildrenInput,
     unknown,
@@ -65,9 +73,8 @@ export function ChildrenForm({ family, onSaved }: Props) {
   });
 
   const onSubmit = handleSubmit(values =>
-    save.mutate(
+    saveChildren(
       {
-        family,
         children: values.children,
         onCreated: (index, child) =>
           setValue(`children.${index}.childId`, child.id),
@@ -76,7 +83,7 @@ export function ChildrenForm({ family, onSaved }: Props) {
     ),
   );
   const submit = () => {
-    if (!save.isPending) {
+    if (!isSavingChildren) {
       onSubmit();
     }
   };
@@ -123,13 +130,13 @@ export function ChildrenForm({ family, onSaved }: Props) {
         </Pressable>
 
         <View className="mt-auto gap-3 pt-2">
-          {save.isError ? (
-            <ErrorText text={childrenErrorMessage(save.error)} />
+          {saveChildrenError ? (
+            <ErrorText text={childrenErrorMessage(saveChildrenError)} />
           ) : null}
           <Button
             label={t('onboarding.children.continue')}
             onPress={submit}
-            loading={save.isPending}
+            loading={isSavingChildren}
           />
         </View>
       </ScrollView>

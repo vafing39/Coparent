@@ -1,40 +1,22 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { FamilleScreen } from '../FamilleScreen';
 import { OnboardingNavigator } from '../../../navigation/OnboardingNavigator';
-import {
-  createFamily,
-  fetchMyFamily,
-  updateFamily,
-} from '../../../api/familyRequests';
 import { ApiError } from '../../../api/errors';
 import { family } from '../../../test-utils/familyFixtures';
+import { familyApi } from '../../../test-utils/fakeApiClient';
+import { renderWithProviders } from '../../../test-utils/render';
 
-jest.mock('../../../api/familyRequests', () => ({
-  fetchMyFamily: jest.fn(),
-  createFamily: jest.fn(),
-  updateFamily: jest.fn(),
-}));
+jest.mock('../../../api/client', () =>
+  jest.requireActual('../../../test-utils/fakeApiClient'),
+);
 
-const mockedFetch = fetchMyFamily as jest.MockedFunction<typeof fetchMyFamily>;
-const mockedCreate = createFamily as jest.MockedFunction<typeof createFamily>;
-const mockedUpdate = updateFamily as jest.MockedFunction<typeof updateFamily>;
+const mockedFetch = familyApi.fetchMyFamily;
+const mockedCreate = familyApi.createFamily;
+const mockedUpdate = familyApi.updateFamily;
 
 const navigate = jest.fn();
-
-function withQueryClient(children: React.ReactNode) {
-  const client = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
-}
 
 const props = {
   navigation: { navigate },
@@ -43,19 +25,18 @@ const props = {
 
 /** Rend l'écran ; par défaut, attend la fin du chargement de la famille. */
 async function renderScreen({ waitForForm = true } = {}) {
-  await render(withQueryClient(<FamilleScreen {...props} />));
+  await renderWithProviders(<FamilleScreen {...props} />, { onboarding: true });
   if (waitForForm) {
     await screen.findByRole('header', { name: 'Créez votre famille' });
   }
 }
 
 async function renderNavigator() {
-  await render(
-    withQueryClient(
-      <NavigationContainer>
-        <OnboardingNavigator emailVerified />
-      </NavigationContainer>,
-    ),
+  // Le navigateur fournit lui-même la famille et le brouillon.
+  await renderWithProviders(
+    <NavigationContainer>
+      <OnboardingNavigator emailVerified />
+    </NavigationContainer>,
   );
 }
 
@@ -177,7 +158,7 @@ test('pas encore de famille : la crée puis passe à l’étape des enfants', as
   await waitFor(() => expect(navigate).toHaveBeenCalledWith('Enfants'));
   expect(mockedCreate.mock.calls[0][0]).toEqual({
     name: 'Famille Martin',
-    zone: 'A',
+    vacationZone: 'A',
   });
   expect(mockedUpdate).not.toHaveBeenCalled();
 });
@@ -196,7 +177,7 @@ test('famille existante : formulaire prérempli, enregistrement en modification'
   await waitFor(() => expect(navigate).toHaveBeenCalledWith('Enfants'));
   expect(mockedUpdate).toHaveBeenCalledWith(existing.id, {
     name: 'Famille Durand',
-    zone: 'B',
+    vacationZone: 'B',
   });
   expect(mockedCreate).not.toHaveBeenCalled();
 });

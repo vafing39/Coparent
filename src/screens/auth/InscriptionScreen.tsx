@@ -16,7 +16,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '../../components/Button';
 import { TextField } from '../../components/TextField';
 import { TextLink } from '../../components/TextLink';
-import { signupError, useSignup } from '../../api/auth';
+import { describeSignupError } from '../../api/auth';
+import { useAuth } from '../../hooks/useAuth';
+import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
 import { PRIVACY_URL, TERMS_URL } from '../../lib/app';
 import {
   PASSWORD_MIN_LENGTH,
@@ -33,7 +35,8 @@ export function InscriptionScreen({
   const firstNameRef = useRef<TextInputInstance>(null);
   const passwordRef = useRef<TextInputInstance>(null);
   const confirmRef = useRef<TextInputInstance>(null);
-  const signupMutation = useSignup();
+  const { signup, isSigningUp, signupError, resetSignup } = useAuth();
+  useResetOnUnmount(resetSignup);
 
   const { control, handleSubmit, setError } = useForm<
     SignupInput,
@@ -51,9 +54,9 @@ export function InscriptionScreen({
 
   // En cas de succès, la session s'ouvre et la navigation passe à la vérification de l'email.
   const onSubmit = handleSubmit(values =>
-    signupMutation.mutate(values, {
+    signup(values, {
       onError: error => {
-        const { field, message } = signupError(error);
+        const { field, message } = describeSignupError(error);
         if (field) {
           setError(field, { message }, { shouldFocus: true });
         }
@@ -65,8 +68,8 @@ export function InscriptionScreen({
   };
 
   const generalError =
-    signupMutation.isError && signupError(signupMutation.error).field === null
-      ? signupError(signupMutation.error).message
+    signupError && describeSignupError(signupError).field === null
+      ? describeSignupError(signupError).message
       : null;
 
   return (
@@ -206,7 +209,7 @@ export function InscriptionScreen({
             <Button
               label={t('signup.submit')}
               onPress={submit}
-              loading={signupMutation.isPending}
+              loading={isSigningUp}
             />
 
             <View className="flex-row flex-wrap items-center justify-center">

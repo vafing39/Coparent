@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## État actuel du dépôt (à lire en premier)
 
-Application **React Native CLI 0.88** (pas Expo), TypeScript strict. Déjà construit : accueil, connexion par email, inscription, vérification de l'email par code à 8 chiffres (étape 1 sur 5 de la première connexion), reprise de session, textes dans `src/i18n`. Les dossiers et bibliothèques listés plus bas qui n'existent pas encore sont la cible.
+Application **React Native CLI 0.88** (pas Expo), TypeScript strict. Déjà construit : accueil, connexion par email, inscription, reprise de session, textes dans `src/i18n`, et la première connexion jusqu'à l'étape 4 : vérification de l'email (1), famille (2), enfants (3), rythme de garde et vacances scolaires (4). L'étape 5 (invitation) est un écran provisoire. Les dossiers et bibliothèques listés plus bas qui n'existent pas encore sont la cible.
 
 L'app appelle le backend Spring Boot (`../Coparent backend`) : URL dans `.env` (`API_URL`, voir `.env.example`), par défaut `http://localhost:8080` (iOS) ou `http://10.0.2.2:8080` (émulateur Android). En développement, les emails arrivent dans Mailpit : http://localhost:8025.
 
@@ -32,13 +32,14 @@ cd ios && bundle exec pod install           # après tout ajout de module natif 
 
 - React Native CLI, TypeScript strict
 - Navigation : React Navigation (native-stack + bottom-tabs)
-- Données : TanStack Query pour tous les appels API ; Zustand uniquement pour l'état local léger (session, préférences) + axios
+- Données : TanStack Query pour tous les appels API, détenus par les contextes (voir « Contextes et hooks ») ; Zustand uniquement pour l'état local léger (session, préférences) + axios
 - Formulaires : React Hook Form + Zod
 - Styles : NativeWind
 - Stockage sécurisé des jetons : react-native-keychain
 - Notifications push : @react-native-firebase/messaging (FCM et APNs) + Notifee pour l'affichage local
 - Photos : react-native-image-picker, puis réencodage avec @bam.tech/react-native-image-resizer (supprime les métadonnées EXIF, dont le GPS)
 - Calendrier : react-native-calendars
+- Sélecteur d'heure : @react-native-community/datetimepicker (dialogue natif sur Android, roue dans une feuille sur iOS ; simulé dans `jest.setup.js`)
 - Connexion Apple : @invertase/react-native-apple-authentication ; connexion Google : @react-native-google-signin/google-signin
 - Abonnement : react-native-purchases (RevenueCat)
 - Erreurs : @sentry/react-native
@@ -50,14 +51,28 @@ cd ios && bundle exec pod install           # après tout ajout de module natif 
 
 - `src/navigation` : navigateurs (Auth, Onboarding, Tabs, Child) et types des routes
 - `src/screens/<groupe>` : écrans principaux, par groupe (auth, onboarding, tabs, child)
-- `src/api` : client HTTP, types générés, hooks par domaine
+- `src/api` : client HTTP, types, messages d'erreur par domaine (aucun hook). Les requêtes HTTP sont dans leur contexte (`AuthContext`, `FamilyContext`) ; seul le renouvellement des jetons reste dans `src/api/session.ts`, utilisé par le client HTTP
 - `src/components` : composants réutilisables
-- `src/context` : contextes des fonctionnalités
+- `src/context` : contextes des fonctionnalités ; ils détiennent les appels d'API et leur état
+- `src/hooks` : hooks d'accès aux contextes et utilitaires (`useAuth`, `useFamily`, `useOnboardingDraft`, `useResetOnUnmount`)
+- `src/stores` : store Zustand de la session (état seul, aucun appel d'API)
+- `src/test-utils` : jeux de données et `renderWithProviders` pour les tests
 - `src/features/<fonction>` : écrans secondaires et composants propres à une fonction
 - `src/schemas` : schémas Zod alignés sur le backend
 - `src/lib` : Sentry, notifications, RevenueCat, formats de date et de montant en français
 - `src/theme` : jetons clair et sombre exposés à NativeWind
 - `src/i18n` : configuration i18next et textes de l'app (`locales/fr.json`)
+
+## Contextes et hooks
+
+- Tout appel d'API passe par un contexte de `src/context`, qui détient la mutation ou la requête TanStack Query et son état. Aucun `useMutation`/`useQuery` dans un écran ou un composant.
+- Dans le contexte, chaque `useMutation` est déstructuré et renommé, puis exposé à plat : `const { mutate: addChild, isPending: isAddingChild, error: addChildError, reset: resetAddChild } = useMutation(...)`. Les écrans lisent ces noms : `const { login, isLoggingIn, loginError, resetLogin } = useAuth(); login(values)`. Seul `mutate` est exposé (pas `mutateAsync`).
+- `AuthProvider` (dans `App.tsx`, via `useAuth`) : session lue dans le store Zustand (`status`, `user`, `authEntry`) et toutes les actions d'authentification (`login`, `signup`, `verifyEmail`, `resendEmailVerification`, `signOut`, `restore`). Le store (`src/stores/session.ts`) est un état pur, sans appel d'API. Seule exception : le renouvellement des jetons (`src/api/session.ts`, `refreshSession`), mécanique du client HTTP (rejeu après un 401), réutilisée par `restore`. Hors React (client HTTP), lire le store avec `useSession.getState()`.
+- `FamilyProvider` (autour de la première connexion, via `useFamily`) : charge la famille une fois et affiche lui-même le chargement et l'erreur ; expose `family` (null si pas encore créée) et `saveFamily`, `saveChildren`, `proposeSchedule`. Les étapes qui supposent une famille passent par `RequireFamily`.
+- `OnboardingDraftProvider` (via `useOnboardingDraft`) : choix gardés entre deux écrans avant leur envoi (rythme de l'étape 4).
+- L'état d'une mutation étant partagé, chaque formulaire appelle `useResetOnUnmount(resetX, …)` avec les fonctions `reset` de ses actions pour ne pas retrouver une ancienne erreur au retour.
+- Les hooks (tout ce qui commence par `use`) vont dans `src/hooks`, un fichier par hook ; exceptions : `useSession` (le store) et `useTheme` (avec son fournisseur).
+- Tests d'écran : rendre avec `renderWithProviders(ui, { onboarding: true })`. Remplacer le client HTTP par `src/test-utils/fakeApiClient` (`authApi.login`, `familyApi.addChild`… une fonction simulée par route). Pas de tests dédiés aux contextes.
 
 ## Règles absolues
 

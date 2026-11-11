@@ -6,7 +6,37 @@
     "loading": "Chargement",
     "comingSoon": "Bientôt disponible",
     "screenComingSoon": "Écran à venir.",
-    "or": "ou"
+    "or": "ou",
+    "ok": "OK"
+  },
+  "weekdays": {
+    "short": {
+      "1": "lun.",
+      "2": "mar.",
+      "3": "mer.",
+      "4": "jeu.",
+      "5": "ven.",
+      "6": "sam.",
+      "7": "dim."
+    },
+    "initial": {
+      "1": "L",
+      "2": "M",
+      "3": "M",
+      "4": "J",
+      "5": "V",
+      "6": "S",
+      "7": "D"
+    },
+    "long": {
+      "1": "lundi",
+      "2": "mardi",
+      "3": "mercredi",
+      "4": "jeudi",
+      "5": "vendredi",
+      "6": "samedi",
+      "7": "dimanche"
+    }
   },
   "errors": {
     "network": "Connexion impossible pour le moment. Vérifiez votre accès à Internet, puis réessayez.",
@@ -73,6 +103,9 @@
   },
   "forgotPassword": {
     "title": "Mot de passe oublié"
+  },
+  "family": {
+    "loadFailed": "Impossible de récupérer votre famille. Vérifiez votre accès à Internet, puis réessayez."
   },
   "onboarding": {
     "previousStepHint": "Revenir à l'étape précédente",
@@ -141,7 +174,6 @@
         }
       },
       "continue": "Continuer",
-      "loadFailed": "Impossible de récupérer votre famille. Vérifiez votre accès à Internet, puis réessayez.",
       "errors": {
         "emailNotVerified": "Vérifiez d'abord votre adresse email.",
         "alreadyInFamily": "Vous faites déjà partie d'une famille.",
@@ -156,7 +188,6 @@
       "add": "Ajouter un enfant",
       "continue": "Continuer",
       "atLeastOne": "Ajoutez au moins un enfant.",
-      "loadFailed": "Impossible de récupérer votre famille. Vérifiez votre accès à Internet, puis réessayez.",
       "firstName": {
         "label": "Prénom",
         "required": "Saisissez le prénom de l'enfant.",
@@ -176,7 +207,70 @@
       }
     },
     "schedule": {
-      "title": "Choisissez le rythme de garde"
+      "title": "Choisissez le rythme de garde",
+      "patternLegend": "Rythme",
+      "patterns": {
+        "ALTERNATE_WEEKS": {
+          "label": "Une semaine sur deux",
+          "hint": "7 nuits chez chaque parent, en alternance"
+        },
+        "TWO_TWO_THREE": {
+          "label": "2-2-3",
+          "hint": "2 nuits, 2 nuits, puis 3 nuits, en alternance"
+        },
+        "TWO_TWO_FIVE_FIVE": {
+          "label": "2-2-5-5",
+          "hint": "Les mêmes 2 nuits chaque semaine, puis 5 nuits en alternance"
+        },
+        "ALTERNATE_WEEKENDS_WEDNESDAY": {
+          "label": "Week-ends alternés et mercredi",
+          "hint": "Un week-end sur deux, plus le mercredi"
+        },
+        "CUSTOM": {
+          "label": "Personnalisé",
+          "hint": "Vous choisissez nuit par nuit sur deux semaines"
+        }
+      },
+      "preview": {
+        "title": "Aperçu sur deux semaines",
+        "customTitle": "Touchez une nuit pour changer de parent",
+        "summary": "Sur deux semaines : {{me}} nuits chez {{myName}}, {{other}} nuits chez l'autre parent.",
+        "night": "Nuit du {{day}}, semaine {{week}} : chez {{parent}}.",
+        "nightHint": "Touchez pour changer de parent.",
+        "otherParent": "l'autre parent",
+        "otherParentLegend": "L'autre parent"
+      },
+      "handoverDay": "Jour de bascule",
+      "handoverTime": "Heure de bascule",
+      "handoverTimeHint": "Modifier l'heure",
+      "startLegend": "Après la première bascule, les enfants sont",
+      "startMe": "Chez vous",
+      "startOther": "Chez l'autre parent",
+      "continue": "Continuer"
+    },
+    "holidays": {
+      "title": "Vacances scolaires",
+      "intro": "{{zone}}. Pendant les vacances scolaires, ce partage remplace le rythme habituel. Les dates sont calculées par le serveur.",
+      "shortBreaks": {
+        "title": "Toussaint, Noël, hiver, printemps",
+        "help": "Partage par moitié",
+        "evenYears": "Vous avez la 1re moitié les années paires",
+        "oddYears": "Vous avez la 1re moitié les années impaires"
+      },
+      "summer": {
+        "title": "Été",
+        "FORTNIGHTS": "Par quinzaines",
+        "MONTHS": "Par mois",
+        "FORTNIGHTSHelp": "L'été est partagé par quinzaines, en alternance entre vous et l'autre parent.",
+        "MONTHSHelp": "Juillet chez l'un, août chez l'autre, en inversant chaque année."
+      },
+      "save": "Enregistrer",
+      "errors": {
+        "saveFailed": "Le rythme n'a pas pu être enregistré. Vérifiez vos choix, puis réessayez."
+      }
+    },
+    "invitation": {
+      "title": "Invitez l'autre parent"
     }
   },
   "session": {

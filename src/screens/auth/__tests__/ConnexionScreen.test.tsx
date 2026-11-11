@@ -1,36 +1,28 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Pressable, Text } from 'react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { ConnexionScreen } from '../ConnexionScreen';
 import { loginErrorMessage } from '../../../api/auth';
-import { login } from '../../../api/authRequests';
 import { ApiError } from '../../../api/errors';
 import { useSession } from '../../../stores/session';
 import { authResponse } from '../../../test-utils/authFixtures';
+import { authApi } from '../../../test-utils/fakeApiClient';
+import { renderWithProviders } from '../../../test-utils/render';
 
-jest.mock('../../../api/authRequests', () => ({ login: jest.fn() }));
+jest.mock('../../../api/client', () =>
+  jest.requireActual('../../../test-utils/fakeApiClient'),
+);
 
-const mockedLogin = login as jest.MockedFunction<typeof login>;
+const mockedLogin = authApi.login;
 const navigate = jest.fn();
 
+const props = {
+  navigation: { navigate },
+  route: { key: 'ConnexionEmail', name: 'ConnexionEmail' },
+} as unknown as React.ComponentProps<typeof ConnexionScreen>;
+
 async function renderScreen() {
-  const client = new QueryClient({
-    defaultOptions: { mutations: { retry: false } },
-  });
-  const props = {
-    navigation: { navigate },
-    route: { key: 'ConnexionEmail', name: 'ConnexionEmail' },
-  } as unknown as React.ComponentProps<typeof ConnexionScreen>;
-  await render(
-    <QueryClientProvider client={client}>
-      <ConnexionScreen {...props} />
-    </QueryClientProvider>,
-  );
+  await renderWithProviders(<ConnexionScreen {...props} />);
 }
 
 async function fill(email: string, password: string) {
@@ -105,6 +97,37 @@ test('échec réseau : message avec la cause', async () => {
   expect(
     await screen.findByText(/Vérifiez votre accès à Internet/),
   ).toBeOnTheScreen();
+});
+
+test('erreur puis écran fermé et rouvert : l’ancienne erreur a disparu', async () => {
+  mockedLogin.mockRejectedValue(new ApiError(401));
+  // La mutation vit dans AuthProvider : seul l'écran est démonté puis remonté.
+  function Host() {
+    const [open, setOpen] = React.useState(true);
+    return (
+      <>
+        <Pressable accessibilityRole="button" onPress={() => setOpen(o => !o)}>
+          <Text>Basculer</Text>
+        </Pressable>
+        {open ? <ConnexionScreen {...props} /> : null}
+      </>
+    );
+  }
+  await renderWithProviders(<Host />);
+  await fill('camille@exemple.fr', 'secret');
+  await submit();
+  expect(
+    await screen.findByText('Adresse email ou mot de passe incorrect.'),
+  ).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Basculer' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Basculer' }));
+  expect(
+    await screen.findByRole('header', { name: 'Accéder à mon espace' }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.queryByText('Adresse email ou mot de passe incorrect.'),
+  ).toBeNull();
 });
 
 test('liens : mot de passe oublié et création de compte', async () => {

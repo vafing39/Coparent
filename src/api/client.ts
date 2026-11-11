@@ -2,6 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_URL } from '../lib/config';
 import { useSession } from '../stores/session';
 import { ApiError } from './errors';
+import { refreshSession } from './session';
 
 /** Client HTTP unique de l'app. Toute requête passe par lui (via TanStack Query). */
 export const apiClient = axios.create({
@@ -36,12 +37,9 @@ apiClient.interceptors.request.use(config => {
 let refreshing: Promise<boolean> | null = null;
 
 function refreshOnce(): Promise<boolean> {
-  refreshing ??= useSession
-    .getState()
-    .refreshSession()
-    .finally(() => {
-      refreshing = null;
-    });
+  refreshing ??= refreshSession().finally(() => {
+    refreshing = null;
+  });
   return refreshing;
 }
 

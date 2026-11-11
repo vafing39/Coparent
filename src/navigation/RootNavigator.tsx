@@ -7,16 +7,15 @@ import {
 } from '@react-navigation/native';
 import { RestoringScreen } from '../screens/session/RestoringScreen';
 import { UnreachableScreen } from '../screens/session/UnreachableScreen';
-import { useSession } from '../stores/session';
+import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../theme/ThemeProvider';
 import { AuthNavigator } from './AuthNavigator';
 import { OnboardingNavigator } from './OnboardingNavigator';
 
 export function RootNavigator() {
   const { scheme, color } = useTheme();
-  const status = useSession(state => state.status);
-  const emailVerified = useSession(state => state.user?.emailVerified ?? false);
-  const restore = useSession(state => state.restore);
+  const { status, user, restore } = useAuth();
+  const emailVerified = user?.emailVerified ?? false;
 
   useEffect(() => {
     restore();

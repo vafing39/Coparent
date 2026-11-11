@@ -52,3 +52,23 @@ export function formatDateInput(text: string): string {
   }
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
+
+/** Jour ISO de la semaine d'une date « AAAA-MM-JJ » : 1 = lundi … 7 = dimanche. */
+export function isoWeekday(isoDate: string): number {
+  const day = new Date(`${isoDate}T00:00:00Z`).getUTCDay();
+  return day === 0 ? 7 : day;
+}
+
+/** Prochaine date (« AAAA-MM-JJ ») tombant le jour ISO donné, aujourd'hui exclu. */
+export function nextWeekday(todayIso: string, weekday: number): string {
+  const date = new Date(`${todayIso}T00:00:00Z`);
+  const diff = (weekday - isoWeekday(todayIso) + 7) % 7 || 7;
+  date.setUTCDate(date.getUTCDate() + diff);
+  return date.toISOString().slice(0, 10);
+}
+
+/** « 17:50 » → « 17 h 50 », « 09:05 » → « 9 h 05 ». */
+export function formatTime(time: string): string {
+  const [hours, minutes] = time.split(':');
+  return `${Number(hours)} h ${minutes}`;
+}

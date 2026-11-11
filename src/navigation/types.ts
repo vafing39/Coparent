@@ -13,6 +13,9 @@ export type OnboardingStackParamList = {
   Famille: undefined;
   Enfants: undefined;
   Rythme: undefined;
+  /** Le rythme choisi est dans le brouillon (OnboardingDraftProvider). */
+  Vacances: undefined;
+  Invitation: undefined;
 };
 
 /** Espace connecté (provisoire, avant les onglets). */

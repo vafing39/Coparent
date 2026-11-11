@@ -1,41 +1,22 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { VerificationScreen } from '../VerificationScreen';
-import {
-  resendEmailVerification,
-  verifyEmail,
-} from '../../../api/authRequests';
 import { ApiError } from '../../../api/errors';
 import { useSession } from '../../../stores/session';
 import { authResponse } from '../../../test-utils/authFixtures';
+import { authApi } from '../../../test-utils/fakeApiClient';
+import { renderWithProviders } from '../../../test-utils/render';
 
-jest.mock('../../../api/authRequests', () => ({
-  resendEmailVerification: jest.fn(),
-  verifyEmail: jest.fn(),
-  logout: jest.fn(() => Promise.resolve()),
-}));
+jest.mock('../../../api/client', () =>
+  jest.requireActual('../../../test-utils/fakeApiClient'),
+);
 
-const mockedResend = resendEmailVerification as jest.MockedFunction<
-  typeof resendEmailVerification
->;
-const mockedVerify = verifyEmail as jest.MockedFunction<typeof verifyEmail>;
+const mockedResend = authApi.resendEmailVerification;
+const mockedVerify = authApi.verifyEmail;
 const user = authResponse().user;
 
 async function renderScreen() {
-  const client = new QueryClient({
-    defaultOptions: { mutations: { retry: false } },
-  });
-  await render(
-    <QueryClientProvider client={client}>
-      <VerificationScreen />
-    </QueryClientProvider>,
-  );
+  await renderWithProviders(<VerificationScreen />);
 }
 
 async function typeCode(code: string) {

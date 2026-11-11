@@ -13,13 +13,9 @@ import { Button } from '../../components/Button';
 import { OnboardingHeader } from '../../components/OnboardingHeader';
 import { TextField } from '../../components/TextField';
 import { CheckIcon, MailIcon } from '../../components/icons';
-import {
-  EMAIL_CODE_LENGTH,
-  useResendEmailVerification,
-  useVerifyEmail,
-  verificationErrorMessage,
-} from '../../api/auth';
-import { useSession } from '../../stores/session';
+import { EMAIL_CODE_LENGTH, verificationErrorMessage } from '../../api/auth';
+import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
+import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../theme/ThemeProvider';
 
 /**
@@ -29,10 +25,21 @@ import { useTheme } from '../../theme/ThemeProvider';
 export function VerificationScreen() {
   const { color } = useTheme();
   const { t } = useTranslation();
-  const email = useSession(state => state.user?.email);
-  const signOut = useSession(state => state.signOut);
-  const verify = useVerifyEmail();
-  const resend = useResendEmailVerification();
+  const {
+    user,
+    signOut,
+    verifyEmail,
+    isVerifyingEmail,
+    verifyEmailError,
+    resetVerifyEmail,
+    resendEmailVerification,
+    isResendingEmailVerification,
+    isEmailVerificationResent,
+    resendEmailVerificationError,
+    resetResendEmailVerification,
+  } = useAuth();
+  const email = user?.email;
+  useResetOnUnmount(resetVerifyEmail, resetResendEmailVerification);
   const [code, setCode] = useState('');
   const [codeTooShort, setCodeTooShort] = useState(false);
   /** Dernière action, pour n'afficher que le message qui la concerne. */
@@ -47,7 +54,7 @@ export function VerificationScreen() {
       return;
     }
     setLastAction('verify');
-    verify.mutate(value);
+    verifyEmail(value);
   };
 
   // Accepte un code collé avec un espace (« 4829 1375 ») : on ne garde que les chiffres.
@@ -58,14 +65,14 @@ export function VerificationScreen() {
     if (lastAction === 'verify') {
       setLastAction(null);
     }
-    if (digits.length === EMAIL_CODE_LENGTH && !verify.isPending) {
+    if (digits.length === EMAIL_CODE_LENGTH && !isVerifyingEmail) {
       submit(digits);
     }
   };
 
   const onResend = () => {
     setLastAction('resend');
-    resend.mutate();
+    resendEmailVerification();
   };
   // L'adresse ne peut pas encore être modifiée côté serveur : on repart d'une inscription.
   const changeAddress = () => signOut({ then: 'Inscription' });
@@ -75,20 +82,20 @@ export function VerificationScreen() {
     codeError = t('onboarding.verification.codeTooShort', {
       length: EMAIL_CODE_LENGTH,
     });
-  } else if (lastAction === 'verify' && verify.isError) {
-    codeError = verificationErrorMessage(verify.error);
+  } else if (lastAction === 'verify' && verifyEmailError) {
+    codeError = verificationErrorMessage(verifyEmailError);
   }
 
   let resendFeedback: { kind: 'status' | 'error'; text: string } | null = null;
-  if (lastAction === 'resend' && resend.isSuccess) {
+  if (lastAction === 'resend' && isEmailVerificationResent) {
     resendFeedback = {
       kind: 'status',
       text: t('onboarding.verification.resent'),
     };
-  } else if (lastAction === 'resend' && resend.isError) {
+  } else if (lastAction === 'resend' && resendEmailVerificationError) {
     resendFeedback = {
       kind: 'error',
-      text: verificationErrorMessage(resend.error),
+      text: verificationErrorMessage(resendEmailVerificationError),
     };
   }
 
@@ -174,13 +181,13 @@ export function VerificationScreen() {
             <Button
               label={t('onboarding.verification.submit')}
               onPress={() => submit(code)}
-              loading={verify.isPending}
+              loading={isVerifyingEmail}
             />
             <Button
               label={t('onboarding.verification.resend')}
               variant="neutral"
               onPress={onResend}
-              loading={resend.isPending}
+              loading={isResendingEmailVerification}
             />
             <Pressable
               onPress={changeAddress}
