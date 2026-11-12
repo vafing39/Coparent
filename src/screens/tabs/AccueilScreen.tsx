@@ -6,10 +6,10 @@ import { Button } from '../../components/Button';
 import { useAuth } from '../../hooks/useAuth';
 
 /**
- * PROVISOIRE : écran affiché une fois connecté, en attendant les 5 onglets
- * (Accueil, Calendrier, Messages, Famille, Dépenses).
+ * Onglet Accueil. PROVISOIRE : salutation et déconnexion, en attendant le contenu
+ * (ce soir, prochain passage, aujourd'hui, à traiter) et l'écran « Compte et famille ».
  */
-export function AccueilPlaceholderScreen() {
+export function AccueilScreen() {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const firstName = user?.firstName;
@@ -17,7 +17,7 @@ export function AccueilPlaceholderScreen() {
   return (
     <SafeAreaView
       className="flex-1 justify-center bg-background px-6"
-      edges={['bottom']}
+      edges={['top']}
     >
       <View className="gap-2">
         <Text

@@ -6,8 +6,8 @@ import { useInvitation } from '../hooks/useInvitation';
 import { InvitationBlockedScreen } from '../screens/invitation/InvitationBlockedScreen';
 import { InvitationConfirmScreen } from '../screens/invitation/InvitationConfirmScreen';
 import { JoinFamilyScreen } from '../screens/invitation/JoinFamilyScreen';
-import { AppNavigator } from './AppNavigator';
 import { OnboardingNavigator } from './OnboardingNavigator';
+import { TabsNavigator } from './TabsNavigator';
 
 /** Famille prête : au moins un enfant et un rythme de garde enregistré. */
 function isFamilySetUp(family: Family | null): boolean {
@@ -55,7 +55,7 @@ function SignedInContent({ emailVerified }: { emailVerified: boolean }) {
   }
 
   if (onboardingDone) {
-    return <AppNavigator />;
+    return <TabsNavigator />;
   }
   return (
     <OnboardingNavigator

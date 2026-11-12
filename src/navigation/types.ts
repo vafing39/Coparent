@@ -22,9 +22,13 @@ export type OnboardingStackParamList = {
   Invitation: undefined;
 };
 
-/** Espace connecté (provisoire, avant les onglets). */
-export type AppStackParamList = {
+/** Espace connecté : les 5 onglets. */
+export type TabsParamList = {
   Accueil: undefined;
+  Calendrier: undefined;
+  Messages: undefined;
+  Famille: undefined;
+  Depenses: undefined;
 };
 
 export type AuthScreenProps<T extends keyof AuthStackParamList> =

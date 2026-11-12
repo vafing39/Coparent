@@ -250,3 +250,72 @@ export function CopyIcon({
     </Svg>
   );
 }
+
+// Icônes de la barre d'onglets.
+
+function TabIcon({
+  size = 22,
+  color,
+  strokeWidth = 2,
+  children,
+}: StrokeIconProps & { children: React.ReactNode }) {
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {children}
+    </Svg>
+  );
+}
+
+export function HomeIcon(props: StrokeIconProps) {
+  return (
+    <TabIcon {...props}>
+      <Path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />
+    </TabIcon>
+  );
+}
+
+export function CalendarIcon(props: StrokeIconProps) {
+  return (
+    <TabIcon {...props}>
+      <Rect x={3} y={4} width={18} height={18} rx={2} />
+      <Path d="M16 2v4M8 2v4M3 10h18" />
+    </TabIcon>
+  );
+}
+
+export function MessageIcon(props: StrokeIconProps) {
+  return (
+    <TabIcon {...props}>
+      <Path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </TabIcon>
+  );
+}
+
+export function FamilyIcon(props: StrokeIconProps) {
+  return (
+    <TabIcon {...props}>
+      <Circle cx={8} cy={6} r={2.5} />
+      <Circle cx={16} cy={6} r={2.5} />
+      <Circle cx={12} cy={13} r={2} />
+      <Path d="M4 21v-5a4 4 0 0 1 4-4M20 21v-5a4 4 0 0 0-4-4M9 21v-2a3 3 0 0 1 6 0v2" />
+    </TabIcon>
+  );
+}
+
+export function EuroIcon(props: StrokeIconProps) {
+  return (
+    <TabIcon {...props}>
+      <Path d="M4 10h11M4 14h9" />
+      <Path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2" />
+    </TabIcon>
+  );
+}

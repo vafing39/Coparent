@@ -317,10 +317,6 @@
       "body": "Le service ne répond pas. Vérifiez votre accès à Internet, puis réessayez."
     }
   },
-  "home": {
-    "greeting": "Bonjour {{firstName}}",
-    "placeholder": "Vous êtes connecté. Les onglets arrivent bientôt."
-  },
   "invitation": {
     "preview": {
       "title": "{{inviter}} vous invite à rejoindre la famille de {{children}}",
@@ -350,5 +346,28 @@
     "errors": {
       "cannotJoin": "Cette invitation ne peut pas être acceptée."
     }
+  },
+  "tabs": {
+    "accueil": "Accueil",
+    "calendrier": "Calendrier",
+    "messages": "Messages",
+    "famille": "Famille",
+    "depenses": "Dépenses"
+  },
+  "home": {
+    "greeting": "Bonjour {{firstName}}",
+    "placeholder": "Vous êtes connecté. Le contenu de l'accueil arrive bientôt."
+  },
+  "calendar": {
+    "placeholder": "Le calendrier de garde arrive bientôt."
+  },
+  "messages": {
+    "placeholder": "La messagerie entre parents arrive bientôt."
+  },
+  "familyTab": {
+    "empty": "Bientôt, retrouvez ici les membres de la famille et les informations des enfants."
+  },
+  "expenses": {
+    "empty": "Bientôt, partagez ici les dépenses des enfants."
   }
 }
