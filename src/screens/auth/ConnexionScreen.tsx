@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '../../components/Button';
+import { OrDivider } from '../../components/OrDivider';
 import { TextField } from '../../components/TextField';
 import { AppleIcon } from '../../components/icons';
 import { loginErrorMessage } from '../../api/auth';
@@ -22,24 +23,6 @@ import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
 import { loginSchema, LoginInput, LoginValues } from '../../schemas/auth';
 import i18n from '../../i18n';
 import type { AuthScreenProps } from '../../navigation/types';
-
-function OrDivider() {
-  const { t } = useTranslation();
-  return (
-    <View
-      accessible={false}
-      importantForAccessibility="no-hide-descendants"
-      accessibilityElementsHidden
-      className="flex-row items-center gap-3"
-    >
-      <View className="h-px flex-1 bg-border" />
-      <Text className="font-bold text-[13px] text-text-secondary">
-        {t('common.or')}
-      </Text>
-      <View className="h-px flex-1 bg-border" />
-    </View>
-  );
-}
 
 const renderAppleIcon = (color: string) => <AppleIcon color={color} />;
 const renderGoogleIcon = () => (
@@ -56,16 +39,29 @@ function socialLoginUnavailable(provider: string) {
 
 export function ConnexionScreen({
   navigation,
+  route,
 }: AuthScreenProps<'ConnexionEmail'>) {
   const { t } = useTranslation();
   const passwordRef = useRef<TextInputInstance>(null);
   const { login, isLoggingIn, loginError, resetLogin } = useAuth();
   useResetOnUnmount(resetLogin);
 
-  const { control, handleSubmit } = useForm<LoginInput, unknown, LoginValues>({
+  const returnedEmail = route.params?.email;
+  const { control, handleSubmit, getValues, reset } = useForm<
+    LoginInput,
+    unknown,
+    LoginValues
+  >({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: returnedEmail ?? '', password: '' },
   });
+
+  // Retour du mot de passe oublié : adresse reprise, mot de passe à saisir.
+  useEffect(() => {
+    if (returnedEmail) {
+      reset({ email: returnedEmail, password: '' });
+    }
+  }, [returnedEmail, reset]);
 
   // En cas de succès, la session s'ouvre et la navigation bascule vers l'app.
   const onSubmit = handleSubmit(values => login(values));
@@ -140,7 +136,11 @@ export function ConnexionScreen({
             />
 
             <Pressable
-              onPress={() => navigation.navigate('MotDePasse')}
+              onPress={() =>
+                navigation.navigate('MotDePasse', {
+                  email: getValues('email').trim(),
+                })
+              }
               accessibilityRole="link"
               className="min-h-[44px] justify-center self-end"
             >

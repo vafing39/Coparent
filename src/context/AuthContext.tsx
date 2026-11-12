@@ -5,7 +5,11 @@ import { apiClient } from '../api/client';
 import { refreshSession } from '../api/session';
 import type { AuthResponse, User } from '../api/types';
 import { loadRefreshToken } from '../lib/tokenStorage';
-import type { LoginValues, SignupValues } from '../schemas/auth';
+import type {
+  LoginValues,
+  ResetPasswordValues,
+  SignupValues,
+} from '../schemas/auth';
 import { AuthEntry, SessionStatus, useSession } from '../stores/session';
 
 // Requêtes HTTP d'authentification, appelées uniquement par AuthProvider.
@@ -39,6 +43,18 @@ async function verifyEmailRequest(code: string): Promise<User> {
     code,
   });
   return data;
+}
+
+/** Envoie un code de réinitialisation si un compte existe (réponse identique sinon). */
+async function forgotPasswordRequest(email: string): Promise<void> {
+  await apiClient.post('/api/v1/auth/password/forgot', { email });
+}
+
+/** Choisit un nouveau mot de passe avec le code reçu ; toutes les sessions sont fermées. */
+async function resetPasswordRequest(
+  values: ResetPasswordValues,
+): Promise<void> {
+  await apiClient.post('/api/v1/auth/password/reset', values);
 }
 
 async function logoutRequest(refreshToken: string): Promise<void> {
@@ -81,6 +97,18 @@ export type AuthContextValue = {
   isEmailVerificationResent: boolean;
   resendEmailVerificationError: Error | null;
   resetResendEmailVerification: () => void;
+
+  /** Mot de passe oublié : envoie un code à l'adresse, si un compte existe. */
+  forgotPassword: UseMutateFunction<void, Error, string>;
+  isSendingResetCode: boolean;
+  forgotPasswordError: Error | null;
+  resetForgotPassword: () => void;
+
+  /** Nouveau mot de passe avec le code reçu. La session n'est pas ouverte : il faut se reconnecter. */
+  resetPassword: UseMutateFunction<void, Error, ResetPasswordValues>;
+  isResettingPassword: boolean;
+  resetPasswordError: Error | null;
+  resetResetPassword: () => void;
 
   /**
    * Déconnexion : la session est fermée tout de suite, puis le jeton est révoqué côté
@@ -140,6 +168,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     reset: resetResendEmailVerification,
   } = useMutation({ mutationFn: resendEmailVerificationRequest });
 
+  const {
+    mutate: forgotPassword,
+    isPending: isSendingResetCode,
+    error: forgotPasswordError,
+    reset: resetForgotPassword,
+  } = useMutation({ mutationFn: forgotPasswordRequest });
+
+  const {
+    mutate: resetPassword,
+    isPending: isResettingPassword,
+    error: resetPasswordError,
+    reset: resetResetPassword,
+  } = useMutation({ mutationFn: resetPasswordRequest });
+
   const { mutate: signOut, isPending: isSigningOut } = useMutation({
     mutationFn: async (options: SignOutVariables) => {
       const refreshToken = await loadRefreshToken();
@@ -187,6 +229,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isEmailVerificationResent,
     resendEmailVerificationError,
     resetResendEmailVerification,
+    forgotPassword,
+    isSendingResetCode,
+    forgotPasswordError,
+    resetForgotPassword,
+    resetPassword,
+    isResettingPassword,
+    resetPasswordError,
+    resetResetPassword,
     signOut,
     isSigningOut,
     restore,

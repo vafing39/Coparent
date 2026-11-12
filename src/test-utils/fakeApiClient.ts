@@ -9,7 +9,11 @@ import type {
   InvitationPreview,
   User,
 } from '../api/types';
-import type { LoginValues, SignupValues } from '../schemas/auth';
+import type {
+  LoginValues,
+  ResetPasswordValues,
+  SignupValues,
+} from '../schemas/auth';
 import type { ChildPayload } from '../context/FamilyContext';
 
 type FamilyBody = { name: string; vacationZone: string };
@@ -40,6 +44,8 @@ export const authApi = {
   resendEmailVerification: jest.fn<Promise<void>, []>(),
   refresh: jest.fn<Promise<AuthResponse>, [string]>(),
   logout: jest.fn<Promise<void>, [string]>(),
+  forgotPassword: jest.fn<Promise<void>, [string]>(),
+  resetPassword: jest.fn<Promise<void>, [ResetPasswordValues]>(),
 };
 
 /** Invitation côté invité : aperçu public (null simule le 404 « plus valide ») et acceptation. */
@@ -58,9 +64,10 @@ const INVITATIONS = /^\/api\/v1\/families\/([^/]+)\/invitations$/;
 const SCHEDULE = /^\/api\/v1\/families\/([^/]+)\/custody-schedule$/;
 
 function authRoute(url: string, body: unknown) {
-  const { refreshToken, code } = (body ?? {}) as {
+  const { refreshToken, code, email } = (body ?? {}) as {
     refreshToken?: string;
     code?: string;
+    email?: string;
   };
   switch (url) {
     case '/api/v1/auth/login':
@@ -75,6 +82,10 @@ function authRoute(url: string, body: unknown) {
       return authApi.refresh(refreshToken as string);
     case '/api/v1/auth/logout':
       return authApi.logout(refreshToken as string);
+    case '/api/v1/auth/password/forgot':
+      return authApi.forgotPassword(email as string);
+    case '/api/v1/auth/password/reset':
+      return authApi.resetPassword(body as ResetPasswordValues);
   }
   return undefined;
 }

@@ -61,3 +61,41 @@ export function verificationErrorMessage(error: unknown): string {
   }
   return networkError();
 }
+
+/** Message renvoyé par le serveur pour un code faux, expiré ou annulé (ou un compte inconnu). */
+const INVALID_RESET_CODE_MESSAGE = 'Code incorrect ou expiré.';
+
+export type ResetPasswordError =
+  | { field: 'code' | 'newPassword'; message: string }
+  | { field: null; message: string };
+
+/**
+ * Où afficher un refus de réinitialisation. Le serveur vérifie le mot de passe avant le
+ * code : un 400 qui ne concerne pas le code est un refus du mot de passe (message rédigé
+ * pour l'utilisateur). Neutre : un compte inconnu reçoit le même message qu'un code faux.
+ */
+export function describeResetPasswordError(error: unknown): ResetPasswordError {
+  if (error instanceof ApiError) {
+    if (error.status === 400) {
+      return error.message === INVALID_RESET_CODE_MESSAGE ||
+        error.message === 'API error'
+        ? {
+            field: 'code',
+            message: i18n.t('forgotPassword.errors.invalidCode'),
+          }
+        : { field: 'newPassword', message: error.message };
+    }
+    if (error.status === 429) {
+      return { field: null, message: tooManyAttempts() };
+    }
+  }
+  return { field: null, message: networkError() };
+}
+
+/** Message d'échec de l'envoi du code (la réponse ne dit jamais si le compte existe). */
+export function forgotPasswordErrorMessage(error: unknown): string {
+  if (error instanceof ApiError && error.status === 429) {
+    return tooManyAttempts();
+  }
+  return networkError();
+}

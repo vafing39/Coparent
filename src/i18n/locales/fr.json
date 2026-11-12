@@ -5,7 +5,6 @@
     "signOut": "Se déconnecter",
     "loading": "Chargement",
     "comingSoon": "Bientôt disponible",
-    "screenComingSoon": "Écran à venir.",
     "or": "ou",
     "ok": "OK",
     "and": "et"
@@ -103,7 +102,25 @@
     }
   },
   "forgotPassword": {
-    "title": "Mot de passe oublié"
+    "title": "Mot de passe oublié",
+    "body": "Indiquez votre adresse email. Nous vous enverrons un code pour choisir un nouveau mot de passe.",
+    "sendCode": "Envoyer le code",
+    "codeSent": "Si un compte existe pour <bold>{{email}}</bold>, vous recevrez un code valable 30 minutes.",
+    "code": {
+      "label": "Code reçu par email",
+      "required": "Saisissez le code reçu par email.",
+      "tooShort": "Le code contient {{length}} chiffres."
+    },
+    "newPassword": "Nouveau mot de passe",
+    "submit": "Enregistrer",
+    "resend": "Renvoyer le code",
+    "resent": "Un nouveau code vient d’être envoyé.",
+    "changeAddress": "Modifier l'adresse",
+    "done": "Mot de passe modifié. Connectez-vous avec votre nouveau mot de passe.",
+    "signIn": "Se connecter",
+    "errors": {
+      "invalidCode": "Code incorrect ou expiré. Vérifiez-le ou demandez un nouveau code."
+    }
   },
   "family": {
     "loadFailed": "Impossible de récupérer votre famille. Vérifiez votre accès à Internet, puis réessayez."

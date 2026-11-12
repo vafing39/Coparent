@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { BienvenueScreen } from '../screens/auth/BienvenueScreen';
 import { ConnexionScreen } from '../screens/auth/ConnexionScreen';
 import { InscriptionScreen } from '../screens/auth/InscriptionScreen';
-import { PlaceholderScreen } from '../screens/auth/PlaceholderScreen';
+import { MotDePasseScreen } from '../screens/auth/MotDePasseScreen';
 import { AccepterInvitationScreen } from '../screens/invitation/AccepterInvitationScreen';
 import { useAuth } from '../hooks/useAuth';
 import { useInvitation } from '../hooks/useInvitation';
@@ -13,12 +13,6 @@ import { fonts } from '../theme/tokens';
 import type { AuthStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
-
-// À remplacer par le vrai écran lors de la fonction correspondante.
-function MotDePasseScreen() {
-  const { t } = useTranslation();
-  return <PlaceholderScreen title={t('forgotPassword.title')} />;
-}
 
 export function AuthNavigator() {
   const { color } = useTheme();
@@ -71,7 +65,8 @@ export function AuthNavigator() {
       <Stack.Screen
         name="MotDePasse"
         component={MotDePasseScreen}
-        options={{ title: t('forgotPassword.title') }}
+        // Le titre est dans l'écran (maquette) : en-tête réduit à la flèche de retour.
+        options={{ title: '' }}
       />
     </Stack.Navigator>
   );

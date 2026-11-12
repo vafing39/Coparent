@@ -3,8 +3,10 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 export type AuthStackParamList = {
   Bienvenue: undefined;
   Inscription: undefined;
-  ConnexionEmail: undefined;
-  MotDePasse: undefined;
+  /** email : adresse saisie avant (mot de passe oublié → retour à la connexion). */
+  ConnexionEmail: { email?: string } | undefined;
+  /** email : adresse déjà saisie sur l'écran de connexion. */
+  MotDePasse: { email?: string } | undefined;
   /** Aperçu d'une invitation reçue par lien (jeton dans InvitationProvider). */
   AccepterInvitation: undefined;
 };

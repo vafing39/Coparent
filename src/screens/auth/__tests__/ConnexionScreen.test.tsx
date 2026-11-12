@@ -136,7 +136,7 @@ test('liens : mot de passe oublié et création de compte', async () => {
     screen.getByRole('link', { name: 'Mot de passe oublié ?' }),
   );
   await fireEvent.press(screen.getByRole('link', { name: 'Créer mon compte' }));
-  expect(navigate).toHaveBeenNthCalledWith(1, 'MotDePasse');
+  expect(navigate).toHaveBeenNthCalledWith(1, 'MotDePasse', { email: '' });
   expect(navigate).toHaveBeenNthCalledWith(2, 'Inscription');
 });
 
@@ -146,4 +146,18 @@ test('loginErrorMessage', () => {
   );
   expect(loginErrorMessage(new ApiError(429))).toMatch(/Trop de tentatives/);
   expect(loginErrorMessage(new Error('x'))).toMatch(/Internet/);
+});
+
+test('mot de passe oublié : transmet l’adresse saisie', async () => {
+  await renderScreen();
+  await fireEvent.changeText(
+    screen.getByLabelText('Adresse email'),
+    ' lea@exemple.fr ',
+  );
+  await fireEvent.press(
+    screen.getByRole('link', { name: 'Mot de passe oublié ?' }),
+  );
+  expect(navigate).toHaveBeenCalledWith('MotDePasse', {
+    email: 'lea@exemple.fr',
+  });
 });

@@ -57,3 +57,41 @@ export const signupSchema = z
 
 export type SignupInput = z.input<typeof signupSchema>;
 export type SignupValues = z.output<typeof signupSchema>;
+
+/** Mot de passe oublié, étape 1 : l'adresse du compte. */
+export const forgotPasswordSchema = z.object({
+  email: loginSchema.shape.email,
+});
+
+export type ForgotPasswordInput = z.input<typeof forgotPasswordSchema>;
+export type ForgotPasswordValues = z.output<typeof forgotPasswordSchema>;
+
+export const RESET_CODE_LENGTH = 8;
+
+/**
+ * Mot de passe oublié, étape 2 : code reçu par email et nouveau mot de passe (mêmes règles
+ * qu'à l'inscription). L'adresse vient de l'étape 1.
+ */
+export const resetPasswordFormSchema = z
+  .object({
+    code: z
+      .string()
+      .min(1, { error: msg('forgotPassword.code.required') })
+      .regex(new RegExp(`^\\d{${RESET_CODE_LENGTH}}$`), {
+        error: msg('forgotPassword.code.tooShort', {
+          length: RESET_CODE_LENGTH,
+        }),
+      }),
+    newPassword: signupSchema.shape.password,
+    confirmPassword: signupSchema.shape.confirmPassword,
+  })
+  .refine(values => values.newPassword === values.confirmPassword, {
+    error: msg('fields.confirmPassword.mismatch'),
+    path: ['confirmPassword'],
+  });
+
+export type ResetPasswordFormInput = z.input<typeof resetPasswordFormSchema>;
+export type ResetPasswordFormValues = z.output<typeof resetPasswordFormSchema>;
+
+/** Corps envoyé au serveur. */
+export type ResetPasswordValues = ResetPasswordFormValues & { email: string };
