@@ -71,7 +71,8 @@
   - chez qui sont les enfants ce soir ;
   - prochain passage de garde ;
   - événements du jour ;
-  - aperçu des demandes à traiter.
+  - aperçu des demandes à traiter ;
+  - sac à préparer pour le prochain passage : une liste par enfant, partagée par les deux parents ; chacun ajoute, coche, décoche ou supprime un élément ; les cases se remettent à zéro après chaque passage ; l'accueil affiche « X sur Y cochés ».
 - « À traiter » regroupe tout ce qui attend une réponse :
   - à vous de répondre : chaque élément mène à l'écran concerné ;
   - en attente de l'autre parent : depuis quand, et ce qui se passe en l'absence de réponse.

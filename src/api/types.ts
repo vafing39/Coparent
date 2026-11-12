@@ -103,3 +103,58 @@ export type Family = {
   children: Child[];
   custodySchedule: CustodySchedule | null;
 };
+
+/** Ce qui décide du parent pour une nuit : le rythme habituel, des petites vacances ou l'été. */
+export type CustodyPeriod = 'REGULAR' | 'SHORT_HOLIDAY' | 'SUMMER';
+
+/** CustodyNightResponse côté backend : la nuit qui commence le `date` (« AAAA-MM-JJ »). */
+export type CustodyNight = {
+  date: string;
+  parent: FamilyRole;
+  period: CustodyPeriod;
+  /** Nom officiel des vacances scolaires, null hors vacances. */
+  holiday: string | null;
+};
+
+/** HandoverResponse côté backend. `at` : date-heure de Paris, sans fuseau (« AAAA-MM-JJTHH:mm:ss »). */
+export type Handover = {
+  at: string;
+  from: FamilyRole;
+  to: FamilyRole;
+};
+
+/** CustodyResponse côté backend : la garde calculée sur une période. */
+export type Custody = {
+  /** ACTIVE (validé par les deux parents) ou PROPOSED (en attente, ou mode solo). */
+  scheduleStatus: CustodySchedule['status'];
+  nights: CustodyNight[];
+  handovers: Handover[];
+  /** Premier passage après maintenant, même hors période ; null si le rythme n'en prévoit aucun. */
+  nextHandover: Handover | null;
+};
+
+/** BagItemResponse côté backend. `checkedBy` : prénom de qui a coché, null sinon. */
+export type BagItem = {
+  id: string;
+  label: string;
+  checked: boolean;
+  checkedBy: string | null;
+};
+
+/** BagChildResponse côté backend : les éléments d'un enfant, dans l'ordre d'ajout. */
+export type BagChild = {
+  childId: string;
+  firstName: string;
+  items: BagItem[];
+};
+
+/**
+ * BagResponse côté backend : le sac du prochain passage. `handoverAt` : date-heure de Paris,
+ * null sans passage prévu (rien ne peut alors être coché).
+ */
+export type Bag = {
+  handoverAt: string | null;
+  checkedCount: number;
+  total: number;
+  children: BagChild[];
+};

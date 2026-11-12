@@ -81,3 +81,51 @@ export function formatDayMonth(instant: string): string {
     month: 'long',
   }).format(new Date(instant));
 }
+
+/** « AAAA-MM-JJ » → « mardi 10 novembre ». */
+export function formatLongDate(isoDate: string): string {
+  return new Intl.DateTimeFormat('fr-FR', {
+    timeZone: 'UTC',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date(`${isoDate}T00:00:00Z`));
+}
+
+/** « AAAA-MM-JJ » → « ven. 13 nov. ». */
+export function formatShortDate(isoDate: string): string {
+  return new Intl.DateTimeFormat('fr-FR', {
+    timeZone: 'UTC',
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(`${isoDate}T00:00:00Z`));
+}
+
+/** Date-heure locale « AAAA-MM-JJTHH:mm[:ss] » → { date: « AAAA-MM-JJ », time: « HH:mm » }. */
+export function splitLocalDateTime(localDateTime: string): {
+  date: string;
+  time: string;
+} {
+  const [date, time = '00:00'] = localDateTime.split('T');
+  return { date, time: time.slice(0, 5) };
+}
+
+/** Nombre de jours de `fromIso` à `toIso` (« AAAA-MM-JJ »), négatif si `toIso` est avant. */
+export function daysBetween(fromIso: string, toIso: string): number {
+  const day = 24 * 60 * 60 * 1000;
+  return Math.round(
+    (Date.parse(`${toIso}T00:00:00Z`) - Date.parse(`${fromIso}T00:00:00Z`)) /
+      day,
+  );
+}
+
+/** Heure (0 à 23) à Paris. */
+export function hourInParis(now: Date = new Date()): number {
+  const hour = new Intl.DateTimeFormat('en-GB', {
+    timeZone: APP_TIME_ZONE,
+    hour: '2-digit',
+    hourCycle: 'h23',
+  }).format(now);
+  return Number(hour);
+}

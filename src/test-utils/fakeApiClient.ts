@@ -1,7 +1,9 @@
 import { ApiError } from '../api/errors';
 import type {
   AuthResponse,
+  Bag,
   Child,
+  Custody,
   CustodySchedule,
   CustodyScheduleRequest,
   Family,
@@ -14,6 +16,7 @@ import type {
   ResetPasswordValues,
   SignupValues,
 } from '../schemas/auth';
+import type { AddBagItemVariables } from '../context/BagContext';
 import type { ChildPayload } from '../context/FamilyContext';
 
 type FamilyBody = { name: string; vacationZone: string };
@@ -34,6 +37,25 @@ export const familyApi = {
     Promise<CustodySchedule>,
     [string, CustodyScheduleRequest]
   >(),
+  /** Paramètres : familyId, from, to. */
+  custody: jest.fn<Promise<Custody>, [string, string, string]>(),
+};
+
+/** Sac vide, renvoyé par GET …/bag tant qu'un test ne simule pas cette route. */
+export const EMPTY_BAG: Bag = {
+  handoverAt: null,
+  checkedCount: 0,
+  total: 0,
+  children: [],
+};
+
+/** Une fonction simulée par route du sac à préparer (familyId, puis itemId ou corps). */
+export const bagApi = {
+  get: jest.fn<Promise<Bag>, [string]>(),
+  addItem: jest.fn<Promise<Bag>, [string, AddBagItemVariables]>(),
+  deleteItem: jest.fn<Promise<Bag>, [string, string]>(),
+  check: jest.fn<Promise<Bag>, [string, string]>(),
+  uncheck: jest.fn<Promise<Bag>, [string, string]>(),
 };
 
 /** Une fonction simulée par route d'authentification (paramètres utiles du corps). */
@@ -62,6 +84,12 @@ const CHILDREN = /^\/api\/v1\/families\/([^/]+)\/children$/;
 const CHILD = /^\/api\/v1\/families\/([^/]+)\/children\/([^/]+)$/;
 const INVITATIONS = /^\/api\/v1\/families\/([^/]+)\/invitations$/;
 const SCHEDULE = /^\/api\/v1\/families\/([^/]+)\/custody-schedule$/;
+const BAG = /^\/api\/v1\/families\/([^/]+)\/bag$/;
+const BAG_ITEMS = /^\/api\/v1\/families\/([^/]+)\/bag\/items$/;
+const BAG_ITEM = /^\/api\/v1\/families\/([^/]+)\/bag\/items\/([^/]+)$/;
+const BAG_CHECK = /^\/api\/v1\/families\/([^/]+)\/bag\/items\/([^/]+)\/check$/;
+const CUSTODY =
+  /^\/api\/v1\/families\/([^/]+)\/custody\?from=([\d-]+)&to=([\d-]+)$/;
 
 function authRoute(url: string, body: unknown) {
   const { refreshToken, code, email } = (body ?? {}) as {
@@ -136,6 +164,24 @@ async function route(method: string, url: string, body?: unknown) {
   }
   if (method === 'PUT' && (match = url.match(SCHEDULE))) {
     return familyApi.proposeSchedule(match[1], body as CustodyScheduleRequest);
+  }
+  if (method === 'GET' && (match = url.match(CUSTODY))) {
+    return familyApi.custody(match[1], match[2], match[3]);
+  }
+  if (method === 'GET' && (match = url.match(BAG))) {
+    return (await bagApi.get(match[1])) ?? EMPTY_BAG;
+  }
+  if (method === 'POST' && (match = url.match(BAG_ITEMS))) {
+    return bagApi.addItem(match[1], body as AddBagItemVariables);
+  }
+  if (method === 'DELETE' && (match = url.match(BAG_ITEM))) {
+    return bagApi.deleteItem(match[1], match[2]);
+  }
+  if (method === 'PUT' && (match = url.match(BAG_CHECK))) {
+    return bagApi.check(match[1], match[2]);
+  }
+  if (method === 'DELETE' && (match = url.match(BAG_CHECK))) {
+    return bagApi.uncheck(match[1], match[2]);
   }
   throw new Error(`Requête non simulée : ${method} ${url}`);
 }

@@ -1,13 +1,15 @@
 import React, { useCallback, useState } from 'react';
 import type { Family } from '../api/types';
+import { BagProvider } from '../context/BagContext';
+import { CustodyProvider } from '../context/CustodyContext';
 import { FamilyProvider } from '../context/FamilyContext';
 import { useFamily } from '../hooks/useFamily';
 import { useInvitation } from '../hooks/useInvitation';
 import { InvitationBlockedScreen } from '../screens/invitation/InvitationBlockedScreen';
 import { InvitationConfirmScreen } from '../screens/invitation/InvitationConfirmScreen';
 import { JoinFamilyScreen } from '../screens/invitation/JoinFamilyScreen';
+import { AppNavigator } from './AppNavigator';
 import { OnboardingNavigator } from './OnboardingNavigator';
-import { TabsNavigator } from './TabsNavigator';
 
 /** Famille prête : au moins un enfant et un rythme de garde enregistré. */
 function isFamilySetUp(family: Family | null): boolean {
@@ -55,7 +57,13 @@ function SignedInContent({ emailVerified }: { emailVerified: boolean }) {
   }
 
   if (onboardingDone) {
-    return <TabsNavigator />;
+    return (
+      <CustodyProvider>
+        <BagProvider>
+          <AppNavigator />
+        </BagProvider>
+      </CustodyProvider>
+    );
   }
   return (
     <OnboardingNavigator

@@ -1,5 +1,10 @@
 import {
+  daysBetween,
   formatDateInput,
+  formatLongDate,
+  formatShortDate,
+  hourInParis,
+  splitLocalDateTime,
   formatTime,
   isoWeekday,
   nextWeekday,
@@ -48,4 +53,28 @@ test('nextWeekday : prochaine occurrence, aujourd’hui exclu', () => {
 test('formatTime', () => {
   expect(formatTime('17:50')).toBe('17 h 50');
   expect(formatTime('09:05')).toBe('9 h 05');
+});
+
+test('formatLongDate et formatShortDate', () => {
+  expect(formatLongDate('2026-11-10')).toBe('mardi 10 novembre');
+  expect(formatShortDate('2026-11-13')).toBe('ven. 13 nov.');
+});
+
+test('splitLocalDateTime lit la date-heure de Paris sans fuseau', () => {
+  expect(splitLocalDateTime('2026-11-13T17:50:00')).toEqual({
+    date: '2026-11-13',
+    time: '17:50',
+  });
+});
+
+test('daysBetween traverse le changement d’heure', () => {
+  expect(daysBetween('2026-11-10', '2026-11-13')).toBe(3);
+  expect(daysBetween('2026-10-24', '2026-10-26')).toBe(2);
+  expect(daysBetween('2026-11-13', '2026-11-10')).toBe(-3);
+});
+
+test('hourInParis suit le fuseau de Paris', () => {
+  expect(hourInParis(new Date('2026-11-10T17:30:00Z'))).toBe(18);
+  expect(hourInParis(new Date('2026-07-10T16:30:00Z'))).toBe(18);
+  expect(hourInParis(new Date('2026-11-10T23:30:00Z'))).toBe(0);
 });

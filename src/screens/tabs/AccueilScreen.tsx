@@ -1,42 +1,54 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button } from '../../components/Button';
+import type { FamilyRole } from '../../api/types';
+import { CustodyCards } from '../../features/home/CustodyCards';
+import { EmptyCard } from '../../features/home/HomeCard';
+import { HomeHeader } from '../../features/home/HomeHeader';
+import { SoloBanner } from '../../features/home/SoloBanner';
 import { useAuth } from '../../hooks/useAuth';
+import { useFamily } from '../../hooks/useFamily';
+import type { TabScreenProps } from '../../navigation/types';
 
 /**
- * Onglet Accueil. PROVISOIRE : salutation et déconnexion, en attendant le contenu
- * (ce soir, prochain passage, aujourd'hui, à traiter) et l'écran « Compte et famille ».
+ * Onglet Accueil : où dorment les enfants ce soir et le prochain passage, calculés par le
+ * backend. « Aujourd'hui » et « À traiter » restent vides en attendant les événements et
+ * les demandes ; « Tout voir » ouvre l'écran « À traiter ».
  */
-export function AccueilScreen() {
+export function AccueilScreen({ navigation }: TabScreenProps<'Accueil'>) {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
-  const firstName = user?.firstName;
+  const { family } = useFamily();
+  const now = new Date();
+
+  if (!family) {
+    // Les onglets ne s'ouvrent qu'une fois la famille créée (SignedInNavigator).
+    return null;
+  }
+  const otherRole: FamilyRole =
+    family.myRole === 'PARENT_A' ? 'PARENT_B' : 'PARENT_A';
 
   return (
-    <SafeAreaView
-      className="flex-1 justify-center bg-background px-6"
-      edges={['top']}
-    >
-      <View className="gap-2">
-        <Text
-          accessibilityRole="header"
-          className="font-extrabold text-[28px] leading-[34px] text-text"
-        >
-          {t('home.greeting', { firstName })}
-        </Text>
-        <Text className="font-regular text-[15px] leading-[22px] text-text-secondary">
-          {t('home.placeholder')}
-        </Text>
-      </View>
-      <View className="mt-8">
-        <Button
-          label={t('common.signOut')}
-          variant="secondary"
-          onPress={() => signOut()}
+    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <ScrollView contentContainerClassName="gap-4 px-4 pt-5 pb-8">
+        <HomeHeader
+          firstName={user?.firstName ?? ''}
+          now={now}
+          onSignOut={() => signOut()}
         />
-      </View>
+        {family.solo ? <SoloBanner otherRole={otherRole} /> : null}
+        <CustodyCards onOpenBag={() => navigation.navigate('SacAPreparer')} />
+        <EmptyCard title={t('home.today.title')} text={t('home.today.empty')} />
+        <EmptyCard
+          title={t('home.toDo.title')}
+          text={t('home.toDo.empty')}
+          action={{
+            label: t('home.toDo.seeAll'),
+            onPress: () => navigation.navigate('ATraiter'),
+          }}
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 }

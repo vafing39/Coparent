@@ -2,6 +2,7 @@
   "common": {
     "back": "Retour",
     "retry": "Réessayer",
+    "cancel": "Annuler",
     "signOut": "Se déconnecter",
     "loading": "Chargement",
     "comingSoon": "Bientôt disponible",
@@ -356,7 +357,65 @@
   },
   "home": {
     "greeting": "Bonjour {{firstName}}",
-    "placeholder": "Vous êtes connecté. Le contenu de l'accueil arrive bientôt."
+    "greetingEvening": "Bonsoir {{firstName}}",
+    "account": {
+      "label": "Compte et famille",
+      "title": "Compte"
+    },
+    "solo": "L'autre parent n'a pas encore rejoint la famille.",
+    "otherParent": "l'autre parent",
+    "tonight": {
+      "title": "Ce soir",
+      "titleProposed": "Ce soir, d'après le rythme proposé",
+      "whereabouts_one": "{{children}} est chez {{parent}}",
+      "whereabouts_other": "{{children}} sont chez {{parent}}",
+      "until": "Jusqu'au {{date}}, {{time}}"
+    },
+    "nextHandover": {
+      "title": "Prochain passage",
+      "today": "aujourd'hui",
+      "tomorrow": "demain",
+      "inDays": "dans {{count}} jours",
+      "when": "{{date}} · {{time}}",
+      "direction": "{{from}} vers {{to}}"
+    },
+    "bag": {
+      "title": "Sac à préparer",
+      "handover": "{{date}} · {{time}} · {{from}} vers {{to}}",
+      "empty": "La liste du sac est vide pour l'instant.",
+      "count": "{{checked}} sur {{total}} cochés",
+      "checkedBy": "coché par {{firstName}}",
+      "itemHint": "Appui long pour supprimer l'élément",
+      "childLegend": "Pour quel enfant ?",
+      "label": {
+        "label": "Ajouter pour {{firstName}}",
+        "placeholder": "Ex. : Kimono",
+        "required": "Saisissez l'élément à ajouter.",
+        "tooLong": "{{max}} caractères maximum."
+      },
+      "add": "Ajouter",
+      "delete": "Supprimer",
+      "deleteConfirm": "Supprimer « {{label}} » ?",
+      "deleteBody": "L'élément disparaît de la liste pour les deux parents.",
+      "noHandover": "Aucun passage de garde n'est prévu : les éléments ne peuvent pas être cochés pour l'instant.",
+      "shared": "Les deux parents voient et cochent la même liste.",
+      "loadFailed": "Impossible de charger le sac. Vérifiez votre connexion.",
+      "errors": {
+        "noHandover": "Aucun passage de garde n'est prévu.",
+        "gone": "Cet élément n'existe plus. La liste a peut-être été modifiée par l'autre parent.",
+        "saveFailed": "L'élément n'a pas pu être enregistré. Vérifiez-le, puis réessayez."
+      }
+    },
+    "today": {
+      "title": "Aujourd'hui",
+      "empty": "Rien de prévu aujourd'hui."
+    },
+    "toDo": {
+      "title": "À traiter",
+      "empty": "Rien à traiter pour l'instant.",
+      "seeAll": "Tout voir"
+    },
+    "loadFailed": "Impossible de charger la garde. Vérifiez votre connexion."
   },
   "calendar": {
     "placeholder": "Le calendrier de garde arrive bientôt."
