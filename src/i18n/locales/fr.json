@@ -648,6 +648,51 @@
       "WEEKLY": "Chaque semaine, le {{weekday}}",
       "BIWEEKLY": "Toutes les deux semaines, le {{weekday}}",
       "MONTHLY": "Chaque mois, le {{day}}",
+      "CUSTOM": "Personnalisé",
+      "customHint": "Ouvre le choix personnalisé",
+      "custom": {
+        "title": "Personnalisé",
+        "every": {
+          "label": "Tous les",
+          "DAY_one": "Chaque jour",
+          "DAY_other": "Tous les {{count}} jours",
+          "WEEK_one": "Chaque semaine",
+          "WEEK_other": "Toutes les {{count}} semaines",
+          "MONTH_one": "Chaque mois",
+          "MONTH_other": "Tous les {{count}} mois"
+        },
+        "less": "Diminuer",
+        "more": "Augmenter",
+        "unit": "Unité",
+        "units": {
+          "DAY": "jours",
+          "WEEK": "semaines",
+          "MONTH": "mois"
+        },
+        "days": "Les jours",
+        "eventDay": "{{weekday}}, jour de l'événement",
+        "times": "Horaires",
+        "sameTime": "Même horaire chaque jour",
+        "start": "Début, {{weekday}}",
+        "end": "Fin, {{weekday}}",
+        "eventDayTime": "{{start}} – {{end}} (horaire de l'événement)",
+        "endBeforeStart": "L'heure de fin doit suivre l'heure de début, chaque jour.",
+        "monthDay": "Jour du mois",
+        "dayOfMonth": "Le {{day}} de chaque mois",
+        "weekdayOfMonth": "Le {{rank}} {{weekday}} du mois",
+        "ranks": {
+          "1": "premier",
+          "2": "deuxième",
+          "3": "troisième",
+          "4": "quatrième",
+          "5": "dernier"
+        },
+        "onDay": "le {{day}}",
+        "onWeekdayOfMonth": "le {{rank}} {{weekday}}",
+        "onWeekday": "le {{weekday}}",
+        "onWeekdayAt": "le {{weekday}} à {{time}}",
+        "summary": "<bold>Résumé :</bold> {{summary}}."
+      },
       "onlyWith_one": "Seulement quand {{names}} est chez",
       "onlyWith_other": "Seulement quand {{names}} sont chez",
       "theChildren": "les enfants",
@@ -681,6 +726,42 @@
       "summaryHolidays": "hors vacances",
       "summaryUntil": "jusqu'au {{date}}",
       "summaryCount": "{{count}} séances"
+    },
+    "history": {
+      "title": "Historique",
+      "loading": "Chargement de l'historique",
+      "failed": "Impossible de charger l'historique.",
+      "someone": "Un parent",
+      "you": "Vous",
+      "created_mine": "Vous avez créé l'événement",
+      "created_other": "{{name}} a créé l'événement",
+      "updated_mine": "Vous avez modifié {{fields}}",
+      "updated_other": "{{name}} a modifié {{fields}}",
+      "deleted_mine": "Vous avez supprimé {{what}}",
+      "deleted_other": "{{name}} a supprimé {{what}}",
+      "fields": {
+        "TITLE": "le titre",
+        "TYPE": "le type",
+        "CHILDREN": "les enfants",
+        "DATE": "la date",
+        "TIME": "l'heure",
+        "LOCATION": "le lieu",
+        "REMINDER": "le rappel",
+        "VISIBILITY": "la visibilité",
+        "REPEAT": "la répétition"
+      },
+      "deletedWhat": {
+        "event": "l'événement",
+        "ONE": "la séance du {{date}}",
+        "FOLLOWING": "les séances à partir du {{date}}",
+        "ALL": "toutes les séances à venir"
+      },
+      "updatedScope": {
+        "ONE": "séance du {{date}} seulement",
+        "FOLLOWING": "à partir du {{date}}",
+        "ALL": "toute la série"
+      },
+      "when": "{{day}} à {{time}}"
     },
     "scope": {
       "editTitle": "Modifier quelles séances ?",

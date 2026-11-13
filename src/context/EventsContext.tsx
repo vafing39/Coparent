@@ -1,4 +1,4 @@
-import React, { createContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useMemo, useState } from 'react';
 import {
   UseMutateFunction,
   useMutation,
@@ -10,14 +10,15 @@ import { eventKeys } from '../api/events';
 import type {
   CalendarEvent,
   EventBody,
+  EventChange,
   EventRepeat,
   EventScope,
   RepeatPreviewDate,
 } from '../api/types';
 import { useFamily } from '../hooks/useFamily';
 
-// Requêtes HTTP des événements (création, modification, suppression, aperçu d'une répétition),
-// appelées uniquement par EventsProvider. Les listes sont chargées par CalendarProvider.
+// Requêtes HTTP des événements (création, modification, suppression, aperçu d'une répétition,
+// historique), appelées uniquement par EventsProvider. Les listes sont chargées par CalendarProvider.
 
 function eventsPath(familyId: string) {
   return `/api/v1/families/${familyId}/events`;
@@ -73,6 +74,16 @@ async function fetchRepeatPreview(
   return data;
 }
 
+async function fetchEventHistory(
+  familyId: string,
+  eventId: string,
+): Promise<EventChange[]> {
+  const { data } = await apiClient.get<EventChange[]>(
+    `${eventsPath(familyId)}/${eventId}/history`,
+  );
+  return data;
+}
+
 /** Pour une séance d'une série : `scope` et `date` (la séance ouverte) disent lesquelles changent. */
 export type UpdateEventVariables = {
   id: string;
@@ -107,21 +118,46 @@ export type EventsContextValue = {
   repeatPreview: RepeatPreviewDate[] | undefined;
   isLoadingRepeatPreview: boolean;
   repeatPreviewError: Error | null;
+  /** L'écran de détail ouvre l'historique d'un événement (et de sa série), puis le lit. */
+  openHistory: (eventId: string) => void;
+  closeHistory: () => void;
+  history: EventChange[] | undefined;
+  isLoadingHistory: boolean;
+  historyError: Error | null;
 };
 
 export const EventsContext = createContext<EventsContextValue | null>(null);
 
 /**
- * Détient la création, la modification et la suppression des événements, et l'aperçu d'une
- * répétition (calculé par le serveur : garde et vacances). Après chaque enregistrement, les
- * listes d'événements de la famille sont rechargées (calendrier, « Aujourd'hui »).
+ * Détient la création, la modification et la suppression des événements, l'aperçu d'une
+ * répétition (calculé par le serveur : garde et vacances) et l'historique d'un événement.
+ * Après chaque enregistrement, les listes d'événements de la famille (calendrier,
+ * « Aujourd'hui ») et les historiques sont rechargés.
  */
 export function EventsProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const { family } = useFamily();
   const familyId = family?.id ?? '';
   const onSaved = () =>
-    queryClient.invalidateQueries({ queryKey: eventKeys.all(familyId) });
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: eventKeys.all(familyId) }),
+      queryClient.invalidateQueries({
+        queryKey: eventKeys.allHistories(familyId),
+      }),
+    ]);
+
+  const [historyId, setHistoryId] = useState<string | null>(null);
+  const {
+    data: history,
+    isPending: isHistoryPending,
+    error: historyError,
+  } = useQuery({
+    queryKey: eventKeys.history(familyId, historyId ?? ''),
+    queryFn: () => fetchEventHistory(familyId, historyId as string),
+    enabled: familyId !== '' && historyId !== null,
+  });
+  const openHistory = setHistoryId;
+  const closeHistory = useCallback(() => setHistoryId(null), []);
 
   const [previewRequest, setPreviewRequest] =
     useState<RepeatPreviewRequest | null>(null);
@@ -185,6 +221,11 @@ export function EventsProvider({ children }: { children: React.ReactNode }) {
       repeatPreview: previewRequest === null ? undefined : repeatPreview,
       isLoadingRepeatPreview,
       repeatPreviewError: previewRequest === null ? null : repeatPreviewError,
+      openHistory,
+      closeHistory,
+      history: historyId === null ? undefined : history,
+      isLoadingHistory: historyId !== null && isHistoryPending,
+      historyError: historyId === null ? null : historyError,
     }),
     [
       createEvent,
@@ -203,6 +244,12 @@ export function EventsProvider({ children }: { children: React.ReactNode }) {
       repeatPreview,
       isLoadingRepeatPreview,
       repeatPreviewError,
+      openHistory,
+      closeHistory,
+      historyId,
+      history,
+      isHistoryPending,
+      historyError,
     ],
   );
   return (

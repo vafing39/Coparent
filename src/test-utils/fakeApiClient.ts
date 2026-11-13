@@ -4,6 +4,7 @@ import type {
   Bag,
   CalendarEvent,
   EventBody,
+  EventChange,
   EventScope,
   RepeatPreviewDate,
   Exchange,
@@ -96,6 +97,8 @@ export const eventApi = {
     Promise<RepeatPreviewDate[]>,
     [string, RepeatPreviewRequest]
   >(),
+  /** Historique (familyId, eventId) ; vide sans réponse prévue. */
+  history: jest.fn<Promise<EventChange[]>, [string, string]>(),
 };
 
 /**
@@ -178,6 +181,8 @@ const EXCHANGE_ANSWER =
 const EVENT =
   /^\/api\/v1\/families\/([^/]+)\/events\/([^/?]+)(?:\?scope=(ONE|FOLLOWING|ALL)(?:&date=([\d-]+))?)?$/;
 const REPEAT_PREVIEW = /^\/api\/v1\/families\/([^/]+)\/events\/repeat-preview$/;
+const EVENT_HISTORY =
+  /^\/api\/v1\/families\/([^/]+)\/events\/([^/]+)\/history$/;
 const CONVERSATIONS = /^\/api\/v1\/families\/([^/]+)\/conversations$/;
 const CONVERSATION_MESSAGES =
   /^\/api\/v1\/families\/([^/]+)\/conversations\/([^/]+)\/messages(?:\?before=(\d+))?$/;
@@ -293,6 +298,9 @@ async function route(method: string, url: string, body?: unknown) {
   }
   if (method === 'POST' && (match = url.match(EVENTS))) {
     return eventApi.create(match[1], body as EventBody);
+  }
+  if (method === 'GET' && (match = url.match(EVENT_HISTORY))) {
+    return (await eventApi.history(match[1], match[2])) ?? [];
   }
   if (method === 'POST' && (match = url.match(REPEAT_PREVIEW))) {
     return eventApi.repeatPreview(match[1], body as RepeatPreviewRequest);

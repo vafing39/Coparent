@@ -208,12 +208,47 @@ export type EventVisibility = 'SHARED' | 'PRIVATE';
  * sont en heure de Paris ; les heures sont null pour une journée entière. `authorFirstName` :
  * null si le compte a été supprimé ; `mine` : j'en suis l'auteur.
  */
-export type RepeatFrequency = 'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY';
+export type RepeatFrequency =
+  | 'DAILY'
+  | 'WEEKLY'
+  | 'BIWEEKLY'
+  | 'MONTHLY'
+  | 'CUSTOM';
 export type RepeatEnd = 'NEVER' | 'SCHOOL_YEAR' | 'COUNT';
+/** Personnalisé : tous les N jours, semaines ou mois. */
+export type RepeatUnit = 'DAY' | 'WEEK' | 'MONTH';
+/** Personnalisé par mois : le 19, ou le troisième jeudi. */
+export type RepeatMonthMode = 'DAY_OF_MONTH' | 'WEEKDAY_OF_MONTH';
+export type Weekday =
+  | 'MONDAY'
+  | 'TUESDAY'
+  | 'WEDNESDAY'
+  | 'THURSDAY'
+  | 'FRIDAY'
+  | 'SATURDAY'
+  | 'SUNDAY';
+
+/**
+ * Un jour d'une répétition personnalisée par semaine. Horaires « HH:mm » quand ils diffèrent
+ * d'un jour à l'autre (dans une réponse, « HH:mm:ss » pour chaque jour) ; null partout : même
+ * horaire chaque jour.
+ */
+export type RepeatDay = {
+  dayOfWeek: Weekday;
+  startTime: string | null;
+  endTime: string | null;
+};
 
 /** RepeatRequest côté backend : la règle d'un événement répété. */
 export type EventRepeat = {
   frequency: RepeatFrequency;
+  /** Personnalisé seulement : tous les `interval` `unit` (1 à 12). */
+  interval: number | null;
+  unit: RepeatUnit | null;
+  /** Personnalisé par mois seulement. */
+  monthMode: RepeatMonthMode | null;
+  /** Personnalisé par semaine seulement : les jours choisis, dont celui de l'événement. */
+  days: RepeatDay[];
   /** Seulement quand les enfants sont chez ce parent ; null : peu importe. */
   onlyWith: FamilyRole | null;
   skipHolidays: boolean;
@@ -224,6 +259,34 @@ export type EventRepeat = {
 
 /** Séances concernées par une modification ou une suppression dans une série. */
 export type EventScope = 'ONE' | 'FOLLOWING' | 'ALL';
+
+/** Ce qu'une modification a changé. */
+export type EventField =
+  | 'TITLE'
+  | 'TYPE'
+  | 'CHILDREN'
+  | 'DATE'
+  | 'TIME'
+  | 'LOCATION'
+  | 'REMINDER'
+  | 'VISIBILITY'
+  | 'REPEAT';
+
+/**
+ * EventChangeResponse côté backend : une ligne de l'historique d'un événement et de sa série.
+ * `scope` et `occurrenceDate` : séances concernées d'une série ; `authorFirstName` null si le
+ * compte a été supprimé ; `mine` : c'est moi.
+ */
+export type EventChange = {
+  id: string;
+  action: 'CREATED' | 'UPDATED' | 'DELETED';
+  scope: EventScope | null;
+  occurrenceDate: string | null;
+  fields: EventField[];
+  authorFirstName: string | null;
+  mine: boolean;
+  createdAt: string;
+};
 
 /** Une date de l'aperçu d'une répétition ; `skipped` : pourquoi elle n'est pas prévue. */
 export type RepeatPreviewDate = {

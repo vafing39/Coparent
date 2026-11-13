@@ -1,6 +1,7 @@
 import type {
   CalendarEvent,
   EventBody,
+  EventRepeat,
   EventReminder,
   EventType,
   EventVisibility,
@@ -8,6 +9,7 @@ import type {
 } from '../../api/types';
 import { todayInParis } from '../../lib/dates';
 import type { EventInput, EventValues } from '../../schemas/event';
+import { sortDays, weekdayOf } from './repeatText';
 
 // Valeurs du formulaire d'un événement (EventFormScreen) : choix proposés, valeurs de départ,
 // corps envoyé au serveur.
@@ -47,6 +49,14 @@ export function defaults(
       repeat: event.repeat
         ? {
             frequency: event.repeat.frequency,
+            interval: event.repeat.interval,
+            unit: event.repeat.unit,
+            monthMode: event.repeat.monthMode,
+            days: event.repeat.days.map(day => ({
+              dayOfWeek: day.dayOfWeek,
+              startTime: day.startTime?.slice(0, 5) ?? null,
+              endTime: day.endTime?.slice(0, 5) ?? null,
+            })),
             onlyWith: event.repeat.onlyWith,
             skipHolidays: event.repeat.skipHolidays,
             end: event.repeat.end,
@@ -84,6 +94,35 @@ export function toBody(values: EventValues): EventBody {
     location: values.location === '' ? null : values.location,
     reminder: values.reminder,
     visibility: values.visibility,
-    repeat: values.repeat,
+    repeat: values.repeat
+      ? withEventDay(values.repeat, values.date, values.allDay)
+      : null,
+  };
+}
+
+/**
+ * Personnalisé par semaine : le jour de l'événement fait toujours partie des jours choisis
+ * (même si la date a changé après le choix des jours) ; une journée entière n'a pas d'horaire.
+ */
+function withEventDay(
+  repeat: EventRepeat,
+  date: string,
+  allDay: boolean,
+): EventRepeat {
+  if (repeat.frequency !== 'CUSTOM' || repeat.unit !== 'WEEK') {
+    return repeat;
+  }
+  const eventDay = weekdayOf(date);
+  const ownTimes = !allDay && repeat.days.some(day => day.startTime !== null);
+  const days = repeat.days.some(day => day.dayOfWeek === eventDay)
+    ? repeat.days
+    : [...repeat.days, { dayOfWeek: eventDay, startTime: null, endTime: null }];
+  return {
+    ...repeat,
+    days: sortDays(
+      ownTimes
+        ? days
+        : days.map(day => ({ ...day, startTime: null, endTime: null })),
+    ),
   };
 }

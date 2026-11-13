@@ -10,6 +10,10 @@ export const eventKeys = {
   /** Aperçu d'une répétition (hors de `all` : rien à recharger après un enregistrement). */
   repeatPreview: (familyId: string, request: unknown) =>
     ['repeatPreview', familyId, request] as const,
+  /** Historiques des événements de la famille (invalidés après chaque modification). */
+  allHistories: (familyId: string) => ['eventHistory', familyId] as const,
+  history: (familyId: string, eventId: string) =>
+    ['eventHistory', familyId, eventId] as const,
 };
 
 /** Clé React d'une séance : les séances d'une série partagent le même `id`. */

@@ -4,6 +4,7 @@ import { EventDetailScreen } from '../EventDetailScreen';
 import { EventFormScreen } from '../EventFormScreen';
 import type {
   CalendarEvent,
+  EventChange,
   Family,
   RepeatPreviewDate,
 } from '../../../api/types';
@@ -53,6 +54,10 @@ const JUDO: CalendarEvent = {
   mine: true,
   repeat: {
     frequency: 'WEEKLY',
+    interval: null,
+    unit: null,
+    monthMode: null,
+    days: [],
     onlyWith: 'PARENT_B',
     skipHolidays: true,
     end: 'SCHOOL_YEAR',
@@ -116,6 +121,7 @@ beforeEach(async () => {
   eventApi.update.mockReset();
   eventApi.remove.mockReset();
   eventApi.repeatPreview.mockReset().mockResolvedValue(PREVIEW);
+  eventApi.history.mockReset();
   familyApi.fetchMyFamily.mockResolvedValue(FAMILY);
   await useSession.getState().signIn(authResponse());
 });
@@ -168,6 +174,10 @@ test('« Répéter » : suggestion de suivre la garde, fin, aperçu, puis le cor
       date: '2026-11-20',
       repeat: {
         frequency: 'WEEKLY',
+        interval: null,
+        unit: null,
+        monthMode: null,
+        days: [],
         onlyWith: 'PARENT_B',
         skipHolidays: true,
         end: 'SCHOOL_YEAR',
@@ -196,6 +206,10 @@ test('« Répéter » : suggestion de suivre la garde, fin, aperçu, puis le cor
       date: '2026-11-20',
       repeat: {
         frequency: 'WEEKLY',
+        interval: null,
+        unit: null,
+        monthMode: null,
+        days: [],
         onlyWith: 'PARENT_B',
         skipHolidays: true,
         end: 'COUNT',
@@ -287,4 +301,170 @@ test('séance passée : seule « Toute la série » (les séances à venir) est 
   await fireEvent.press(screen.getByRole('button', { name: 'Modifier' }));
   expect(screen.getAllByRole('radio')).toHaveLength(1);
   expect(screen.getByRole('radio', { name: /^Toute la série/ })).toBeChecked();
+});
+
+/** Choisit une heure dans le champ `label` (sélecteur iOS), puis « OK » de la feuille. */
+async function pickTime(label: RegExp, hours: number, minutes: number) {
+  await fireEvent.press(screen.getByRole('button', { name: label }));
+  await fireEvent(
+    screen.getByTestId('time-picker'),
+    'change',
+    { type: 'set' },
+    new Date(2000, 0, 1, hours, minutes),
+  );
+  const ok = screen.getAllByRole('button', { name: 'OK' });
+  await fireEvent.press(ok[ok.length - 1]);
+}
+
+test('« Personnalisé » : toutes les 2 semaines, lundi et vendredi, chacun son horaire', async () => {
+  eventApi.create.mockResolvedValue(JUDO);
+  await renderForm({ date: '2026-11-20' });
+  await fireEvent.changeText(await screen.findByLabelText('Titre'), 'Judo');
+  await fireEvent.press(screen.getByRole('checkbox', { name: 'Hugo' }));
+  await fireEvent.press(screen.getByRole('button', { name: /^Répéter/ }));
+  await fireEvent.press(screen.getByRole('radio', { name: 'Personnalisé' }));
+  expect(
+    screen.getByRole('header', { name: 'Personnalisé' }),
+  ).toBeOnTheScreen();
+
+  // Le jour de l'événement reste choisi
+  const friday = screen.getByRole('checkbox', {
+    name: "vendredi, jour de l'événement",
+  });
+  expect(friday).toBeChecked();
+  await fireEvent.press(friday);
+  expect(friday).toBeChecked();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Augmenter' }));
+  await fireEvent.press(screen.getByRole('checkbox', { name: 'lundi' }));
+  const sameTime = screen.getByRole('switch', {
+    name: 'Même horaire chaque jour',
+  });
+  expect(sameTime).toBeChecked();
+  await fireEvent.press(sameTime);
+  expect(
+    screen.getByText("9 h 00 – 10 h 00 (horaire de l'événement)"),
+  ).toBeOnTheScreen();
+
+  // Lundi 17 h 30 : la fin (10 h) précède le début, refusé jusqu'à 18 h 30
+  await pickTime(/^Début, lundi/, 17, 30);
+  await fireEvent.press(screen.getAllByRole('button', { name: 'OK' })[0]);
+  expect(
+    screen.getByText(
+      "L'heure de fin doit suivre l'heure de début, chaque jour.",
+    ),
+  ).toBeOnTheScreen();
+  await pickTime(/^Fin, lundi/, 18, 30);
+  await fireEvent.press(screen.getByRole('button', { name: 'OK' }));
+
+  // Retour dans « Répéter » : la règle sous « Personnalisé », et l'aperçu la suit
+  expect(screen.getByRole('radio', { name: /^Personnalisé/ })).toBeChecked();
+  const label =
+    'Toutes les 2 semaines, le lundi à 17 h 30 et le vendredi à 9 h 00';
+  expect(screen.getByText(label)).toBeOnTheScreen();
+  const repeat = {
+    frequency: 'CUSTOM',
+    interval: 2,
+    unit: 'WEEK',
+    monthMode: null,
+    days: [
+      { dayOfWeek: 'MONDAY', startTime: '17:30', endTime: '18:30' },
+      { dayOfWeek: 'FRIDAY', startTime: '09:00', endTime: '10:00' },
+    ],
+    onlyWith: null,
+    skipHolidays: true,
+    end: 'SCHOOL_YEAR',
+    count: null,
+  };
+  await waitFor(() =>
+    expect(eventApi.repeatPreview).toHaveBeenLastCalledWith(FAMILY_ID, {
+      date: '2026-11-20',
+      repeat,
+    }),
+  );
+
+  await fireEvent.press(screen.getByRole('button', { name: 'OK' }));
+  expect(screen.getByText(`${label} · hors vacances`)).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Enregistrer' }));
+  await waitFor(() => expect(goBack).toHaveBeenCalled());
+  expect(eventApi.create).toHaveBeenCalledWith(
+    FAMILY_ID,
+    expect.objectContaining({ date: '2026-11-20', repeat }),
+  );
+});
+
+test('« Personnalisé » par mois : le même rang du jour', async () => {
+  await renderForm({ date: '2026-11-20' });
+  await fireEvent.press(
+    await screen.findByRole('button', { name: /^Répéter/ }),
+  );
+  await fireEvent.press(screen.getByRole('radio', { name: 'Personnalisé' }));
+  await fireEvent.press(screen.getByRole('radio', { name: 'mois' }));
+  expect(
+    screen.getByRole('radio', { name: 'Le 20 de chaque mois' }),
+  ).toBeChecked();
+  await fireEvent.press(
+    screen.getByRole('radio', { name: 'Le troisième vendredi du mois' }),
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'OK' }));
+  expect(
+    screen.getByText('Chaque mois, le troisième vendredi'),
+  ).toBeOnTheScreen();
+
+  // Retour depuis « Personnalisé » : rien ne change
+  await fireEvent.press(screen.getByRole('radio', { name: /^Personnalisé/ }));
+  await fireEvent.press(screen.getByRole('radio', { name: 'jours' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Retour' }));
+  expect(
+    screen.getByText('Chaque mois, le troisième vendredi'),
+  ).toBeOnTheScreen();
+});
+
+test('détail : l’historique de la série, du plus récent au plus ancien', async () => {
+  const history: EventChange[] = [
+    {
+      id: 'h3',
+      action: 'DELETED',
+      scope: 'ONE',
+      occurrenceDate: '2026-12-02',
+      fields: [],
+      authorFirstName: 'Julien',
+      mine: false,
+      createdAt: '2026-11-12T17:04:00Z',
+    },
+    {
+      id: 'h2',
+      action: 'UPDATED',
+      scope: 'FOLLOWING',
+      occurrenceDate: '2026-11-25',
+      fields: ['TIME', 'LOCATION'],
+      authorFirstName: 'Julien',
+      mine: false,
+      createdAt: '2026-11-12T17:00:00Z',
+    },
+    {
+      id: 'h1',
+      action: 'CREATED',
+      scope: null,
+      occurrenceDate: null,
+      fields: [],
+      authorFirstName: 'Camille',
+      mine: true,
+      createdAt: '2026-11-01T10:00:00Z',
+    },
+  ];
+  eventApi.history.mockResolvedValue(history);
+  await renderDetail(JUDO);
+  expect(screen.getByRole('header', { name: 'Historique' })).toBeOnTheScreen();
+  expect(
+    await screen.findByText('Julien a supprimé la séance du mer. 2 déc.'),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByText("Julien a modifié l'heure et le lieu"),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByText('à partir du mer. 25 nov. · 12 novembre à 18 h 00'),
+  ).toBeOnTheScreen();
+  expect(screen.getByText("Vous avez créé l'événement")).toBeOnTheScreen();
+  expect(eventApi.history).toHaveBeenCalledWith(FAMILY_ID, 'e1');
 });

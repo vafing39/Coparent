@@ -13,6 +13,7 @@ import { formatDayMonth, formatLongDate, todayInParis } from '../../lib/dates';
 import { joinNames } from '../../lib/text';
 import type { AppScreenProps } from '../../navigation/types';
 import { useTheme } from '../../theme/ThemeProvider';
+import { EventHistory } from './EventHistory';
 import { eventTime } from './eventText';
 import { repeatSummary } from './repeatText';
 import { ScopeSheet } from './ScopeSheet';
@@ -21,7 +22,7 @@ import { ScopeSheet } from './ScopeSheet';
  * Détail d'un événement. Un événement visible peut toujours être modifié et supprimé : un
  * événement partagé par les deux parents, un événement privé par son auteur, le seul à le voir.
  * Pour une séance d'une série, la règle est résumée, et « Modifier » ou « Supprimer » demande
- * d'abord quelles séances (ScopeSheet).
+ * d'abord quelles séances (ScopeSheet). En bas, l'historique des modifications (EventHistory).
  */
 export function EventDetailScreen({
   navigation,
@@ -176,6 +177,8 @@ export function EventDetailScreen({
                 date: formatDayMonth(event.createdAt),
               })}
         </Text>
+
+        <EventHistory eventId={event.id} />
 
         <View className="mt-auto gap-2">
           {deleteEventError ? (

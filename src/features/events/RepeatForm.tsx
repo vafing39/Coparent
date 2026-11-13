@@ -9,15 +9,20 @@ import type {
   RepeatEnd,
   RepeatPreviewDate,
 } from '../../api/types';
-import { CheckIcon, ChevronLeftIcon } from '../../components/icons';
+import { CheckIcon, ChevronRightIcon } from '../../components/icons';
 import { useEvents } from '../../hooks/useEvents';
 import { formatShortDate } from '../../lib/dates';
 import { useTheme } from '../../theme/ThemeProvider';
 import { ParentRing } from '../custody/ParentRing';
 import { parentOf } from '../custody/parents';
+import { CustomRepeatForm } from './CustomRepeatForm';
+import { RepeatHeader, Stepper } from './repeatControls';
 import {
   childrenCount,
   childrenNames,
+  CustomRule,
+  customLabel,
+  customRuleOf,
   FrequencyChoice,
   frequencyLabel,
 } from './repeatText';
@@ -28,6 +33,7 @@ const FREQUENCIES: FrequencyChoice[] = [
   'WEEKLY',
   'BIWEEKLY',
   'MONTHLY',
+  'CUSTOM',
 ];
 const ENDS: RepeatEnd[] = ['NEVER', 'SCHOOL_YEAR', 'COUNT'];
 const ROLES: FamilyRole[] = ['PARENT_A', 'PARENT_B'];
@@ -38,6 +44,8 @@ const DEFAULT_COUNT = 10;
 /** Le choix en cours : la fréquence (« Jamais » compris) et le reste de la règle. */
 type Draft = {
   frequency: FrequencyChoice;
+  /** Choisie dans « Personnalisé » (gardée si l'on repasse par une autre fréquence). */
+  custom: CustomRule | null;
   onlyWith: FamilyRole | null;
   skipHolidays: boolean;
   end: RepeatEnd;
@@ -47,6 +55,7 @@ type Draft = {
 function toDraft(repeat: EventRepeat | null): Draft {
   return {
     frequency: repeat?.frequency ?? 'NONE',
+    custom: repeat ? customRuleOf(repeat) : null,
     onlyWith: repeat?.onlyWith ?? null,
     // Exclusion des vacances activée par défaut (cahier des charges, 5)
     skipHolidays: repeat?.skipHolidays ?? true,
@@ -59,8 +68,13 @@ function toRepeat(draft: Draft): EventRepeat | null {
   if (draft.frequency === 'NONE') {
     return null;
   }
+  const custom = draft.frequency === 'CUSTOM' ? draft.custom : null;
   return {
     frequency: draft.frequency,
+    interval: custom?.interval ?? null,
+    unit: custom?.unit ?? null,
+    monthMode: custom?.monthMode ?? null,
+    days: custom?.days ?? [],
     onlyWith: draft.onlyWith,
     skipHolidays: draft.skipHolidays,
     end: draft.end,
@@ -73,6 +87,10 @@ type Props = {
   initial: EventRepeat | null;
   /** Première séance « AAAA-MM-JJ ». */
   date: string;
+  /** Horaire de l'événement (« HH:mm »), pour les horaires par jour de « Personnalisé ». */
+  allDay: boolean;
+  startTime: string;
+  endTime: string;
   /** Sous le titre : « Judo · jeu. 19 nov., 17 h 00 ». */
   subtitle: string;
   childNames: string[];
@@ -89,6 +107,9 @@ export function RepeatForm({
   family,
   initial,
   date,
+  allDay,
+  startTime,
+  endTime,
   subtitle,
   childNames,
   onCancel,
@@ -97,6 +118,7 @@ export function RepeatForm({
   const { t } = useTranslation();
   const { color } = useTheme();
   const [draft, setDraft] = useState(() => toDraft(initial));
+  const [choosingCustom, setChoosingCustom] = useState(false);
   const update = (changes: Partial<Draft>) =>
     setDraft(current => ({ ...current, ...changes }));
   const {
@@ -122,41 +144,31 @@ export function RepeatForm({
       ? repeatPreview?.[0]?.parent ?? null
       : null;
 
+  if (choosingCustom) {
+    return (
+      <CustomRepeatForm
+        initial={draft.custom}
+        date={date}
+        allDay={allDay}
+        startTime={startTime}
+        endTime={endTime}
+        onCancel={() => setChoosingCustom(false)}
+        onDone={custom => {
+          update({ frequency: 'CUSTOM', custom });
+          setChoosingCustom(false);
+        }}
+      />
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
-      <View className="flex-row items-center gap-1 pb-1 pl-2 pr-3 pt-6">
-        <Pressable
-          onPress={onCancel}
-          accessibilityRole="button"
-          accessibilityLabel={t('common.back')}
-          className="h-12 w-12 items-center justify-center rounded-full"
-        >
-          <ChevronLeftIcon color={color('text')} />
-        </Pressable>
-        <View className="flex-1">
-          <Text
-            accessibilityRole="header"
-            className="font-extrabold text-[22px] leading-[28px] text-text"
-          >
-            {t('events.repeat.title')}
-          </Text>
-          <Text
-            numberOfLines={1}
-            className="font-regular text-[13px] text-text-secondary"
-          >
-            {subtitle}
-          </Text>
-        </View>
-        <Pressable
-          onPress={() => onDone(repeat)}
-          accessibilityRole="button"
-          className="min-h-[44px] justify-center rounded-full bg-primary px-[18px]"
-        >
-          <Text className="font-extrabold text-[15px] text-on-primary">
-            {t('events.repeat.ok')}
-          </Text>
-        </Pressable>
-      </View>
+      <RepeatHeader
+        title={t('events.repeat.title')}
+        subtitle={subtitle}
+        onCancel={onCancel}
+        onDone={() => onDone(repeat)}
+      />
 
       <ScrollView contentContainerClassName="gap-3 px-4 pt-2.5 pb-8">
         <View
@@ -169,22 +181,41 @@ export function RepeatForm({
             return (
               <Pressable
                 key={frequency}
-                onPress={() => update({ frequency })}
+                onPress={() =>
+                  frequency === 'CUSTOM'
+                    ? setChoosingCustom(true)
+                    : update({ frequency })
+                }
                 accessibilityRole="radio"
                 accessibilityState={{ checked }}
-                className={`min-h-[44px] flex-row items-center ${
+                accessibilityHint={
+                  frequency === 'CUSTOM'
+                    ? t('events.repeat.customHint')
+                    : undefined
+                }
+                className={`min-h-[44px] flex-row items-center gap-2 ${
                   index === 0 ? '' : 'border-t border-border'
                 }`}
               >
-                <Text
-                  className={`flex-1 text-[15px] text-text ${
-                    checked ? 'font-extrabold' : 'font-semibold'
-                  }`}
-                >
-                  {frequencyLabel(frequency, date)}
-                </Text>
+                <View className="flex-1 py-2">
+                  <Text
+                    className={`text-[15px] text-text ${
+                      checked ? 'font-extrabold' : 'font-semibold'
+                    }`}
+                  >
+                    {frequencyLabel(frequency, date)}
+                  </Text>
+                  {frequency === 'CUSTOM' && checked && draft.custom ? (
+                    <Text className="font-regular text-[13px] text-text-secondary">
+                      {customLabel(draft.custom, date)}
+                    </Text>
+                  ) : null}
+                </View>
                 {checked ? (
                   <CheckIcon size={18} color={color('primary')} />
+                ) : null}
+                {frequency === 'CUSTOM' ? (
+                  <ChevronRightIcon size={18} color={color('text-secondary')} />
                 ) : null}
               </Pressable>
             );
@@ -367,27 +398,6 @@ export function RepeatForm({
         ) : null}
       </ScrollView>
     </SafeAreaView>
-  );
-}
-
-function Stepper({
-  label,
-  sign,
-  onPress,
-}: {
-  label: string;
-  sign: string;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      className="h-11 w-11 items-center justify-center rounded-full border-[1.5px] border-text-secondary bg-card"
-    >
-      <Text className="font-bold text-[20px] text-text">{sign}</Text>
-    </Pressable>
   );
 }
 

@@ -43,7 +43,25 @@ export const eventSchema = z
     /** Choisie dans « Répéter » ; null : événement unique. */
     repeat: z
       .object({
-        frequency: z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY']),
+        frequency: z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'CUSTOM']),
+        interval: z.number().int().min(1).max(12).nullable(),
+        unit: z.enum(['DAY', 'WEEK', 'MONTH']).nullable(),
+        monthMode: z.enum(['DAY_OF_MONTH', 'WEEKDAY_OF_MONTH']).nullable(),
+        days: z.array(
+          z.object({
+            dayOfWeek: z.enum([
+              'MONDAY',
+              'TUESDAY',
+              'WEDNESDAY',
+              'THURSDAY',
+              'FRIDAY',
+              'SATURDAY',
+              'SUNDAY',
+            ]),
+            startTime: z.string().nullable(),
+            endTime: z.string().nullable(),
+          }),
+        ),
         onlyWith: z.enum(['PARENT_A', 'PARENT_B']).nullable(),
         skipHolidays: z.boolean(),
         end: z.enum(['NEVER', 'SCHOOL_YEAR', 'COUNT']),

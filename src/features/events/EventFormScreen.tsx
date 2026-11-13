@@ -113,6 +113,9 @@ export function EventFormScreen({
         family={family}
         initial={repeat}
         date={date}
+        allDay={allDay}
+        startTime={startTime}
+        endTime={watch('endTime')}
         subtitle={t('events.repeat.subtitle', {
           title: watch('title').trim() || t('events.repeat.untitled'),
           when: allDay
