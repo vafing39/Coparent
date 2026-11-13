@@ -1,44 +1,62 @@
+import dayjs from './dayjs';
+
 /** Fuseau de référence de l'app (CLAUDE.md, règle 5). */
 export const APP_TIME_ZONE = 'Europe/Paris';
 
-const DISPLAY_DATE = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+/** Format des dates sans heure ni fuseau échangées avec le backend. */
+export const ISO_DATE = 'YYYY-MM-DD';
+
+/**
+ * Une date « AAAA-MM-JJ » comme jour de calendrier : lue en UTC, où il n'y a pas de changement
+ * d'heure, pour que les calculs de jours ne glissent jamais.
+ */
+export function calendarDay(isoDate: string) {
+  return dayjs.utc(isoDate, ISO_DATE);
+}
+
+const PARIS_PARTS = new Intl.DateTimeFormat('en-GB', {
+  timeZone: APP_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+});
+
+/**
+ * Heure murale de Paris à l'instant `instant`, en objet Day.js sans fuseau (lu en UTC).
+ * N'utilise pas `dayjs().tz()` : ce plugin relit un texte « 11/13/2026, 2:22:00 PM » que
+ * Hermes (le moteur JavaScript de l'app) ne sait pas analyser, d'où « Invalid Date » sur le
+ * téléphone alors que Jest (Node) passe.
+ */
+export function inParis(instant: Date | string = new Date()) {
+  const date = typeof instant === 'string' ? new Date(instant) : instant;
+  const part: Record<string, string> = {};
+  for (const { type, value } of PARIS_PARTS.formatToParts(date)) {
+    part[type] = value;
+  }
+  return dayjs.utc(
+    `${part.year}-${part.month}-${part.day}T${part.hour}:${part.minute}:${part.second}`,
+  );
+}
 
 /** Date du jour à Paris, au format « AAAA-MM-JJ ». */
 export function todayInParis(now: Date = new Date()): string {
-  // en-CA formate en AAAA-MM-JJ.
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: APP_TIME_ZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(now);
+  return inParis(now).format(ISO_DATE);
 }
 
 /** « jj/mm/aaaa » → « AAAA-MM-JJ », ou null si la date n'existe pas (ex. 31/02). */
 export function parseDisplayDate(text: string): string | null {
-  const match = DISPLAY_DATE.exec(text.trim());
-  if (!match) {
-    return null;
-  }
-  const [, dd, mm, yyyy] = match;
-  const day = Number(dd);
-  const month = Number(mm);
-  const year = Number(yyyy);
-  const date = new Date(Date.UTC(year, month - 1, day));
-  if (
-    date.getUTCFullYear() !== year ||
-    date.getUTCMonth() !== month - 1 ||
-    date.getUTCDate() !== day
-  ) {
-    return null;
-  }
-  return `${yyyy}-${mm}-${dd}`;
+  // Analyse stricte : refuse « 1/2/2020 » comme « 31/02/2020 ».
+  const date = dayjs.utc(text.trim(), 'DD/MM/YYYY', true);
+  return date.isValid() ? date.format(ISO_DATE) : null;
 }
 
 /** « AAAA-MM-JJ » → « jj/mm/aaaa ». */
 export function toDisplayDate(isoDate: string): string {
-  const [yyyy, mm, dd] = isoDate.split('-');
-  return `${dd}/${mm}/${yyyy}`;
+  return calendarDay(isoDate).format('DD/MM/YYYY');
 }
 
 /** Saisie au clavier numérique : ne garde que les chiffres et insère les « / ». */
@@ -55,51 +73,34 @@ export function formatDateInput(text: string): string {
 
 /** Jour ISO de la semaine d'une date « AAAA-MM-JJ » : 1 = lundi … 7 = dimanche. */
 export function isoWeekday(isoDate: string): number {
-  const day = new Date(`${isoDate}T00:00:00Z`).getUTCDay();
-  return day === 0 ? 7 : day;
+  return calendarDay(isoDate).isoWeekday();
 }
 
 /** Prochaine date (« AAAA-MM-JJ ») tombant le jour ISO donné, aujourd'hui exclu. */
 export function nextWeekday(todayIso: string, weekday: number): string {
-  const date = new Date(`${todayIso}T00:00:00Z`);
   const diff = (weekday - isoWeekday(todayIso) + 7) % 7 || 7;
-  date.setUTCDate(date.getUTCDate() + diff);
-  return date.toISOString().slice(0, 10);
+  return calendarDay(todayIso).add(diff, 'day').format(ISO_DATE);
 }
 
 /** « 17:50 » → « 17 h 50 », « 09:05 » → « 9 h 05 ». */
 export function formatTime(time: string): string {
-  const [hours, minutes] = time.split(':');
-  return `${Number(hours)} h ${minutes}`;
+  // Heure murale sans fuseau : posée sur un jour quelconque, sans conversion.
+  return dayjs(`2000-01-01T${time}`).format('H [h] mm');
 }
 
 /** Instant ISO → « 17 novembre », à Paris. */
 export function formatDayMonth(instant: string): string {
-  return new Intl.DateTimeFormat('fr-FR', {
-    timeZone: APP_TIME_ZONE,
-    day: 'numeric',
-    month: 'long',
-  }).format(new Date(instant));
+  return inParis(instant).format('D MMMM');
 }
 
 /** « AAAA-MM-JJ » → « mardi 10 novembre ». */
 export function formatLongDate(isoDate: string): string {
-  return new Intl.DateTimeFormat('fr-FR', {
-    timeZone: 'UTC',
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  }).format(new Date(`${isoDate}T00:00:00Z`));
+  return calendarDay(isoDate).format('dddd D MMMM');
 }
 
 /** « AAAA-MM-JJ » → « ven. 13 nov. ». */
 export function formatShortDate(isoDate: string): string {
-  return new Intl.DateTimeFormat('fr-FR', {
-    timeZone: 'UTC',
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  }).format(new Date(`${isoDate}T00:00:00Z`));
+  return calendarDay(isoDate).format('ddd D MMM');
 }
 
 /** Date-heure locale « AAAA-MM-JJTHH:mm[:ss] » → { date: « AAAA-MM-JJ », time: « HH:mm » }. */
@@ -107,25 +108,17 @@ export function splitLocalDateTime(localDateTime: string): {
   date: string;
   time: string;
 } {
-  const [date, time = '00:00'] = localDateTime.split('T');
-  return { date, time: time.slice(0, 5) };
+  // Heure de Paris sans fuseau : lue telle quelle, sans conversion.
+  const value = dayjs.utc(localDateTime);
+  return { date: value.format(ISO_DATE), time: value.format('HH:mm') };
 }
 
 /** Nombre de jours de `fromIso` à `toIso` (« AAAA-MM-JJ »), négatif si `toIso` est avant. */
 export function daysBetween(fromIso: string, toIso: string): number {
-  const day = 24 * 60 * 60 * 1000;
-  return Math.round(
-    (Date.parse(`${toIso}T00:00:00Z`) - Date.parse(`${fromIso}T00:00:00Z`)) /
-      day,
-  );
+  return calendarDay(toIso).diff(calendarDay(fromIso), 'day');
 }
 
 /** Heure (0 à 23) à Paris. */
 export function hourInParis(now: Date = new Date()): number {
-  const hour = new Intl.DateTimeFormat('en-GB', {
-    timeZone: APP_TIME_ZONE,
-    hour: '2-digit',
-    hourCycle: 'h23',
-  }).format(now);
-  return Number(hour);
+  return inParis(now).hour();
 }

@@ -2,6 +2,8 @@ import { ApiError } from '../api/errors';
 import type {
   AuthResponse,
   Bag,
+  CalendarEvent,
+  EventBody,
   ToDo,
   Child,
   Custody,
@@ -68,6 +70,17 @@ export const toDoApi = {
   nudge: jest.fn<Promise<ToDo>, [string, string]>(),
 };
 
+/**
+ * Événements : une fonction simulée par route (familyId, puis période, id ou corps). La liste
+ * renvoie [] tant qu'un test ne la simule pas.
+ */
+export const eventApi = {
+  list: jest.fn<Promise<CalendarEvent[]>, [string, string, string]>(),
+  create: jest.fn<Promise<CalendarEvent>, [string, EventBody]>(),
+  update: jest.fn<Promise<CalendarEvent>, [string, string, EventBody]>(),
+  remove: jest.fn<Promise<void>, [string, string]>(),
+};
+
 /** Une fonction simulée par route d'authentification (paramètres utiles du corps). */
 export const authApi = {
   login: jest.fn<Promise<AuthResponse>, [LoginValues]>(),
@@ -102,6 +115,10 @@ const TO_DO = /^\/api\/v1\/families\/([^/]+)\/to-do$/;
 const TO_DO_NUDGE = /^\/api\/v1\/families\/([^/]+)\/to-do\/([^/]+)\/nudge$/;
 const CUSTODY =
   /^\/api\/v1\/families\/([^/]+)\/custody\?from=([\d-]+)&to=([\d-]+)$/;
+const EVENTS_RANGE =
+  /^\/api\/v1\/families\/([^/]+)\/events\?from=([\d-]+)&to=([\d-]+)$/;
+const EVENTS = /^\/api\/v1\/families\/([^/]+)\/events$/;
+const EVENT = /^\/api\/v1\/families\/([^/]+)\/events\/([^/?]+)$/;
 
 function authRoute(url: string, body: unknown) {
   const { refreshToken, code, email } = (body ?? {}) as {
@@ -200,6 +217,18 @@ async function route(method: string, url: string, body?: unknown) {
   }
   if (method === 'DELETE' && (match = url.match(BAG_CHECK))) {
     return bagApi.uncheck(match[1], match[2]);
+  }
+  if (method === 'GET' && (match = url.match(EVENTS_RANGE))) {
+    return (await eventApi.list(match[1], match[2], match[3])) ?? [];
+  }
+  if (method === 'POST' && (match = url.match(EVENTS))) {
+    return eventApi.create(match[1], body as EventBody);
+  }
+  if (method === 'PUT' && (match = url.match(EVENT))) {
+    return eventApi.update(match[1], match[2], body as EventBody);
+  }
+  if (method === 'DELETE' && (match = url.match(EVENT))) {
+    return eventApi.remove(match[1], match[2]);
   }
   throw new Error(`Requête non simulée : ${method} ${url}`);
 }

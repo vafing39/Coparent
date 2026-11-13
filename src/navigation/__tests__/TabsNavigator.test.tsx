@@ -4,6 +4,7 @@ import { fireEvent, screen } from '@testing-library/react-native';
 import { AppNavigator } from '../AppNavigator';
 import { TabsNavigator } from '../TabsNavigator';
 import { BagProvider } from '../../context/BagContext';
+import { CalendarProvider } from '../../context/CalendarContext';
 import { CustodyProvider } from '../../context/CustodyContext';
 import { FamilyProvider } from '../../context/FamilyContext';
 import { ToDoProvider } from '../../context/ToDoContext';
@@ -23,13 +24,15 @@ async function renderTabs() {
   await renderWithProviders(
     <FamilyProvider>
       <CustodyProvider>
-        <BagProvider>
-          <ToDoProvider>
-            <NavigationContainer>
-              <TabsNavigator />
-            </NavigationContainer>
-          </ToDoProvider>
-        </BagProvider>
+        <CalendarProvider>
+          <BagProvider>
+            <ToDoProvider>
+              <NavigationContainer>
+                <TabsNavigator />
+              </NavigationContainer>
+            </ToDoProvider>
+          </BagProvider>
+        </CalendarProvider>
       </CustodyProvider>
     </FamilyProvider>,
   );
@@ -59,8 +62,18 @@ test('affiche les 5 onglets, Accueil sélectionné', async () => {
   expect(screen.getByRole('button', { name: 'Accueil' })).toBeSelected();
 });
 
+test('l’onglet Calendrier ouvre le calendrier de garde', async () => {
+  await renderTabs();
+  await screen.findByRole('header', { name: /Camille$/ });
+  await fireEvent.press(screen.getByRole('button', { name: 'Calendrier' }));
+  expect(
+    await screen.findByRole('header', { name: 'Calendrier' }),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Mois' })).toBeSelected();
+  expect(screen.getByRole('button', { name: 'Calendrier' })).toBeSelected();
+});
+
 test.each([
-  ['Calendrier', 'Le calendrier de garde arrive bientôt.'],
   ['Messages', 'La messagerie entre parents arrive bientôt.'],
   [
     'Famille',
@@ -80,13 +93,15 @@ test('« Tout voir » ouvre « À traiter » par-dessus les onglets, puis retour
   await renderWithProviders(
     <FamilyProvider>
       <CustodyProvider>
-        <BagProvider>
-          <ToDoProvider>
-            <NavigationContainer>
-              <AppNavigator />
-            </NavigationContainer>
-          </ToDoProvider>
-        </BagProvider>
+        <CalendarProvider>
+          <BagProvider>
+            <ToDoProvider>
+              <NavigationContainer>
+                <AppNavigator />
+              </NavigationContainer>
+            </ToDoProvider>
+          </BagProvider>
+        </CalendarProvider>
       </CustodyProvider>
     </FamilyProvider>,
   );

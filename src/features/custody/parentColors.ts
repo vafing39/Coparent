@@ -11,3 +11,9 @@ export const SOFT: Record<FamilyRole, string> = {
   PARENT_A: 'border-parent-a bg-parent-a-soft',
   PARENT_B: 'border-parent-b bg-parent-b-soft',
 };
+
+/** Fond doux de la couleur d'un parent, sans bordure (cases du calendrier). */
+export const SOFT_BG: Record<FamilyRole, string> = {
+  PARENT_A: 'bg-parent-a-soft',
+  PARENT_B: 'bg-parent-b-soft',
+};

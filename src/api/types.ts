@@ -188,3 +188,49 @@ export type ToDo = {
   mine: ToDoItem[];
   theirs: ToDoItem[];
 };
+
+/** EventType côté backend. */
+export type EventType = 'APPOINTMENT' | 'ACTIVITY' | 'SCHOOL' | 'OTHER';
+
+/** EventReminder côté backend (enregistré ; l'envoi viendra avec les notifications). */
+export type EventReminder = 'NONE' | 'ONE_HOUR' | 'DAY_BEFORE' | 'TWO_DAYS';
+
+/** EventVisibility côté backend : partagé (les deux parents) ou privé (son auteur seulement). */
+export type EventVisibility = 'SHARED' | 'PRIVATE';
+
+/**
+ * EventResponse côté backend. `date` (« AAAA-MM-JJ »), `startTime` et `endTime` (« HH:mm:ss »)
+ * sont en heure de Paris ; les heures sont null pour une journée entière. `authorFirstName` :
+ * null si le compte a été supprimé ; `mine` : j'en suis l'auteur.
+ */
+export type CalendarEvent = {
+  id: string;
+  title: string;
+  type: EventType;
+  children: { id: string; firstName: string }[];
+  allDay: boolean;
+  date: string;
+  startTime: string | null;
+  endTime: string | null;
+  location: string | null;
+  reminder: EventReminder;
+  visibility: EventVisibility;
+  authorFirstName: string | null;
+  mine: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** EventRequest côté backend (création ou modification). */
+export type EventBody = {
+  title: string;
+  type: EventType;
+  childIds: string[];
+  date: string;
+  allDay: boolean;
+  startTime: string | null;
+  endTime: string | null;
+  location: string | null;
+  reminder: EventReminder;
+  visibility: EventVisibility;
+};

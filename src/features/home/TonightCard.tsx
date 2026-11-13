@@ -8,8 +8,8 @@ import {
   splitLocalDateTime,
 } from '../../lib/dates';
 import { joinNames } from '../../lib/text';
-import { ParentRing } from './ParentRing';
-import { parentOf } from './parents';
+import { ParentRing } from '../custody/ParentRing';
+import { parentOf } from '../custody/parents';
 
 const SOFT: Record<FamilyRole, string> = {
   PARENT_A: 'bg-parent-a-soft',

@@ -408,7 +408,8 @@
     },
     "today": {
       "title": "Aujourd'hui",
-      "empty": "Rien de prévu aujourd'hui."
+      "empty": "Rien de prévu aujourd'hui.",
+      "allDay": "Journée"
     },
     "toDo": {
       "title": "À traiter",
@@ -473,7 +474,35 @@
     "loadFailed": "Impossible de charger la garde. Vérifiez votre connexion."
   },
   "calendar": {
-    "placeholder": "Le calendrier de garde arrive bientôt."
+    "title": "Calendrier",
+    "month": "Mois",
+    "week": "Semaine",
+    "view": "Affichage",
+    "previousMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
+    "previousWeek": "Semaine précédente",
+    "nextWeek": "Semaine suivante",
+    "todayLabel": "Aujourd'hui, {{label}}",
+    "cell": {
+      "at": "{{date}}, chez {{name}}",
+      "handover": "{{date}}, passage de garde de {{from}} à {{to}}",
+      "handoverAt": "{{date}}, passage de garde de {{from}} à {{to}} à {{time}}"
+    },
+    "atParent": "Chez {{name}}",
+    "handoverDay": "{{from}} jusqu'à {{time}}, puis {{to}}",
+    "proposed": "Rythme proposé, pas encore validé par les deux parents.",
+    "proposedSolo": "Rythme proposé : {{name}} le validera à son arrivée.",
+    "noSchedule": "Aucun rythme de garde n'est encore enregistré.",
+    "loadFailed": "Impossible de charger le calendrier. Vérifiez votre connexion.",
+    "upcoming": {
+      "title": "À venir",
+      "item": "Passage de garde, {{from}} vers {{to}}",
+      "none": "Rien de prévu dans les deux prochains mois."
+    },
+    "legendShared": "Partagé",
+    "legendPrivate": "Privé",
+    "eventShared": "{{title}}, partagé",
+    "eventPrivate": "{{title}}, privé"
   },
   "messages": {
     "placeholder": "La messagerie entre parents arrive bientôt."
@@ -483,5 +512,72 @@
   },
   "expenses": {
     "empty": "Bientôt, partagez ici les dépenses des enfants."
+  },
+  "events": {
+    "add": "Ajouter un événement",
+    "newTitle": "Nouvel événement",
+    "editTitle": "Modifier l'événement",
+    "save": "Enregistrer",
+    "title": {
+      "label": "Titre",
+      "required": "Saisissez un titre.",
+      "tooLong": "{{max}} caractères au maximum."
+    },
+    "type": {
+      "label": "Type",
+      "APPOINTMENT": "Rendez-vous",
+      "ACTIVITY": "Activité",
+      "SCHOOL": "École",
+      "OTHER": "Autre"
+    },
+    "children": {
+      "label_one": "Enfant concerné",
+      "label_other": "Enfants concernés",
+      "required": "Choisissez au moins un enfant."
+    },
+    "allDay": "Toute la journée",
+    "date": "Date",
+    "dateHint": "Ouvre le choix de la date",
+    "startTime": "Début",
+    "endTime": "Fin",
+    "endBeforeStart": "L'heure de fin doit suivre l'heure de début.",
+    "location": {
+      "label": "Lieu",
+      "placeholder": "Facultatif",
+      "tooLong": "{{max}} caractères au maximum."
+    },
+    "reminder": {
+      "label": "Rappel",
+      "NONE": "Aucun",
+      "ONE_HOUR": "1 h avant",
+      "DAY_BEFORE": "La veille",
+      "TWO_DAYS": "2 jours avant"
+    },
+    "visibility": {
+      "label": "Visible par",
+      "SHARED": "Partagé",
+      "PRIVATE": "Privé",
+      "sharedHint": "Partagé : les deux parents le voient.",
+      "privateHint": "Privé : vous seul le voyez, ni l'autre parent ni l'espace enfant. S'il change l'organisation des enfants, préférez « Partagé »."
+    },
+    "allDayShort": "Toute la journée",
+    "timeRange": "{{start}} – {{end}}",
+    "when": "{{date}} · {{time}}",
+    "badge": "{{type}} · {{visibility}}",
+    "sharedLower": "partagé",
+    "privateLower": "privé",
+    "addedBy": "Ajouté par {{name}} le {{date}}.",
+    "addedByUnknown": "Ajouté le {{date}}.",
+    "edit": "Modifier",
+    "delete": "Supprimer l'événement",
+    "deleteConfirm": "Supprimer « {{title}} » ?",
+    "deleteBody": "Cette action est définitive.",
+    "deleteAction": "Supprimer",
+    "errors": {
+      "gone": "Cet événement n'existe plus.",
+      "invalid": "Vérifiez les informations de l'événement."
+    },
+    "loadFailed": "Impossible de charger les événements. Tirez vers le bas pour réessayer.",
+    "you": "vous"
   }
 }

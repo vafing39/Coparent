@@ -1,7 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import type { Family } from '../api/types';
 import { BagProvider } from '../context/BagContext';
+import { CalendarProvider } from '../context/CalendarContext';
 import { CustodyProvider } from '../context/CustodyContext';
+import { EventsProvider } from '../context/EventsContext';
 import { FamilyProvider } from '../context/FamilyContext';
 import { ToDoProvider } from '../context/ToDoContext';
 import { useFamily } from '../hooks/useFamily';
@@ -60,11 +62,15 @@ function SignedInContent({ emailVerified }: { emailVerified: boolean }) {
   if (onboardingDone) {
     return (
       <CustodyProvider>
-        <BagProvider>
-          <ToDoProvider>
-            <AppNavigator />
-          </ToDoProvider>
-        </BagProvider>
+        <CalendarProvider>
+          <EventsProvider>
+            <BagProvider>
+              <ToDoProvider>
+                <AppNavigator />
+              </ToDoProvider>
+            </BagProvider>
+          </EventsProvider>
+        </CalendarProvider>
       </CustodyProvider>
     );
   }

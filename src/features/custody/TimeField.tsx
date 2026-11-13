@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/Button';
 import { ClockIcon } from '../../components/icons';
 import { formatTime } from '../../lib/dates';
+import dayjs from '../../lib/dayjs';
 import { useTheme } from '../../theme/ThemeProvider';
 
 type Props = {
@@ -16,14 +17,14 @@ type Props = {
   onChange: (value: string) => void;
 };
 
+/** « HH:mm » → Date pour le sélecteur natif (heure murale, posée sur un jour quelconque). */
 function toDate(time: string): Date {
-  const [hours, minutes] = time.split(':').map(Number);
-  return new Date(2000, 0, 1, hours, minutes);
+  return dayjs(`2000-01-01T${time}`).toDate();
 }
 
+/** Heure choisie dans le sélecteur → « HH:mm ». */
 function fromDate(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  return dayjs(date).format('HH:mm');
 }
 
 /** Champ d'heure : sélecteur natif (dialogue sur Android, roue dans une feuille sur iOS). */

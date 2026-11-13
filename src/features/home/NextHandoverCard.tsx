@@ -15,8 +15,8 @@ import {
 } from '../../lib/dates';
 import { useTheme } from '../../theme/ThemeProvider';
 import { HomeCard } from './HomeCard';
-import { ParentRing } from './ParentRing';
-import { parentOf } from './parents';
+import { ParentRing } from '../custody/ParentRing';
+import { parentOf } from '../custody/parents';
 
 type Props = {
   family: Family;

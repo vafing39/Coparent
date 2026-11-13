@@ -25,7 +25,7 @@ import {
   type BagItemValues,
 } from '../../schemas/bag';
 import { useTheme } from '../../theme/ThemeProvider';
-import { parentOf } from './parents';
+import { parentOf } from '../custody/parents';
 
 /**
  * « Sac à préparer » pour le prochain passage de garde : une liste par enfant, partagée par

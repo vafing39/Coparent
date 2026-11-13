@@ -1,24 +1,21 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { FamilyRole } from '../../api/types';
 import { CustodyCards } from '../../features/home/CustodyCards';
-import { EmptyCard } from '../../features/home/HomeCard';
 import { HomeHeader } from '../../features/home/HomeHeader';
 import { SoloBanner } from '../../features/home/SoloBanner';
 import { ToDoCard } from '../../features/home/ToDoCard';
+import { TodayCard } from '../../features/home/TodayCard';
 import { useAuth } from '../../hooks/useAuth';
 import { useFamily } from '../../hooks/useFamily';
 import type { TabScreenProps } from '../../navigation/types';
 
 /**
  * Onglet Accueil : où dorment les enfants ce soir et le prochain passage, calculés par le
- * backend. « Aujourd'hui » et « À traiter » restent vides en attendant les événements et
- * les demandes ; « Tout voir » ouvre l'écran « À traiter ».
+ * backend, les événements du jour et l'aperçu de « À traiter » (« Tout voir » ouvre son écran).
  */
 export function AccueilScreen({ navigation }: TabScreenProps<'Accueil'>) {
-  const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const { family } = useFamily();
   const now = new Date();
@@ -40,7 +37,9 @@ export function AccueilScreen({ navigation }: TabScreenProps<'Accueil'>) {
         />
         {family.solo ? <SoloBanner otherRole={otherRole} /> : null}
         <CustodyCards onOpenBag={() => navigation.navigate('SacAPreparer')} />
-        <EmptyCard title={t('home.today.title')} text={t('home.today.empty')} />
+        <TodayCard
+          onOpenEvent={event => navigation.navigate('EventDetail', { event })}
+        />
         <ToDoCard onSeeAll={() => navigation.navigate('ATraiter')} />
       </ScrollView>
     </SafeAreaView>

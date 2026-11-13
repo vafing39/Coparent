@@ -3,8 +3,9 @@ import { Alert } from 'react-native';
 import { fireEvent, screen } from '@testing-library/react-native';
 import { AccueilScreen } from '../AccueilScreen';
 import { ApiError } from '../../../api/errors';
-import type { Custody, Family } from '../../../api/types';
+import type { CalendarEvent, Custody, Family } from '../../../api/types';
 import { BagProvider } from '../../../context/BagContext';
+import { CalendarProvider } from '../../../context/CalendarContext';
 import { CustodyProvider } from '../../../context/CustodyContext';
 import { FamilyProvider } from '../../../context/FamilyContext';
 import { ToDoProvider } from '../../../context/ToDoContext';
@@ -15,6 +16,7 @@ import {
   bagApi,
   EMPTY_BAG,
   EMPTY_TO_DO,
+  eventApi,
   familyApi,
   toDoApi,
 } from '../../../test-utils/fakeApiClient';
@@ -71,11 +73,13 @@ async function renderScreen(found: Family, response: Custody = custody()) {
   await renderWithProviders(
     <FamilyProvider>
       <CustodyProvider>
-        <BagProvider>
-          <ToDoProvider>
-            <AccueilScreen {...props} />
-          </ToDoProvider>
-        </BagProvider>
+        <CalendarProvider>
+          <BagProvider>
+            <ToDoProvider>
+              <AccueilScreen {...props} />
+            </ToDoProvider>
+          </BagProvider>
+        </CalendarProvider>
       </CustodyProvider>
     </FamilyProvider>,
   );
@@ -88,6 +92,7 @@ beforeEach(async () => {
   familyApi.custody.mockReset();
   bagApi.get.mockReset().mockResolvedValue(EMPTY_BAG);
   toDoApi.get.mockReset().mockResolvedValue(EMPTY_TO_DO);
+  eventApi.list.mockReset().mockResolvedValue([]);
   authApi.logout.mockReset().mockResolvedValue(undefined);
   await useSession.getState().signIn(authResponse());
 });
@@ -172,16 +177,25 @@ test('aucun passage prévu : pas de carte « Prochain passage »', async () => {
 
 test('erreur de chargement puis « Réessayer »', async () => {
   familyApi.fetchMyFamily.mockResolvedValue(TWO_PARENTS);
-  familyApi.custody.mockRejectedValueOnce(new ApiError(500));
-  familyApi.custody.mockResolvedValueOnce(custody());
+  // La garde du jour (from = to) échoue une fois ; le calendrier, chargé aussi, réussit.
+  let failed = false;
+  familyApi.custody.mockImplementation(async (_id, from, to) => {
+    if (from === to && !failed) {
+      failed = true;
+      throw new ApiError(500);
+    }
+    return custody();
+  });
   await renderWithProviders(
     <FamilyProvider>
       <CustodyProvider>
-        <BagProvider>
-          <ToDoProvider>
-            <AccueilScreen {...props} />
-          </ToDoProvider>
-        </BagProvider>
+        <CalendarProvider>
+          <BagProvider>
+            <ToDoProvider>
+              <AccueilScreen {...props} />
+            </ToDoProvider>
+          </BagProvider>
+        </CalendarProvider>
       </CustodyProvider>
     </FamilyProvider>,
   );
@@ -307,4 +321,49 @@ test('« À traiter » en erreur puis « Réessayer »', async () => {
   expect(
     await screen.findByText("Rien à traiter pour l'instant."),
   ).toBeOnTheScreen();
+});
+
+const JUDO: CalendarEvent = {
+  id: 'e1',
+  title: 'Judo',
+  type: 'ACTIVITY',
+  children: [{ id: 'c2', firstName: 'Hugo' }],
+  allDay: false,
+  date: TODAY,
+  startTime: '16:30:00',
+  endTime: '17:30:00',
+  location: 'Dojo municipal',
+  reminder: 'NONE',
+  visibility: 'SHARED',
+  authorFirstName: 'Camille',
+  mine: true,
+  createdAt: '2026-11-01T10:00:00Z',
+  updatedAt: '2026-11-01T10:00:00Z',
+};
+
+test('« Aujourd’hui » : les événements du jour, un appui ouvre le détail', async () => {
+  const birthday: CalendarEvent = {
+    ...JUDO,
+    id: 'e2',
+    title: 'Anniversaire de Mamie Odile',
+    type: 'OTHER',
+    allDay: true,
+    startTime: null,
+    endTime: null,
+    location: null,
+    children: CHILDREN.map(({ id, firstName }) => ({ id, firstName })),
+  };
+  const tomorrow: CalendarEvent = { ...JUDO, id: 'e3', date: '2026-11-11' };
+  eventApi.list.mockResolvedValue([birthday, JUDO, tomorrow]);
+  await renderScreen(TWO_PARENTS);
+  expect(await screen.findByText('Judo')).toBeOnTheScreen();
+  expect(screen.getByText('16 h 30')).toBeOnTheScreen();
+  expect(screen.getByText('Hugo · Dojo municipal · Partagé')).toBeOnTheScreen();
+  expect(screen.getByText('Journée')).toBeOnTheScreen();
+  expect(screen.getByText('Anniversaire de Mamie Odile')).toBeOnTheScreen();
+  expect(screen.getAllByText('Judo')).toHaveLength(1);
+  expect(screen.queryByText("Rien de prévu aujourd'hui.")).toBeNull();
+
+  await fireEvent.press(screen.getByText('Judo'));
+  expect(navigate).toHaveBeenCalledWith('EventDetail', { event: JUDO });
 });

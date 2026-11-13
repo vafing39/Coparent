@@ -11,11 +11,13 @@ const RING: Record<FamilyRole, string> = {
 const SIZE = {
   md: 'h-11 w-11 border-[3px]',
   sm: 'h-8 w-8 border-2',
+  xs: 'h-[22px] w-[22px] border-2',
 };
 
 const TEXT = {
   md: 'text-[17px]',
   sm: 'text-[13px]',
+  xs: 'text-[11px]',
 };
 
 type Props = {

@@ -4,6 +4,7 @@ import type {
   NavigatorScreenParams,
 } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { CalendarEvent } from '../api/types';
 
 export type AuthStackParamList = {
   Bienvenue: undefined;
@@ -43,6 +44,10 @@ export type AppStackParamList = {
   ATraiter: undefined;
   /** Sac du prochain passage de garde (lu dans CustodyProvider). */
   SacAPreparer: undefined;
+  /** Nouvel événement (le jour `date` si donné), ou modification de `event`. */
+  EventForm: { event?: CalendarEvent; date?: string } | undefined;
+  /** Détail d'un événement. */
+  EventDetail: { event: CalendarEvent };
 };
 
 export type AuthScreenProps<T extends keyof AuthStackParamList> =
