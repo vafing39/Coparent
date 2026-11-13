@@ -505,7 +505,31 @@
     "eventPrivate": "{{title}}, privé"
   },
   "messages": {
-    "placeholder": "La messagerie entre parents arrive bientôt."
+    "title": "Messages",
+    "kept": "Messages conservés, non modifiables",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "you": "Vous",
+    "sent": "Envoyé · {{time}}",
+    "read": "Lu · {{time}}",
+    "bubbleLabel": "{{author}}, {{status}} : {{body}}",
+    "sentLabel": "envoyé à {{time}}",
+    "readLabel": "lu à {{time}}",
+    "receivedLabel": "à {{time}}",
+    "empty": "Aucun message pour l'instant. Écrivez à {{name}} : vos échanges sont conservés et datés.",
+    "loadFailed": "Impossible de charger les messages. Vérifiez votre connexion.",
+    "loadOlder": "Messages plus anciens",
+    "inputLabel": "Votre message à {{name}}",
+    "placeholderTo": "Écrire à {{name}}",
+    "send": "Envoyer",
+    "solo": {
+      "title": "La messagerie s'ouvrira quand {{name}} aura rejoint",
+      "text": "Vos échanges seront conservés, datés et impossibles à modifier, pour vous deux."
+    },
+    "errors": {
+      "solo": "La messagerie s'ouvrira quand l'autre parent aura rejoint.",
+      "invalid": "Le message est vide ou dépasse 2 000 caractères."
+    }
   },
   "familyTab": {
     "empty": "Bientôt, retrouvez ici les membres de la famille et les informations des enfants."

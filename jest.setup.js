@@ -47,3 +47,9 @@ jest.mock('@react-native-community/datetimepicker', () => ({
 jest.mock('@react-native-clipboard/clipboard', () =>
   require('@react-native-clipboard/clipboard/jest/clipboard-mock'),
 );
+
+// Temps réel de la messagerie (STOMP sur WebSocket) simulé : les tests émettent les
+// événements avec `realtime.emit` (src/test-utils/fakeRealtime).
+jest.mock('./src/lib/realtime', () =>
+  jest.requireActual('./src/test-utils/fakeRealtime'),
+);

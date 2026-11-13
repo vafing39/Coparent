@@ -4,6 +4,8 @@ import type {
   Bag,
   CalendarEvent,
   EventBody,
+  Message,
+  MessagePage,
   ToDo,
   Child,
   Custody,
@@ -81,6 +83,16 @@ export const eventApi = {
   remove: jest.fn<Promise<void>, [string, string]>(),
 };
 
+/**
+ * Messagerie : liste (familyId, before ou undefined ; une conversation vide tant qu'un test ne
+ * la simule pas), envoi (familyId, texte) et lecture (familyId, upToSeq).
+ */
+export const messageApi = {
+  list: jest.fn<Promise<MessagePage>, [string, number | undefined]>(),
+  send: jest.fn<Promise<Message>, [string, string]>(),
+  read: jest.fn<Promise<void>, [string, number]>(),
+};
+
 /** Une fonction simulée par route d'authentification (paramètres utiles du corps). */
 export const authApi = {
   login: jest.fn<Promise<AuthResponse>, [LoginValues]>(),
@@ -119,6 +131,10 @@ const EVENTS_RANGE =
   /^\/api\/v1\/families\/([^/]+)\/events\?from=([\d-]+)&to=([\d-]+)$/;
 const EVENTS = /^\/api\/v1\/families\/([^/]+)\/events$/;
 const EVENT = /^\/api\/v1\/families\/([^/]+)\/events\/([^/?]+)$/;
+const MESSAGES_LIST =
+  /^\/api\/v1\/families\/([^/]+)\/messages(?:\?before=(\d+))?$/;
+const MESSAGES = /^\/api\/v1\/families\/([^/]+)\/messages$/;
+const MESSAGES_READ = /^\/api\/v1\/families\/([^/]+)\/messages\/read$/;
 
 function authRoute(url: string, body: unknown) {
   const { refreshToken, code, email } = (body ?? {}) as {
@@ -229,6 +245,21 @@ async function route(method: string, url: string, body?: unknown) {
   }
   if (method === 'DELETE' && (match = url.match(EVENT))) {
     return eventApi.remove(match[1], match[2]);
+  }
+  if (method === 'GET' && (match = url.match(MESSAGES_LIST))) {
+    const before = match[2] === undefined ? undefined : Number(match[2]);
+    return (
+      (await messageApi.list(match[1], before)) ?? {
+        messages: [],
+        hasMore: false,
+      }
+    );
+  }
+  if (method === 'POST' && (match = url.match(MESSAGES))) {
+    return messageApi.send(match[1], (body as { body: string }).body);
+  }
+  if (method === 'POST' && (match = url.match(MESSAGES_READ))) {
+    return messageApi.read(match[1], (body as { upToSeq: number }).upToSeq);
   }
   throw new Error(`Requête non simulée : ${method} ${url}`);
 }

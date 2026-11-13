@@ -234,3 +234,28 @@ export type EventBody = {
   reminder: EventReminder;
   visibility: EventVisibility;
 };
+
+/** Message entre parents (immuable). `readAt` : lu par le destinataire, sinon null. */
+export type Message = {
+  id: string;
+  seq: number;
+  /** null si le compte de l'expéditeur a été supprimé. */
+  senderId: string | null;
+  senderFirstName: string | null;
+  body: string;
+  /** Instant ISO (UTC), fixé par le serveur. */
+  createdAt: string;
+  readAt: string | null;
+};
+
+/** Une page de la conversation, du plus ancien au plus récent. */
+export type MessagePage = {
+  messages: Message[];
+  /** Il existe des messages plus anciens. */
+  hasMore: boolean;
+};
+
+/** Reçu en temps réel : un nouveau message, ou des messages lus par `readerId` jusqu'à `upToSeq`. */
+export type MessageRealtimeEvent =
+  | { type: 'MESSAGE'; message: Message }
+  | { type: 'READ'; readerId: string; upToSeq: number; readAt: string };

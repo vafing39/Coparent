@@ -7,6 +7,7 @@ import { BagProvider } from '../../context/BagContext';
 import { CalendarProvider } from '../../context/CalendarContext';
 import { CustodyProvider } from '../../context/CustodyContext';
 import { FamilyProvider } from '../../context/FamilyContext';
+import { MessagesProvider } from '../../context/MessagesContext';
 import { ToDoProvider } from '../../context/ToDoContext';
 import { useSession } from '../../stores/session';
 import { authResponse } from '../../test-utils/authFixtures';
@@ -27,9 +28,11 @@ async function renderTabs() {
         <CalendarProvider>
           <BagProvider>
             <ToDoProvider>
-              <NavigationContainer>
-                <TabsNavigator />
-              </NavigationContainer>
+              <MessagesProvider>
+                <NavigationContainer>
+                  <TabsNavigator />
+                </NavigationContainer>
+              </MessagesProvider>
             </ToDoProvider>
           </BagProvider>
         </CalendarProvider>
@@ -74,7 +77,11 @@ test('l’onglet Calendrier ouvre le calendrier de garde', async () => {
 });
 
 test.each([
-  ['Messages', 'La messagerie entre parents arrive bientôt.'],
+  // Famille en mode solo : la messagerie attend l'autre parent.
+  [
+    'Messages',
+    'Vos échanges seront conservés, datés et impossibles à modifier, pour vous deux.',
+  ],
   [
     'Famille',
     'Bientôt, retrouvez ici les membres de la famille et les informations des enfants.',
@@ -89,6 +96,41 @@ test.each([
   expect(screen.getByRole('button', { name })).toBeSelected();
 });
 
+test('Messages : conversation sans barre d’onglets, « Retour » ramène à l’onglet précédent', async () => {
+  familyApi.fetchMyFamily.mockResolvedValue(
+    family({
+      solo: false,
+      members: [
+        {
+          userId: '0c3b6a2e-0000-0000-0000-000000000001',
+          firstName: 'Camille',
+          role: 'PARENT_A',
+        },
+        { userId: 'u2', firstName: 'Julien', role: 'PARENT_B' },
+      ],
+      children: [{ id: 'c1', firstName: 'Léa', birthDate: '2018-03-03' }],
+    }),
+  );
+  await renderTabs();
+  await screen.findByRole('header', { name: /Camille$/ });
+  await fireEvent.press(screen.getByRole('button', { name: 'Calendrier' }));
+  await screen.findByRole('header', { name: 'Calendrier' });
+  await fireEvent.press(screen.getByRole('button', { name: 'Messages' }));
+
+  expect(
+    await screen.findByRole('header', { name: 'Julien' }),
+  ).toBeOnTheScreen();
+  for (const name of TABS) {
+    expect(screen.queryByRole('button', { name })).toBeNull();
+  }
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Retour' }));
+  expect(
+    await screen.findByRole('header', { name: 'Calendrier' }),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Calendrier' })).toBeSelected();
+});
+
 test('« Tout voir » ouvre « À traiter » par-dessus les onglets, puis retour', async () => {
   await renderWithProviders(
     <FamilyProvider>
@@ -96,9 +138,11 @@ test('« Tout voir » ouvre « À traiter » par-dessus les onglets, puis retour
         <CalendarProvider>
           <BagProvider>
             <ToDoProvider>
-              <NavigationContainer>
-                <AppNavigator />
-              </NavigationContainer>
+              <MessagesProvider>
+                <NavigationContainer>
+                  <AppNavigator />
+                </NavigationContainer>
+              </MessagesProvider>
             </ToDoProvider>
           </BagProvider>
         </CalendarProvider>

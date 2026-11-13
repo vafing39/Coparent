@@ -122,3 +122,13 @@ export function daysBetween(fromIso: string, toIso: string): number {
 export function hourInParis(now: Date = new Date()): number {
   return inParis(now).hour();
 }
+
+/** Instant ISO → jour de Paris « AAAA-MM-JJ ». */
+export function parisDayOf(instant: string): string {
+  return inParis(instant).format(ISO_DATE);
+}
+
+/** Instant ISO → heure à Paris « 18 h 12 ». */
+export function formatInstantTime(instant: string): string {
+  return inParis(instant).format('H [h] mm');
+}

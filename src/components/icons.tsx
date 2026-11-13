@@ -376,3 +376,12 @@ export function LockIcon(props: StrokeIconProps) {
     </TabIcon>
   );
 }
+
+/** Flèche vers le haut : « Envoyer ». */
+export function SendIcon(props: StrokeIconProps) {
+  return (
+    <TabIcon {...props}>
+      <Path d="M12 19V5M5 12l7-7 7 7" />
+    </TabIcon>
+  );
+}
