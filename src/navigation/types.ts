@@ -52,6 +52,8 @@ export type AppStackParamList = {
   Conversation: { conversationId: string; subject: string };
   /** Nouvelle discussion : sujet et premier message. */
   NewConversation: undefined;
+  /** Discussion « Bienvenue » épinglée : un message de Coparent, affiché par l'app. */
+  Welcome: undefined;
 };
 
 export type AuthScreenProps<T extends keyof AuthStackParamList> =

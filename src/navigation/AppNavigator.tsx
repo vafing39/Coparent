@@ -6,6 +6,7 @@ import { ATraiterScreen } from '../features/home/ATraiterScreen';
 import { SacAPreparerScreen } from '../features/home/SacAPreparerScreen';
 import { ConversationScreen } from '../features/messages/ConversationScreen';
 import { NewConversationScreen } from '../features/messages/NewConversationScreen';
+import { WelcomeScreen } from '../features/messages/WelcomeScreen';
 import { TabsNavigator } from './TabsNavigator';
 import type { AppStackParamList } from './types';
 
@@ -25,6 +26,7 @@ export function AppNavigator() {
         options={{ presentation: 'modal' }}
       />
       <Stack.Screen name="Conversation" component={ConversationScreen} />
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen
         name="NewConversation"
         component={NewConversationScreen}

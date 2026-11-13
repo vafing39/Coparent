@@ -114,15 +114,26 @@ test('liste : sujet, dernier message, heure, non-lus ; un appui ouvre la discuss
   ).toBeOnTheScreen();
   expect(screen.getByText('2')).toBeOnTheScreen();
   const subjects = screen
-    .getAllByText(/^(Vacances de Noël|Kimono de Hugo)$/)
+    .getAllByText(/^(Bienvenue|Vacances de Noël|Kimono de Hugo)$/)
     .map(node => node.props.children);
-  expect(subjects).toEqual(['Vacances de Noël', 'Kimono de Hugo']);
+  expect(subjects).toEqual(['Bienvenue', 'Vacances de Noël', 'Kimono de Hugo']);
 
   await fireEvent.press(noel);
   expect(navigate).toHaveBeenCalledWith('Conversation', {
     conversationId: 'conv-noel',
     subject: 'Vacances de Noël',
   });
+});
+
+test('« Bienvenue » épinglée en tête ouvre le message de Coparent', async () => {
+  await renderScreen();
+  await screen.findByText('Vacances de Noël');
+  await fireEvent.press(
+    screen.getByRole('button', {
+      name: 'Bienvenue, message de Coparent, épinglé. Une discussion par sujet, des messages datés et conservés.',
+    }),
+  );
+  expect(navigate).toHaveBeenCalledWith('Welcome');
 });
 
 test('« + » ouvre une nouvelle discussion', async () => {
@@ -169,14 +180,15 @@ test('un message reçu en temps réel recharge la liste', async () => {
   );
 });
 
-test('aucune discussion', async () => {
+test('aucune discussion : seule « Bienvenue » est listée', async () => {
   messageApi.conversations.mockResolvedValue([]);
   await renderScreen();
   expect(
-    await screen.findByText(
-      "Aucune discussion pour l'instant. Ouvrez-en une sur un sujet précis : vos échanges restent rangés, conservés et datés.",
-    ),
+    await screen.findByRole('button', {
+      name: 'Bienvenue, message de Coparent, épinglé. Une discussion par sujet, des messages datés et conservés.',
+    }),
   ).toBeOnTheScreen();
+  expect(screen.queryByText(/Aucune discussion/)).toBeNull();
 });
 
 test('erreur de chargement puis « Réessayer »', async () => {
@@ -186,6 +198,11 @@ test('erreur de chargement puis « Réessayer »', async () => {
     await screen.findByText(
       'Impossible de charger les discussions. Vérifiez votre connexion.',
     ),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('button', {
+      name: 'Bienvenue, message de Coparent, épinglé. Une discussion par sujet, des messages datés et conservés.',
+    }),
   ).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole('button', { name: 'Réessayer' }));
   expect(await screen.findByText('Vacances de Noël')).toBeOnTheScreen();
@@ -204,4 +221,5 @@ test('mode solo : la messagerie attend l’autre parent', async () => {
   expect(
     screen.queryByRole('button', { name: 'Nouvelle discussion' }),
   ).toBeNull();
+  expect(screen.queryByText('Bienvenue')).toBeNull();
 });

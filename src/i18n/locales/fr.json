@@ -507,7 +507,6 @@
   "messages": {
     "title": "Messages",
     "add": "Nouvelle discussion",
-    "listEmpty": "Aucune discussion pour l'instant. Ouvrez-en une sur un sujet précis : vos échanges restent rangés, conservés et datés.",
     "listLoadFailed": "Impossible de charger les discussions. Vérifiez votre connexion.",
     "preview": "Vous : {{body}}",
     "unread_one": "{{count}} message non lu",
@@ -549,6 +548,16 @@
       "solo": "La messagerie s'ouvrira quand l'autre parent aura rejoint.",
       "invalid": "Le message est vide ou dépasse 2 000 caractères.",
       "gone": "Cette discussion n'existe plus."
+    },
+    "welcome": {
+      "title": "Bienvenue",
+      "from": "Coparent",
+      "subtitle": "Message de Coparent · épinglé",
+      "pinned": "épinglé",
+      "preview": "Une discussion par sujet, des messages datés et conservés.",
+      "rowLabel": "Bienvenue, message de Coparent, épinglé. {{preview}}",
+      "body": "Bonjour {{name}} 👋\nBienvenue dans votre messagerie avec {{other}}. Ouvrez une discussion par sujet (vacances, école, santé…) avec le bouton « + » : vos échanges restent rangés et faciles à retrouver.\nChaque message est daté et conservé ; il ne peut être ni modifié ni supprimé.",
+      "noReply": "On ne peut pas répondre à ce message."
     }
   },
   "familyTab": {

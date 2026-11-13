@@ -13,6 +13,7 @@ import { LoadError } from '../../components/LoadError';
 import { MessageIcon, PlusIcon } from '../../components/icons';
 import { parentOf } from '../../features/custody/parents';
 import { ConversationRow } from '../../features/messages/ConversationRow';
+import { WelcomeRow } from '../../features/messages/WelcomeRow';
 import { useFamily } from '../../hooks/useFamily';
 import { useMessages } from '../../hooks/useMessages';
 import type { TabScreenProps } from '../../navigation/types';
@@ -21,7 +22,8 @@ import { useTheme } from '../../theme/ThemeProvider';
 /**
  * Onglet Messages (cahier des charges, 7) : les discussions avec l'autre parent, une par sujet
  * (écart voulu : une conversation unique devenait longue à parcourir). « + » en ouvre une
- * nouvelle ; une discussion s'ouvre en plein écran. En mode solo, la messagerie attend
+ * nouvelle ; une discussion s'ouvre en plein écran. La discussion « Bienvenue » de Coparent
+ * reste épinglée en tête, quel que soit l'état de la liste. En mode solo, la messagerie attend
  * l'arrivée de l'autre parent.
  */
 export function MessagesScreen({ navigation }: TabScreenProps<'Messages'>) {
@@ -90,32 +92,33 @@ export function MessagesScreen({ navigation }: TabScreenProps<'Messages'>) {
     reloadConversations().finally(() => setRefreshing(false));
   };
 
+  const welcome = <WelcomeRow onPress={() => navigation.navigate('Welcome')} />;
+
   let body: React.ReactNode;
   if (conversationsError && !conversations) {
     body = (
-      <LoadError message={t('messages.listLoadFailed')} onRetry={refresh} />
+      <>
+        <View className="px-4">{welcome}</View>
+        <LoadError message={t('messages.listLoadFailed')} onRetry={refresh} />
+      </>
     );
   } else if (isLoadingConversations || !conversations) {
     body = (
-      <View
-        accessible
-        accessibilityLabel={t('common.loading')}
-        className="gap-3 px-4 pt-4"
-      >
-        <View className="h-14 rounded-[16px] bg-surface" />
-        <View className="h-14 rounded-[16px] bg-surface" />
-        <View className="h-14 rounded-[16px] bg-surface" />
-      </View>
-    );
-  } else if (conversations.length === 0) {
-    body = (
-      <View className="flex-1 justify-center gap-5 px-8">
-        <Text className="text-center font-regular text-[15px] leading-[22px] text-text-secondary">
-          {t('messages.listEmpty')}
-        </Text>
+      <View className="px-4">
+        {welcome}
+        <View
+          accessible
+          accessibilityLabel={t('common.loading')}
+          className="gap-3"
+        >
+          <View className="h-14 rounded-[16px] bg-surface" />
+          <View className="h-14 rounded-[16px] bg-surface" />
+          <View className="h-14 rounded-[16px] bg-surface" />
+        </View>
       </View>
     );
   } else {
+    // Jamais vide : « Bienvenue » est toujours là, au-dessus des discussions.
     body = (
       <ScrollView
         contentContainerClassName="px-4 pb-8"
@@ -127,12 +130,13 @@ export function MessagesScreen({ navigation }: TabScreenProps<'Messages'>) {
           />
         }
       >
-        {conversations.map((conversation, index) => (
+        {welcome}
+        {conversations.map(conversation => (
           <ConversationRow
             key={conversation.id}
             conversation={conversation}
             myId={myId}
-            divider={index > 0}
+            divider
             onPress={() =>
               navigation.navigate('Conversation', {
                 conversationId: conversation.id,
