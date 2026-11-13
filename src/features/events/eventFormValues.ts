@@ -44,6 +44,15 @@ export function defaults(
       location: event.location ?? '',
       reminder: event.reminder,
       visibility: event.visibility,
+      repeat: event.repeat
+        ? {
+            frequency: event.repeat.frequency,
+            onlyWith: event.repeat.onlyWith,
+            skipHolidays: event.repeat.skipHolidays,
+            end: event.repeat.end,
+            count: event.repeat.count,
+          }
+        : null,
     };
   }
   const children = family?.children ?? [];
@@ -58,6 +67,7 @@ export function defaults(
     location: '',
     reminder: 'NONE',
     visibility: 'SHARED',
+    repeat: null,
   };
 }
 
@@ -74,5 +84,6 @@ export function toBody(values: EventValues): EventBody {
     location: values.location === '' ? null : values.location,
     reminder: values.reminder,
     visibility: values.visibility,
+    repeat: values.repeat,
   };
 }

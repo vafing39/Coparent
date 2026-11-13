@@ -6,17 +6,22 @@ import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { eventErrorMessage } from '../../api/events';
 import { SwitchRow } from '../../components/SwitchRow';
+import { ChevronRightIcon } from '../../components/icons';
 import { ErrorText } from '../../components/ErrorText';
 import { TextField } from '../../components/TextField';
 import { useEvents } from '../../hooks/useEvents';
 import { useFamily } from '../../hooks/useFamily';
 import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
+import { formatShortDate, formatTime } from '../../lib/dates';
 import type { AppScreenProps } from '../../navigation/types';
 import { EventInput, EventValues, eventSchema } from '../../schemas/event';
+import { useTheme } from '../../theme/ThemeProvider';
 import { TimeField } from '../custody/TimeField';
 import { ChildChip } from './ChildChip';
 import { ChipGroup } from './ChipGroup';
 import { DateField } from './DateField';
+import { RepeatForm } from './RepeatForm';
+import { repeatSummary } from './repeatText';
 import {
   defaults,
   REMINDERS,
@@ -26,16 +31,21 @@ import {
 } from './eventFormValues';
 
 /**
- * Nouvel événement, ou modification d'un événement (cahier des charges, 5), sans répétition
- * pour l'instant. Le rappel est enregistré ; il sera envoyé quand les notifications existeront.
+ * Nouvel événement, ou modification d'un événement (cahier des charges, 5). « Répéter » ouvre le
+ * sous-réglage de la répétition (RepeatForm). Pour une séance d'une série, `scope` dit quelles
+ * séances changent ; « cet événement seulement » en fait un événement unique (pas de « Répéter »).
+ * Le rappel est enregistré ; il sera envoyé quand les notifications existeront.
  */
 export function EventFormScreen({
   navigation,
   route,
 }: AppScreenProps<'EventForm'>) {
   const { t } = useTranslation();
+  const { color } = useTheme();
   const { family } = useFamily();
   const editing = route.params?.event;
+  const scope = editing?.repeat ? route.params?.scope : undefined;
+  const [choosingRepeat, setChoosingRepeat] = useState(false);
   const {
     createEvent,
     isCreatingEvent,
@@ -52,20 +62,30 @@ export function EventFormScreen({
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<EventInput, unknown, EventValues>({
     resolver: zodResolver(eventSchema),
-    defaultValues: defaults(family, editing, route.params?.date),
+    defaultValues: {
+      ...defaults(family, editing, route.params?.date),
+      ...(scope === 'ONE' && { repeat: null }),
+    },
   });
   const allDay = watch('allDay');
   const visibility = watch('visibility');
+  const date = watch('date');
+  const repeat = watch('repeat');
 
   const onSubmit = handleSubmit(values => {
     setSaveError(null);
     const onError = (error: Error) => setSaveError(eventErrorMessage(error));
     if (editing) {
       updateEvent(
-        { id: editing.id, body: toBody(values) },
+        {
+          id: editing.id,
+          body: toBody(values),
+          ...(scope && { scope, date: editing.date }),
+        },
         {
           onSuccess: event => navigation.popTo('EventDetail', { event }),
           onError,
@@ -85,6 +105,31 @@ export function EventFormScreen({
   };
 
   const children = family?.children ?? [];
+
+  if (choosingRepeat && family) {
+    const startTime = watch('startTime');
+    return (
+      <RepeatForm
+        family={family}
+        initial={repeat}
+        date={date}
+        subtitle={t('events.repeat.subtitle', {
+          title: watch('title').trim() || t('events.repeat.untitled'),
+          when: allDay
+            ? formatShortDate(date)
+            : `${formatShortDate(date)}, ${formatTime(startTime)}`,
+        })}
+        childNames={children
+          .filter(child => watch('childIds').includes(child.id))
+          .map(child => child.firstName)}
+        onCancel={() => setChoosingRepeat(false)}
+        onDone={chosen => {
+          setValue('repeat', chosen);
+          setChoosingRepeat(false);
+        }}
+      />
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
@@ -132,6 +177,7 @@ export function EventFormScreen({
             <TextField
               ref={field.ref}
               label={t('events.title.label')}
+              placeholder={t('events.title.placeholder')}
               value={field.value}
               onChangeText={field.onChange}
               onBlur={field.onBlur}
@@ -248,6 +294,34 @@ export function EventFormScreen({
                 <ErrorText text={errors.endTime.message} />
               ) : null}
             </View>
+          )}
+          {scope === 'ONE' || !family ? null : (
+            <Pressable
+              onPress={() => setChoosingRepeat(true)}
+              accessibilityRole="button"
+              accessibilityHint={t('events.repeat.rowHint')}
+              className="min-h-[44px] flex-row items-center gap-2 border-t border-border pt-2"
+            >
+              <Text className="font-bold text-[15px] text-text">
+                {t('events.repeat.label')}
+              </Text>
+              <Text
+                numberOfLines={2}
+                className="flex-1 text-right font-regular text-[13px] text-text-secondary"
+              >
+                {repeat
+                  ? repeatSummary(
+                      repeat,
+                      date,
+                      family,
+                      children
+                        .filter(child => watch('childIds').includes(child.id))
+                        .map(child => child.firstName),
+                    )
+                  : t('events.repeat.NONE')}
+              </Text>
+              <ChevronRightIcon size={16} color={color('text-secondary')} />
+            </Pressable>
           )}
         </View>
 

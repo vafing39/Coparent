@@ -12,6 +12,7 @@ import { joinNames } from '../../lib/text';
 import { useTheme } from '../../theme/ThemeProvider';
 import { ParentRing } from '../custody/ParentRing';
 import { parentOf } from '../custody/parents';
+import { eventItemKey } from '../../api/events';
 import { eventSortKey, eventTime } from '../events/eventText';
 
 /** Un élément à venir : un passage de garde ou un événement, avec sa clé de tri « AAAA-MM-JJTHH:mm ». */
@@ -78,7 +79,7 @@ export function Upcoming({
             />
           ) : (
             <EventRow
-              key={item.event.id}
+              key={eventItemKey(item.event)}
               event={item.event}
               divider={index > 0}
               onPress={() => onOpenEvent(item.event)}

@@ -40,6 +40,16 @@ export const eventSchema = z
       }),
     reminder: z.enum(['NONE', 'ONE_HOUR', 'DAY_BEFORE', 'TWO_DAYS']),
     visibility: z.enum(['SHARED', 'PRIVATE']),
+    /** Choisie dans « Répéter » ; null : événement unique. */
+    repeat: z
+      .object({
+        frequency: z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY']),
+        onlyWith: z.enum(['PARENT_A', 'PARENT_B']).nullable(),
+        skipHolidays: z.boolean(),
+        end: z.enum(['NEVER', 'SCHOOL_YEAR', 'COUNT']),
+        count: z.number().int().min(1).max(99).nullable(),
+      })
+      .nullable(),
   })
   .refine(values => values.allDay || values.endTime > values.startTime, {
     path: ['endTime'],

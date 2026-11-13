@@ -350,6 +350,7 @@ const JUDO: CalendarEvent = {
   visibility: 'SHARED',
   authorFirstName: 'Camille',
   mine: true,
+  repeat: null,
   createdAt: '2026-11-01T10:00:00Z',
   updatedAt: '2026-11-01T10:00:00Z',
 };

@@ -45,6 +45,7 @@ const JUDO: CalendarEvent = {
   visibility: 'SHARED',
   authorFirstName: 'Julien',
   mine: false,
+  repeat: null,
   createdAt: '2026-11-01T10:00:00Z',
   updatedAt: '2026-11-01T10:00:00Z',
 };
@@ -121,6 +122,7 @@ test('création : le corps envoyé, puis retour', async () => {
     location: 'Cabinet',
     reminder: 'DAY_BEFORE',
     visibility: 'SHARED',
+    repeat: null,
   });
   expect(goBack).toHaveBeenCalled();
 });
@@ -154,6 +156,7 @@ test('toute la journée, privé : sans heures, aujourd’hui par défaut', async
     location: null,
     reminder: 'NONE',
     visibility: 'PRIVATE',
+    repeat: null,
   });
 });
 
@@ -213,6 +216,7 @@ test('modification : champs pré-remplis, puis retour au détail', async () => {
     location: 'Gymnase',
     reminder: 'DAY_BEFORE',
     visibility: 'SHARED',
+    repeat: null,
   });
   expect(popTo).toHaveBeenCalledWith('EventDetail', { event: updated });
 });

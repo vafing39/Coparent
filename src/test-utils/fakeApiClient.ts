@@ -4,6 +4,8 @@ import type {
   Bag,
   CalendarEvent,
   EventBody,
+  EventScope,
+  RepeatPreviewDate,
   Exchange,
   ExchangeBody,
   Conversation,
@@ -26,6 +28,7 @@ import type {
   SignupValues,
 } from '../schemas/auth';
 import type { AddBagItemVariables } from '../context/BagContext';
+import type { RepeatPreviewRequest } from '../context/EventsContext';
 import type { ChildPayload } from '../context/FamilyContext';
 
 type FamilyBody = { name: string; vacationZone: string };
@@ -78,13 +81,21 @@ export const toDoApi = {
 
 /**
  * Événements : une fonction simulée par route (familyId, puis période, id ou corps). La liste
- * renvoie [] tant qu'un test ne la simule pas.
+ * renvoie [] tant qu'un test ne la simule pas. Pour une séance d'une série, `update` et
+ * `remove` reçoivent aussi la portée et la date de la séance.
  */
 export const eventApi = {
   list: jest.fn<Promise<CalendarEvent[]>, [string, string, string]>(),
   create: jest.fn<Promise<CalendarEvent>, [string, EventBody]>(),
-  update: jest.fn<Promise<CalendarEvent>, [string, string, EventBody]>(),
-  remove: jest.fn<Promise<void>, [string, string]>(),
+  update: jest.fn<
+    Promise<CalendarEvent>,
+    [string, string, EventBody, EventScope?, string?]
+  >(),
+  remove: jest.fn<Promise<void>, [string, string, EventScope?, string?]>(),
+  repeatPreview: jest.fn<
+    Promise<RepeatPreviewDate[]>,
+    [string, RepeatPreviewRequest]
+  >(),
 };
 
 /**
@@ -164,7 +175,9 @@ const EXCHANGES = /^\/api\/v1\/families\/([^/]+)\/exchanges$/;
 const EXCHANGE = /^\/api\/v1\/families\/([^/]+)\/exchanges\/([^/]+)$/;
 const EXCHANGE_ANSWER =
   /^\/api\/v1\/families\/([^/]+)\/exchanges\/([^/]+)\/(accept|decline|cancel)$/;
-const EVENT = /^\/api\/v1\/families\/([^/]+)\/events\/([^/?]+)$/;
+const EVENT =
+  /^\/api\/v1\/families\/([^/]+)\/events\/([^/?]+)(?:\?scope=(ONE|FOLLOWING|ALL)(?:&date=([\d-]+))?)?$/;
+const REPEAT_PREVIEW = /^\/api\/v1\/families\/([^/]+)\/events\/repeat-preview$/;
 const CONVERSATIONS = /^\/api\/v1\/families\/([^/]+)\/conversations$/;
 const CONVERSATION_MESSAGES =
   /^\/api\/v1\/families\/([^/]+)\/conversations\/([^/]+)\/messages(?:\?before=(\d+))?$/;
@@ -281,11 +294,25 @@ async function route(method: string, url: string, body?: unknown) {
   if (method === 'POST' && (match = url.match(EVENTS))) {
     return eventApi.create(match[1], body as EventBody);
   }
+  if (method === 'POST' && (match = url.match(REPEAT_PREVIEW))) {
+    return eventApi.repeatPreview(match[1], body as RepeatPreviewRequest);
+  }
+  // Séance d'une série : la portée (et la date) s'ajoutent aux paramètres
   if (method === 'PUT' && (match = url.match(EVENT))) {
-    return eventApi.update(match[1], match[2], body as EventBody);
+    return match[3]
+      ? eventApi.update(
+          match[1],
+          match[2],
+          body as EventBody,
+          match[3] as EventScope,
+          match[4],
+        )
+      : eventApi.update(match[1], match[2], body as EventBody);
   }
   if (method === 'DELETE' && (match = url.match(EVENT))) {
-    return eventApi.remove(match[1], match[2]);
+    return match[3]
+      ? eventApi.remove(match[1], match[2], match[3] as EventScope, match[4])
+      : eventApi.remove(match[1], match[2]);
   }
   if (method === 'GET' && (match = url.match(CONVERSATIONS))) {
     return (await messageApi.conversations(match[1])) ?? [];

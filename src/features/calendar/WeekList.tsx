@@ -10,6 +10,7 @@ import { SOFT_BG } from '../custody/parentColors';
 import { parentOf } from '../custody/parents';
 import { CalendarDay, weekdayShort } from './calendarDays';
 import { dayLabel } from './dayLabel';
+import { eventItemKey } from '../../api/events';
 import { eventTime } from '../events/eventText';
 
 type Props = {
@@ -134,7 +135,7 @@ function WeekRow({
         </View>
         {day.events.map(event => (
           <EventLine
-            key={event.id}
+            key={eventItemKey(event)}
             event={event}
             onPress={() => onOpenEvent(event)}
           />

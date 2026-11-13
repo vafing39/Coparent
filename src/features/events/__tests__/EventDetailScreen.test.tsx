@@ -45,6 +45,7 @@ const DENTISTE: CalendarEvent = {
   visibility: 'SHARED',
   authorFirstName: 'Julien',
   mine: false,
+  repeat: null,
   createdAt: '2026-11-10T10:00:00Z',
   updatedAt: '2026-11-10T10:00:00Z',
 };
@@ -98,6 +99,7 @@ test('événement privé à moi, sans lieu, journée entière', async () => {
     visibility: 'PRIVATE',
     authorFirstName: 'Camille',
     mine: true,
+    repeat: null,
   });
   expect(screen.getByText('Rendez-vous · privé')).toBeOnTheScreen();
   expect(screen.getByText(/Toute la journée$/)).toBeOnTheScreen();

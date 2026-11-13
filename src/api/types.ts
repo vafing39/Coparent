@@ -208,6 +208,31 @@ export type EventVisibility = 'SHARED' | 'PRIVATE';
  * sont en heure de Paris ; les heures sont null pour une journée entière. `authorFirstName` :
  * null si le compte a été supprimé ; `mine` : j'en suis l'auteur.
  */
+export type RepeatFrequency = 'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY';
+export type RepeatEnd = 'NEVER' | 'SCHOOL_YEAR' | 'COUNT';
+
+/** RepeatRequest côté backend : la règle d'un événement répété. */
+export type EventRepeat = {
+  frequency: RepeatFrequency;
+  /** Seulement quand les enfants sont chez ce parent ; null : peu importe. */
+  onlyWith: FamilyRole | null;
+  skipHolidays: boolean;
+  end: RepeatEnd;
+  /** Fin COUNT seulement : nombre de séances. */
+  count: number | null;
+};
+
+/** Séances concernées par une modification ou une suppression dans une série. */
+export type EventScope = 'ONE' | 'FOLLOWING' | 'ALL';
+
+/** Une date de l'aperçu d'une répétition ; `skipped` : pourquoi elle n'est pas prévue. */
+export type RepeatPreviewDate = {
+  date: string;
+  /** Chez qui sont les enfants ce soir-là (null sans rythme). */
+  parent: FamilyRole | null;
+  skipped: 'HOLIDAYS' | 'OTHER_PARENT' | null;
+};
+
 export type CalendarEvent = {
   id: string;
   title: string;
@@ -222,6 +247,11 @@ export type CalendarEvent = {
   visibility: EventVisibility;
   authorFirstName: string | null;
   mine: boolean;
+  /**
+   * Événement répété : la règle, la première séance et le dernier jour possible. Chaque séance
+   * a le même `id` et sa propre `date`.
+   */
+  repeat: (EventRepeat & { firstDate: string; until: string | null }) | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -238,6 +268,8 @@ export type EventBody = {
   location: string | null;
   reminder: EventReminder;
   visibility: EventVisibility;
+  /** null : événement unique ; sinon `date` est la première séance. */
+  repeat: EventRepeat | null;
 };
 
 /** Message entre parents (immuable). `readAt` : lu par le destinataire, sinon null. */

@@ -4,7 +4,7 @@ import type {
   NavigatorScreenParams,
 } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { CalendarEvent } from '../api/types';
+import type { CalendarEvent, EventScope } from '../api/types';
 
 export type AuthStackParamList = {
   Bienvenue: undefined;
@@ -44,8 +44,13 @@ export type AppStackParamList = {
   ATraiter: undefined;
   /** Sac du prochain passage de garde (lu dans CustodyProvider). */
   SacAPreparer: undefined;
-  /** Nouvel événement (le jour `date` si donné), ou modification de `event`. */
-  EventForm: { event?: CalendarEvent; date?: string } | undefined;
+  /**
+   * Nouvel événement (le jour `date` si donné), ou modification de `event`. Pour une séance
+   * d'une série, `scope` : les séances modifiées (ONE : celle-ci devient un événement unique).
+   */
+  EventForm:
+    | { event?: CalendarEvent; date?: string; scope?: EventScope }
+    | undefined;
   /** Détail d'un événement. */
   EventDetail: { event: CalendarEvent };
   /** Une discussion avec l'autre parent (sujet affiché tout de suite). */
