@@ -6,6 +6,7 @@ import { TabsNavigator } from '../TabsNavigator';
 import { BagProvider } from '../../context/BagContext';
 import { CustodyProvider } from '../../context/CustodyContext';
 import { FamilyProvider } from '../../context/FamilyContext';
+import { ToDoProvider } from '../../context/ToDoContext';
 import { useSession } from '../../stores/session';
 import { authResponse } from '../../test-utils/authFixtures';
 import { familyApi } from '../../test-utils/fakeApiClient';
@@ -23,9 +24,11 @@ async function renderTabs() {
     <FamilyProvider>
       <CustodyProvider>
         <BagProvider>
-          <NavigationContainer>
-            <TabsNavigator />
-          </NavigationContainer>
+          <ToDoProvider>
+            <NavigationContainer>
+              <TabsNavigator />
+            </NavigationContainer>
+          </ToDoProvider>
         </BagProvider>
       </CustodyProvider>
     </FamilyProvider>,
@@ -78,9 +81,11 @@ test('« Tout voir » ouvre « À traiter » par-dessus les onglets, puis retour
     <FamilyProvider>
       <CustodyProvider>
         <BagProvider>
-          <NavigationContainer>
-            <AppNavigator />
-          </NavigationContainer>
+          <ToDoProvider>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
+          </ToDoProvider>
         </BagProvider>
       </CustodyProvider>
     </FamilyProvider>,

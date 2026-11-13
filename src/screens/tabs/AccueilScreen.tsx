@@ -7,6 +7,7 @@ import { CustodyCards } from '../../features/home/CustodyCards';
 import { EmptyCard } from '../../features/home/HomeCard';
 import { HomeHeader } from '../../features/home/HomeHeader';
 import { SoloBanner } from '../../features/home/SoloBanner';
+import { ToDoCard } from '../../features/home/ToDoCard';
 import { useAuth } from '../../hooks/useAuth';
 import { useFamily } from '../../hooks/useFamily';
 import type { TabScreenProps } from '../../navigation/types';
@@ -40,14 +41,7 @@ export function AccueilScreen({ navigation }: TabScreenProps<'Accueil'>) {
         {family.solo ? <SoloBanner otherRole={otherRole} /> : null}
         <CustodyCards onOpenBag={() => navigation.navigate('SacAPreparer')} />
         <EmptyCard title={t('home.today.title')} text={t('home.today.empty')} />
-        <EmptyCard
-          title={t('home.toDo.title')}
-          text={t('home.toDo.empty')}
-          action={{
-            label: t('home.toDo.seeAll'),
-            onPress: () => navigation.navigate('ATraiter'),
-          }}
-        />
+        <ToDoCard onSeeAll={() => navigation.navigate('ATraiter')} />
       </ScrollView>
     </SafeAreaView>
   );

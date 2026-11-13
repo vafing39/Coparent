@@ -7,13 +7,16 @@ import type { Custody, Family } from '../../../api/types';
 import { BagProvider } from '../../../context/BagContext';
 import { CustodyProvider } from '../../../context/CustodyContext';
 import { FamilyProvider } from '../../../context/FamilyContext';
+import { ToDoProvider } from '../../../context/ToDoContext';
 import { useSession } from '../../../stores/session';
 import { authResponse } from '../../../test-utils/authFixtures';
 import {
   authApi,
   bagApi,
   EMPTY_BAG,
+  EMPTY_TO_DO,
   familyApi,
+  toDoApi,
 } from '../../../test-utils/fakeApiClient';
 import { family } from '../../../test-utils/familyFixtures';
 import { renderWithProviders } from '../../../test-utils/render';
@@ -69,7 +72,9 @@ async function renderScreen(found: Family, response: Custody = custody()) {
     <FamilyProvider>
       <CustodyProvider>
         <BagProvider>
-          <AccueilScreen {...props} />
+          <ToDoProvider>
+            <AccueilScreen {...props} />
+          </ToDoProvider>
         </BagProvider>
       </CustodyProvider>
     </FamilyProvider>,
@@ -82,6 +87,7 @@ beforeEach(async () => {
   familyApi.fetchMyFamily.mockReset();
   familyApi.custody.mockReset();
   bagApi.get.mockReset().mockResolvedValue(EMPTY_BAG);
+  toDoApi.get.mockReset().mockResolvedValue(EMPTY_TO_DO);
   authApi.logout.mockReset().mockResolvedValue(undefined);
   await useSession.getState().signIn(authResponse());
 });
@@ -172,7 +178,9 @@ test('erreur de chargement puis « Réessayer »', async () => {
     <FamilyProvider>
       <CustodyProvider>
         <BagProvider>
-          <AccueilScreen {...props} />
+          <ToDoProvider>
+            <AccueilScreen {...props} />
+          </ToDoProvider>
         </BagProvider>
       </CustodyProvider>
     </FamilyProvider>,
@@ -235,4 +243,68 @@ test('sac rempli : « 3 sur 7 cochés » sur la ligne', async () => {
   await renderScreen(TWO_PARENTS);
   expect(await screen.findByText('3 sur 7 cochés')).toBeOnTheScreen();
   expect(bagApi.get).toHaveBeenCalledWith(TWO_PARENTS.id);
+});
+
+test('« À traiter » : les deux premières demandes, les miennes d’abord, et « Tout voir (3) »', async () => {
+  toDoApi.get.mockResolvedValue({
+    mine: [
+      {
+        id: 't1',
+        kind: 'EXCHANGE',
+        subject: 'Échange du week-end 21-22 nov.',
+        requestedBy: 'Julien',
+        assignee: 'Camille',
+        requestedAt: '2026-11-07T09:00:00Z',
+        lastNudgedAt: null,
+      },
+    ],
+    theirs: [
+      {
+        id: 't2',
+        kind: 'DEVICE',
+        subject: 'Tablette de Hugo',
+        requestedBy: 'Camille',
+        assignee: 'Julien',
+        requestedAt: '2026-11-09T09:00:00Z',
+        lastNudgedAt: null,
+      },
+      {
+        id: 't3',
+        kind: 'PENSION',
+        subject: 'Pension de novembre',
+        requestedBy: 'Camille',
+        assignee: 'Julien',
+        requestedAt: '2026-11-10T09:00:00Z',
+        lastNudgedAt: null,
+      },
+    ],
+  });
+  await renderScreen(TWO_PARENTS);
+  expect(
+    await screen.findByText('Échange du week-end 21-22 nov.'),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByText('Échange à valider · Julien, il y a 3 jours'),
+  ).toBeOnTheScreen();
+  expect(screen.getByText('Tablette de Hugo')).toBeOnTheScreen();
+  expect(screen.getByText('Appareil à valider · hier')).toBeOnTheScreen();
+  expect(screen.queryByText('Pension de novembre')).toBeNull();
+  expect(screen.queryByText("Rien à traiter pour l'instant.")).toBeNull();
+  await fireEvent.press(screen.getByRole('link', { name: 'Tout voir (3)' }));
+  expect(navigate).toHaveBeenCalledWith('ATraiter');
+});
+
+test('« À traiter » en erreur puis « Réessayer »', async () => {
+  toDoApi.get.mockRejectedValueOnce(new ApiError(500));
+  await renderScreen(TWO_PARENTS);
+  expect(
+    await screen.findByText(
+      'Impossible de charger les demandes. Vérifiez votre connexion.',
+    ),
+  ).toBeOnTheScreen();
+  const retries = screen.getAllByRole('button', { name: 'Réessayer' });
+  await fireEvent.press(retries[retries.length - 1]);
+  expect(
+    await screen.findByText("Rien à traiter pour l'instant."),
+  ).toBeOnTheScreen();
 });

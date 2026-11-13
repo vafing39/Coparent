@@ -158,3 +158,33 @@ export type Bag = {
   total: number;
   children: BagChild[];
 };
+
+/** ToDoKind côté backend : ce qui attend une réponse. */
+export type ToDoKind =
+  | 'CUSTODY_SCHEDULE'
+  | 'EXCHANGE'
+  | 'EXPENSE'
+  | 'MEMBER'
+  | 'DEVICE'
+  | 'PUBLICATION_REMOVAL'
+  | 'PENSION';
+
+/**
+ * ToDoItemResponse côté backend. `requestedBy` : prénom de qui a demandé (null si compte
+ * supprimé) ; `assignee` : prénom du parent qui doit répondre. Dates : instants ISO 8601.
+ */
+export type ToDoItem = {
+  id: string;
+  kind: ToDoKind;
+  subject: string;
+  requestedBy: string | null;
+  assignee: string;
+  requestedAt: string;
+  lastNudgedAt: string | null;
+};
+
+/** ToDoResponse côté backend : ce qui m'attend (`mine`) et ce qui attend l'autre parent (`theirs`). */
+export type ToDo = {
+  mine: ToDoItem[];
+  theirs: ToDoItem[];
+};

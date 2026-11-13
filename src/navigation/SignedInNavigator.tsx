@@ -3,6 +3,7 @@ import type { Family } from '../api/types';
 import { BagProvider } from '../context/BagContext';
 import { CustodyProvider } from '../context/CustodyContext';
 import { FamilyProvider } from '../context/FamilyContext';
+import { ToDoProvider } from '../context/ToDoContext';
 import { useFamily } from '../hooks/useFamily';
 import { useInvitation } from '../hooks/useInvitation';
 import { InvitationBlockedScreen } from '../screens/invitation/InvitationBlockedScreen';
@@ -60,7 +61,9 @@ function SignedInContent({ emailVerified }: { emailVerified: boolean }) {
     return (
       <CustodyProvider>
         <BagProvider>
-          <AppNavigator />
+          <ToDoProvider>
+            <AppNavigator />
+          </ToDoProvider>
         </BagProvider>
       </CustodyProvider>
     );

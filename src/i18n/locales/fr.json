@@ -413,7 +413,62 @@
     "toDo": {
       "title": "À traiter",
       "empty": "Rien à traiter pour l'instant.",
-      "seeAll": "Tout voir"
+      "seeAll": "Tout voir",
+      "seeAllCount": "Tout voir ({{count}})",
+      "loadFailed": "Impossible de charger les demandes. Vérifiez votre connexion.",
+      "mine": "À vous de répondre · {{count}}",
+      "theirs": "En attente de {{name}} · {{count}}",
+      "mineMeta": "{{label}} · {{name}}, {{when}}",
+      "theirsMeta": "{{label}} · {{when}}",
+      "when": {
+        "today": "aujourd'hui",
+        "yesterday": "hier",
+        "daysAgo": "il y a {{count}} jours"
+      },
+      "kinds": {
+        "CUSTODY_SCHEDULE": {
+          "tag": "Garde",
+          "label": "Rythme de garde à valider",
+          "noAnswer": "Tant que {{name}} n'a pas validé, le calendrier suit le rythme proposé, sans l'accord des deux parents."
+        },
+        "EXCHANGE": {
+          "tag": "Éch.",
+          "label": "Échange à valider",
+          "noAnswer": "Tant que {{name}} n'a pas répondu, la garde prévue reste inchangée."
+        },
+        "EXPENSE": {
+          "tag": "€",
+          "label": "Dépense à valider",
+          "noAnswer": "Tant que {{name}} n'a pas validé, la dépense n'entre pas dans le solde."
+        },
+        "MEMBER": {
+          "tag": "Fam.",
+          "label": "Membre à valider",
+          "noAnswer": "Tant que {{name}} n'a pas validé, ce membre n'a pas accès à l'espace de la famille."
+        },
+        "DEVICE": {
+          "tag": "App.",
+          "label": "Appareil à valider",
+          "noAnswer": "Tant que {{name}} n'a pas validé, l'espace enfant ne s'ouvre pas sur cet appareil."
+        },
+        "PUBLICATION_REMOVAL": {
+          "tag": "Pub.",
+          "label": "Retrait de publication demandé",
+          "noAnswer": "Sans réponse après 14 jours, la publication reste masquée et vous pouvez en parler par message."
+        },
+        "PENSION": {
+          "tag": "Pens.",
+          "label": "Versement à confirmer",
+          "noAnswer": "Tant que {{name}} n'a pas confirmé, le versement reste « à confirmer »."
+        }
+      },
+      "nudge": "Relancer {{name}}",
+      "nudged": "Rappel envoyé · prochain possible demain",
+      "nudgeRule": "Une relance par jour au maximum, envoyée par l'app avec un texte neutre.",
+      "errors": {
+        "oncePerDay": "Une relance par jour au maximum.",
+        "gone": "Cette demande n'attend plus de réponse. Actualisez la liste."
+      }
     },
     "loadFailed": "Impossible de charger la garde. Vérifiez votre connexion."
   },

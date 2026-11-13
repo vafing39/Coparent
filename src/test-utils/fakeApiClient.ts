@@ -2,6 +2,7 @@ import { ApiError } from '../api/errors';
 import type {
   AuthResponse,
   Bag,
+  ToDo,
   Child,
   Custody,
   CustodySchedule,
@@ -58,6 +59,15 @@ export const bagApi = {
   uncheck: jest.fn<Promise<Bag>, [string, string]>(),
 };
 
+/** « À traiter » vide, renvoyé par GET …/to-do tant qu'un test ne simule pas cette route. */
+export const EMPTY_TO_DO: ToDo = { mine: [], theirs: [] };
+
+/** « À traiter » : une fonction simulée par route (familyId, puis id de la demande). */
+export const toDoApi = {
+  get: jest.fn<Promise<ToDo>, [string]>(),
+  nudge: jest.fn<Promise<ToDo>, [string, string]>(),
+};
+
 /** Une fonction simulée par route d'authentification (paramètres utiles du corps). */
 export const authApi = {
   login: jest.fn<Promise<AuthResponse>, [LoginValues]>(),
@@ -88,6 +98,8 @@ const BAG = /^\/api\/v1\/families\/([^/]+)\/bag$/;
 const BAG_ITEMS = /^\/api\/v1\/families\/([^/]+)\/bag\/items$/;
 const BAG_ITEM = /^\/api\/v1\/families\/([^/]+)\/bag\/items\/([^/]+)$/;
 const BAG_CHECK = /^\/api\/v1\/families\/([^/]+)\/bag\/items\/([^/]+)\/check$/;
+const TO_DO = /^\/api\/v1\/families\/([^/]+)\/to-do$/;
+const TO_DO_NUDGE = /^\/api\/v1\/families\/([^/]+)\/to-do\/([^/]+)\/nudge$/;
 const CUSTODY =
   /^\/api\/v1\/families\/([^/]+)\/custody\?from=([\d-]+)&to=([\d-]+)$/;
 
@@ -167,6 +179,12 @@ async function route(method: string, url: string, body?: unknown) {
   }
   if (method === 'GET' && (match = url.match(CUSTODY))) {
     return familyApi.custody(match[1], match[2], match[3]);
+  }
+  if (method === 'GET' && (match = url.match(TO_DO))) {
+    return (await toDoApi.get(match[1])) ?? EMPTY_TO_DO;
+  }
+  if (method === 'POST' && (match = url.match(TO_DO_NUDGE))) {
+    return toDoApi.nudge(match[1], match[2]);
   }
   if (method === 'GET' && (match = url.match(BAG))) {
     return (await bagApi.get(match[1])) ?? EMPTY_BAG;
