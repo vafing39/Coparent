@@ -1,4 +1,4 @@
-import React, { createContext, useMemo } from 'react';
+import React, { createContext, useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
 import { custodyKeys } from '../api/custody';
@@ -28,14 +28,20 @@ export type CustodyContextValue = {
   isLoadingCustody: boolean;
   custodyError: Error | null;
   reloadCustody: () => void;
+  /** Le détail d'un événement ouvre la garde de son jour (« AAAA-MM-JJ »), puis la lit. */
+  openDayCustody: (date: string) => void;
+  closeDayCustody: () => void;
+  /** Garde du jour ouvert ; undefined pendant le chargement, après une erreur (pas de rythme…). */
+  dayCustody: Custody | undefined;
 };
 
 export const CustodyContext = createContext<CustodyContextValue | null>(null);
 
 /**
  * Charge la garde du jour (la nuit de ce soir et le prochain passage, renvoyé même hors
- * période) pour les écrans qu'il entoure. Placé sous FamilyProvider, une fois la famille
- * créée. Chargement et erreur sont affichés par les écrans.
+ * période) pour les écrans qu'il entoure, et à la demande la garde d'un autre jour (détail
+ * d'un événement). Placé sous FamilyProvider, une fois la famille créée. Chargement et erreur
+ * sont affichés par les écrans.
  */
 export function CustodyProvider({ children }: { children: React.ReactNode }) {
   const { family } = useFamily();
@@ -47,6 +53,14 @@ export function CustodyProvider({ children }: { children: React.ReactNode }) {
     enabled: familyId !== '',
   });
 
+  const [day, setDay] = useState<string | null>(null);
+  const { data: dayCustody } = useQuery({
+    queryKey: custodyKeys.range(familyId, day ?? '', day ?? ''),
+    queryFn: () => fetchCustodyRequest(familyId, day as string, day as string),
+    enabled: familyId !== '' && day !== null,
+  });
+  const closeDayCustody = useCallback(() => setDay(null), []);
+
   const value = useMemo<CustodyContextValue>(
     () => ({
       today,
@@ -56,8 +70,11 @@ export function CustodyProvider({ children }: { children: React.ReactNode }) {
       reloadCustody: () => {
         refetch();
       },
+      openDayCustody: setDay,
+      closeDayCustody,
+      dayCustody: day === null ? undefined : dayCustody,
     }),
-    [today, data, isPending, error, refetch],
+    [today, data, isPending, error, refetch, closeDayCustody, day, dayCustody],
   );
   return (
     <CustodyContext.Provider value={value}>{children}</CustodyContext.Provider>

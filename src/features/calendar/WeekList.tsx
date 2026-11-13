@@ -29,7 +29,7 @@ export function WeekList({ family, days, today, onOpenEvent }: Props) {
   return (
     <View className="gap-1.5">
       {days.map(day => (
-        <WeekRow
+        <DayRow
           key={day.date}
           family={family}
           day={day}
@@ -41,7 +41,11 @@ export function WeekList({ family, days, today, onOpenEvent }: Props) {
   );
 }
 
-function WeekRow({
+/**
+ * Un jour : chez qui sont les enfants (ou le passage et son heure), vacances, échange, et ses
+ * événements (un appui ouvre leur détail). Utilisé par la vue semaine et le jour choisi du mois.
+ */
+export function DayRow({
   family,
   day,
   today,

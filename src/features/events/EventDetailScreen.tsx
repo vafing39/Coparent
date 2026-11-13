@@ -13,6 +13,7 @@ import { formatDayMonth, formatLongDate, todayInParis } from '../../lib/dates';
 import { joinNames } from '../../lib/text';
 import type { AppScreenProps } from '../../navigation/types';
 import { useTheme } from '../../theme/ThemeProvider';
+import { EventDayCustody } from './EventDayCustody';
 import { EventHistory } from './EventHistory';
 import { eventTime } from './eventText';
 import { repeatSummary } from './repeatText';
@@ -22,7 +23,8 @@ import { ScopeSheet } from './ScopeSheet';
  * Détail d'un événement. Un événement visible peut toujours être modifié et supprimé : un
  * événement partagé par les deux parents, un événement privé par son auteur, le seul à le voir.
  * Pour une séance d'une série, la règle est résumée, et « Modifier » ou « Supprimer » demande
- * d'abord quelles séances (ScopeSheet). En bas, l'historique des modifications (EventHistory).
+ * d'abord quelles séances (ScopeSheet). « Ce jour-là » : la garde du jour de l'événement. En
+ * bas, l'historique des modifications (EventHistory).
  */
 export function EventDetailScreen({
   navigation,
@@ -153,6 +155,7 @@ export function EventDetailScreen({
             })}
             value={joinNames(event.children.map(child => child.firstName))}
           />
+          {family ? <EventDayCustody family={family} event={event} /> : null}
           {event.location ? (
             <DetailRow
               label={t('events.location.label')}

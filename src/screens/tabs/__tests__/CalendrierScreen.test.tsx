@@ -342,3 +342,56 @@ test('erreur de chargement puis « Réessayer »', async () => {
     await screen.findByLabelText("Aujourd'hui, mardi 10 novembre, chez Julien"),
   ).toBeOnTheScreen();
 });
+
+test('vue mois : un jour touché est détaillé sous la grille', async () => {
+  eventApi.list.mockResolvedValue([ORTHOPHONISTE, PERSONNEL]);
+  await renderScreen();
+  const thursday = await screen.findByRole('button', {
+    name: 'jeudi 12 novembre, chez Julien, Orthophoniste, partagé',
+  });
+  await screen.findByRole('header', { name: 'À venir' });
+
+  await fireEvent.press(thursday);
+  expect(thursday).toBeSelected();
+  expect(
+    screen.getByRole('header', { name: 'jeudi 12 novembre' }),
+  ).toBeOnTheScreen();
+  expect(screen.queryByRole('header', { name: 'À venir' })).toBeNull();
+  expect(screen.getByText('Chez Julien')).toBeOnTheScreen();
+
+  // L'événement s'ouvre, « + » crée un événement ce jour-là
+  await fireEvent.press(screen.getByText('17 h 00 – 17 h 45 · Orthophoniste'));
+  expect(navigate).toHaveBeenCalledWith('EventDetail', {
+    event: ORTHOPHONISTE,
+  });
+  await fireEvent.press(
+    screen.getByRole('button', {
+      name: 'Ajouter un événement le jeudi 12 novembre',
+    }),
+  );
+  expect(navigate).toHaveBeenCalledWith('EventForm', { date: '2026-11-12' });
+
+  // Toucher le même jour referme le détail
+  await fireEvent.press(thursday);
+  expect(thursday).not.toBeSelected();
+  expect(screen.getByRole('header', { name: 'À venir' })).toBeOnTheScreen();
+});
+
+test('vue mois : un jour sans événement, puis changer de mois efface le choix', async () => {
+  await renderScreen();
+  await fireEvent.press(
+    await screen.findByRole('button', {
+      name: 'mercredi 18 novembre, chez Camille',
+    }),
+  );
+  expect(screen.getByText('Aucun événement ce jour-là.')).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Mois suivant' }));
+  await screen.findByRole('header', { name: 'décembre 2026' });
+  await fireEvent.press(screen.getByRole('button', { name: 'Mois précédent' }));
+  await screen.findByRole('header', { name: 'novembre 2026' });
+  expect(screen.queryByText('Aucun événement ce jour-là.')).toBeNull();
+  expect(
+    await screen.findByRole('header', { name: 'À venir' }),
+  ).toBeOnTheScreen();
+});

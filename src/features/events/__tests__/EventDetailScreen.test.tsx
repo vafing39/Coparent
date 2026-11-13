@@ -4,6 +4,7 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { EventDetailScreen } from '../EventDetailScreen';
 import { ApiError } from '../../../api/errors';
 import type { CalendarEvent, Family } from '../../../api/types';
+import { CustodyProvider } from '../../../context/CustodyContext';
 import { EventsProvider } from '../../../context/EventsContext';
 import { FamilyProvider } from '../../../context/FamilyContext';
 import { useSession } from '../../../stores/session';
@@ -60,15 +61,19 @@ async function renderScreen(event: CalendarEvent) {
   } as unknown as React.ComponentProps<typeof EventDetailScreen>;
   await renderWithProviders(
     <FamilyProvider>
-      <EventsProvider>
-        <EventDetailScreen {...props} />
-      </EventsProvider>
+      <CustodyProvider>
+        <EventsProvider>
+          <EventDetailScreen {...props} />
+        </EventsProvider>
+      </CustodyProvider>
     </FamilyProvider>,
   );
   await screen.findByRole('header', { name: event.title });
 }
 
 beforeEach(async () => {
+  // Sans rythme par défaut : pas de « Ce jour-là »
+  familyApi.custody.mockReset().mockRejectedValue(new ApiError(404));
   goBack.mockReset();
   navigate.mockReset();
   eventApi.remove.mockReset();

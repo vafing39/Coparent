@@ -4,10 +4,13 @@ import { EventDetailScreen } from '../EventDetailScreen';
 import { EventFormScreen } from '../EventFormScreen';
 import type {
   CalendarEvent,
+  Custody,
   EventChange,
   Family,
   RepeatPreviewDate,
 } from '../../../api/types';
+import { ApiError } from '../../../api/errors';
+import { CustodyProvider } from '../../../context/CustodyContext';
 import { EventsProvider } from '../../../context/EventsContext';
 import { FamilyProvider } from '../../../context/FamilyContext';
 import { useSession } from '../../../stores/session';
@@ -104,9 +107,11 @@ async function renderDetail(event: CalendarEvent) {
   } as unknown as React.ComponentProps<typeof EventDetailScreen>;
   await renderWithProviders(
     <FamilyProvider>
-      <EventsProvider>
-        <EventDetailScreen {...props} />
-      </EventsProvider>
+      <CustodyProvider>
+        <EventsProvider>
+          <EventDetailScreen {...props} />
+        </EventsProvider>
+      </CustodyProvider>
     </FamilyProvider>,
   );
   await screen.findByRole('header', { name: event.title });
@@ -122,6 +127,8 @@ beforeEach(async () => {
   eventApi.remove.mockReset();
   eventApi.repeatPreview.mockReset().mockResolvedValue(PREVIEW);
   eventApi.history.mockReset();
+  // Sans rythme par défaut : pas de « Ce jour-là »
+  familyApi.custody.mockReset().mockRejectedValue(new ApiError(404));
   familyApi.fetchMyFamily.mockResolvedValue(FAMILY);
   await useSession.getState().signIn(authResponse());
 });
@@ -467,4 +474,44 @@ test('détail : l’historique de la série, du plus récent au plus ancien', as
   ).toBeOnTheScreen();
   expect(screen.getByText("Vous avez créé l'événement")).toBeOnTheScreen();
   expect(eventApi.history).toHaveBeenCalledWith(FAMILY_ID, 'e1');
+});
+
+/** Garde d'un seul jour : la nuit chez `parent`, avec un passage de garde si `handover`. */
+function dayCustody(
+  date: string,
+  parent: Custody['nights'][number]['parent'],
+  handover: boolean,
+): Custody {
+  return {
+    scheduleStatus: 'ACTIVE',
+    nights: [{ date, parent, period: 'REGULAR', holiday: null }],
+    handovers: handover
+      ? [{ at: `${date}T17:50:00`, from: 'PARENT_A', to: parent }]
+      : [],
+    nextHandover: null,
+  };
+}
+
+test('détail : « Ce jour-là », chez qui sont les enfants', async () => {
+  familyApi.custody.mockImplementation(async (_id, from) =>
+    dayCustody(from, 'PARENT_B', false),
+  );
+  await renderDetail(JUDO);
+  expect(await screen.findByText('Hugo est chez Julien')).toBeOnTheScreen();
+  expect(screen.getByText('Ce jour-là')).toBeOnTheScreen();
+  expect(familyApi.custody).toHaveBeenCalledWith(
+    FAMILY_ID,
+    '2026-11-25',
+    '2026-11-25',
+  );
+});
+
+test('détail : « Ce jour-là », un jour de passage de garde', async () => {
+  familyApi.custody.mockImplementation(async (_id, from) =>
+    dayCustody(from, 'PARENT_B', true),
+  );
+  await renderDetail(JUDO);
+  expect(
+    await screen.findByText('Passage de Camille à Julien à 17 h 50'),
+  ).toBeOnTheScreen();
 });

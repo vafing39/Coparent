@@ -474,6 +474,11 @@
     "loadFailed": "Impossible de charger la garde. Vérifiez votre connexion."
   },
   "calendar": {
+    "day": {
+      "add": "Ajouter un événement le {{date}}",
+      "noEvent": "Aucun événement ce jour-là.",
+      "hint": "Affiche le détail du jour sous le calendrier"
+    },
     "title": "Calendrier",
     "month": "Mois",
     "week": "Semaine",
@@ -726,6 +731,12 @@
       "summaryHolidays": "hors vacances",
       "summaryUntil": "jusqu'au {{date}}",
       "summaryCount": "{{count}} séances"
+    },
+    "custodyDay": {
+      "label": "Ce jour-là",
+      "at_one": "{{names}} est chez {{name}}",
+      "at_other": "{{names}} sont chez {{name}}",
+      "handover": "Passage de {{from}} à {{to}} à {{time}}"
     },
     "history": {
       "title": "Historique",

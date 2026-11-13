@@ -20,7 +20,7 @@ import {
 import { CalendarLegend } from '../../features/calendar/CalendarLegend';
 import { MonthGrid } from '../../features/calendar/MonthGrid';
 import { Upcoming, upcomingItems } from '../../features/calendar/Upcoming';
-import { WeekList } from '../../features/calendar/WeekList';
+import { DayRow, WeekList } from '../../features/calendar/WeekList';
 import {
   buildDays,
   monthTitle,
@@ -31,6 +31,7 @@ import {
 import { parentOf } from '../../features/custody/parents';
 import { useCalendar } from '../../hooks/useCalendar';
 import { useFamily } from '../../hooks/useFamily';
+import { formatLongDate } from '../../lib/dates';
 import type { TabScreenProps } from '../../navigation/types';
 import { useTheme } from '../../theme/ThemeProvider';
 
@@ -50,8 +51,10 @@ function notOver(event: CalendarEvent, now: string): boolean {
  * Onglet Calendrier : la garde calculée par le backend, en vue mois ou semaine (cahier des
  * charges, 4), et les événements (5). Une couleur par parent, toujours avec l'initiale ; les
  * jours de passage sont coupés en deux ; un événement partagé est marqué d'une pastille
- * violette, un événement privé d'un cadenas. « Demander un échange » (6) ouvre une demande d'échange
- * de garde, une fois les deux parents présents.
+ * violette, un événement privé d'un cadenas. En vue mois, un jour touché est détaillé sous la
+ * grille (garde, événements, « + » pour en créer un ce jour-là) à la place de « À venir ».
+ * « Demander un échange » (6) ouvre une demande d'échange de garde, une fois les deux parents
+ * présents.
  */
 export function CalendrierScreen({ navigation }: TabScreenProps<'Calendrier'>) {
   const { t } = useTranslation();
@@ -75,6 +78,13 @@ export function CalendrierScreen({ navigation }: TabScreenProps<'Calendrier'>) {
     reloadCalendar,
   } = useCalendar();
   const [refreshing, setRefreshing] = useState(false);
+  /** Jour touché dans la vue mois, détaillé sous la grille. */
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  // Changer de période ou de vue efface le jour choisi.
+  const unselectThen = (action: () => void) => () => {
+    setSelectedDay(null);
+    action();
+  };
 
   if (!family) {
     // Les onglets ne s'ouvrent qu'une fois la famille créée (SignedInNavigator).
@@ -117,6 +127,9 @@ export function CalendrierScreen({ navigation }: TabScreenProps<'Calendrier'>) {
     );
   } else {
     const days = buildDays(periodCustody, dates, periodEvents);
+    const selected = isMonth
+      ? days.find(day => day.date === selectedDay) ?? null
+      : null;
     const now = nowInParis();
     const proposed = family.solo || periodCustody.scheduleStatus !== 'ACTIVE';
     body = (
@@ -136,6 +149,10 @@ export function CalendrierScreen({ navigation }: TabScreenProps<'Calendrier'>) {
             days={days}
             month={anchor.slice(0, 7)}
             today={today}
+            selected={selectedDay}
+            onSelect={date =>
+              setSelectedDay(current => (current === date ? null : date))
+            }
           />
         ) : (
           <WeekList
@@ -145,6 +162,41 @@ export function CalendrierScreen({ navigation }: TabScreenProps<'Calendrier'>) {
             onOpenEvent={openEvent}
           />
         )}
+        {selected ? (
+          <View className="gap-2">
+            <View className="flex-row items-center justify-between">
+              <Text
+                accessibilityRole="header"
+                className="mx-1 flex-1 font-extrabold text-[17px] capitalize text-text"
+              >
+                {formatLongDate(selected.date)}
+              </Text>
+              <Pressable
+                onPress={() =>
+                  navigation.navigate('EventForm', { date: selected.date })
+                }
+                accessibilityRole="button"
+                accessibilityLabel={t('calendar.day.add', {
+                  date: formatLongDate(selected.date),
+                })}
+                className="h-11 w-11 items-center justify-center rounded-full bg-accent active:opacity-80"
+              >
+                <PlusIcon color={color('on-accent')} />
+              </Pressable>
+            </View>
+            <DayRow
+              family={family}
+              day={selected}
+              today={today}
+              onOpenEvent={openEvent}
+            />
+            {selected.events.length === 0 ? (
+              <Text className="mx-1 font-regular text-[13px] text-text-secondary">
+                {t('calendar.day.noEvent')}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
         {eventsError ? (
           <Text
             accessibilityRole="alert"
@@ -161,7 +213,7 @@ export function CalendrierScreen({ navigation }: TabScreenProps<'Calendrier'>) {
             onPress={() => navigation.navigate('ExchangeForm')}
           />
         )}
-        {upcomingCustody ? (
+        {!selected && upcomingCustody ? (
           <Upcoming
             family={family}
             items={upcomingItems(
@@ -212,18 +264,18 @@ export function CalendrierScreen({ navigation }: TabScreenProps<'Calendrier'>) {
           <ViewChoice
             label={t('calendar.month')}
             selected={isMonth}
-            onPress={showMonth}
+            onPress={unselectThen(showMonth)}
           />
           <ViewChoice
             label={t('calendar.week')}
             selected={!isMonth}
-            onPress={showWeek}
+            onPress={unselectThen(showWeek)}
           />
         </View>
 
         <View className="flex-row items-center justify-between">
           <Pressable
-            onPress={showPrevious}
+            onPress={unselectThen(showPrevious)}
             accessibilityRole="button"
             accessibilityLabel={t(
               isMonth ? 'calendar.previousMonth' : 'calendar.previousWeek',
@@ -239,7 +291,7 @@ export function CalendrierScreen({ navigation }: TabScreenProps<'Calendrier'>) {
             {isMonth ? monthTitle(anchor) : weekTitle(anchor)}
           </Text>
           <Pressable
-            onPress={showNext}
+            onPress={unselectThen(showNext)}
             accessibilityRole="button"
             accessibilityLabel={t(
               isMonth ? 'calendar.nextMonth' : 'calendar.nextWeek',
