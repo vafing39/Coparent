@@ -56,6 +56,8 @@ export type AppStackParamList = {
   ExchangeForm: undefined;
   /** Une demande d'échange de garde : y répondre ou l'annuler. */
   ExchangeDetail: { exchangeId: string };
+  /** Rythme proposé par l'autre parent : le valider ou proposer une modification. */
+  ScheduleProposal: { scheduleId: string };
   /** Discussion « Bienvenue » épinglée : un message de Coparent, affiché par l'app. */
   Welcome: undefined;
 };

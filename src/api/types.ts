@@ -73,6 +73,9 @@ export type CustodySchedule = {
   holidayFirstHalfEvenYears: FamilyRole | null;
   summerSplit: SummerSplit | null;
   status: 'PROPOSED' | 'ACTIVE' | 'REPLACED' | 'REJECTED';
+  /** Qui l'a proposé (null si le compte a été supprimé) ; l'autre parent le valide. */
+  proposedById: string | null;
+  proposedByFirstName: string | null;
 };
 
 /** Étape 5 : lien à partager avec l'autre parent (le jeton n'est renvoyé qu'ici). */

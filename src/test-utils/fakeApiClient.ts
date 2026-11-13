@@ -97,6 +97,12 @@ export const exchangeApi = {
   answer: jest.fn<Promise<Exchange>, [string, string, string]>(),
 };
 
+/** Rythme à valider. Paramètres : (familyId, scheduleId). */
+export const scheduleApi = {
+  get: jest.fn<Promise<CustodySchedule>, [string, string]>(),
+  accept: jest.fn<Promise<CustodySchedule>, [string, string]>(),
+};
+
 /**
  * Messagerie par discussions : liste des discussions (familyId ; [] tant qu'un test ne la simule
  * pas), création (familyId, corps), messages d'une discussion (familyId, conversationId, before ;
@@ -139,6 +145,10 @@ const CHILDREN = /^\/api\/v1\/families\/([^/]+)\/children$/;
 const CHILD = /^\/api\/v1\/families\/([^/]+)\/children\/([^/]+)$/;
 const INVITATIONS = /^\/api\/v1\/families\/([^/]+)\/invitations$/;
 const SCHEDULE = /^\/api\/v1\/families\/([^/]+)\/custody-schedule$/;
+const SCHEDULE_ONE =
+  /^\/api\/v1\/families\/([^/]+)\/custody-schedules\/([^/]+)$/;
+const SCHEDULE_ACCEPT =
+  /^\/api\/v1\/families\/([^/]+)\/custody-schedules\/([^/]+)\/accept$/;
 const BAG = /^\/api\/v1\/families\/([^/]+)\/bag$/;
 const BAG_ITEMS = /^\/api\/v1\/families\/([^/]+)\/bag\/items$/;
 const BAG_ITEM = /^\/api\/v1\/families\/([^/]+)\/bag\/items\/([^/]+)$/;
@@ -234,6 +244,12 @@ async function route(method: string, url: string, body?: unknown) {
   }
   if (method === 'PUT' && (match = url.match(SCHEDULE))) {
     return familyApi.proposeSchedule(match[1], body as CustodyScheduleRequest);
+  }
+  if (method === 'GET' && (match = url.match(SCHEDULE_ONE))) {
+    return scheduleApi.get(match[1], match[2]);
+  }
+  if (method === 'POST' && (match = url.match(SCHEDULE_ACCEPT))) {
+    return scheduleApi.accept(match[1], match[2]);
   }
   if (method === 'GET' && (match = url.match(CUSTODY))) {
     return familyApi.custody(match[1], match[2], match[3]);

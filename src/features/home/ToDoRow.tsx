@@ -47,9 +47,12 @@ const KIND_TEXT = {
   { tag: string; label: string; noAnswer: string }
 >;
 
-/** L'écran qui permet de répondre, quand il existe : pour l'instant, l'échange de garde. */
+/** L'écran qui permet de répondre, quand il existe : échange de garde, rythme à valider. */
 export function canOpen(item: ToDoItem): boolean {
-  return item.kind === 'EXCHANGE' && item.targetId !== null;
+  return (
+    (item.kind === 'EXCHANGE' || item.kind === 'CUSTODY_SCHEDULE') &&
+    item.targetId !== null
+  );
 }
 
 type Props = {

@@ -9,24 +9,21 @@ import { useToDo } from '../../hooks/useToDo';
 import type { ToDoItem } from '../../api/types';
 import type { AppScreenProps } from '../../navigation/types';
 import { useTheme } from '../../theme/ThemeProvider';
+import { openToDoItem } from './openToDoItem';
 import { ToDoSection } from './ToDoSection';
 
 /**
  * « À traiter » : tout ce qui attend une réponse (cahier des charges, 8), de moi puis de
  * l'autre parent (depuis quand, ce qui se passe sans réponse, « Relancer » une fois par
- * jour). Une demande d'échange de garde ouvre son écran ; les autres lignes ne mènent encore
- * nulle part.
+ * jour). Une demande d'échange de garde ou un rythme à valider ouvre son écran ; les autres
+ * lignes ne mènent encore nulle part.
  */
 export function ATraiterScreen({ navigation }: AppScreenProps<'ATraiter'>) {
   const { t } = useTranslation();
   const { color } = useTheme();
   const { toDo, toDoError, reloadToDo, resetNudgeToDo } = useToDo();
   useResetOnUnmount(resetNudgeToDo);
-  const openItem = (item: ToDoItem) => {
-    if (item.targetId) {
-      navigation.navigate('ExchangeDetail', { exchangeId: item.targetId });
-    }
-  };
+  const openItem = (item: ToDoItem) => openToDoItem(navigation, item);
 
   let body: React.ReactNode;
   if (toDo) {

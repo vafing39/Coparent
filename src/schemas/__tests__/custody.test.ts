@@ -81,6 +81,8 @@ test('fromSchedule : rythme déjà proposé → brouillons', () => {
     holidayFirstHalfEvenYears: 'PARENT_B',
     summerSplit: 'MONTHS',
     status: 'PROPOSED',
+    proposedById: 'u1',
+    proposedByFirstName: 'Camille',
   };
   const { schedule: draft, holidays } = fromSchedule(schedule, 'PARENT_A');
   expect(draft.handoverWeekday).toBe(1);

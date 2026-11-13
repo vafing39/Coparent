@@ -19,6 +19,8 @@ export function invitationPreview(
     holidayFirstHalfEvenYears: 'PARENT_A',
     summerSplit: 'FORTNIGHTS',
     status: 'PROPOSED',
+    proposedById: 'u1',
+    proposedByFirstName: 'Camille',
   };
   return {
     inviterFirstName: 'Camille',

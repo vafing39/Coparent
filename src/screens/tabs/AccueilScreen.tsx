@@ -9,6 +9,7 @@ import { ToDoCard } from '../../features/home/ToDoCard';
 import { TodayCard } from '../../features/home/TodayCard';
 import { useAuth } from '../../hooks/useAuth';
 import { useFamily } from '../../hooks/useFamily';
+import { openToDoItem } from '../../features/home/openToDoItem';
 import type { TabScreenProps } from '../../navigation/types';
 
 /**
@@ -42,13 +43,7 @@ export function AccueilScreen({ navigation }: TabScreenProps<'Accueil'>) {
         />
         <ToDoCard
           onSeeAll={() => navigation.navigate('ATraiter')}
-          onOpen={item => {
-            if (item.targetId) {
-              navigation.navigate('ExchangeDetail', {
-                exchangeId: item.targetId,
-              });
-            }
-          }}
+          onOpen={item => openToDoItem(navigation, item)}
         />
       </ScrollView>
     </SafeAreaView>

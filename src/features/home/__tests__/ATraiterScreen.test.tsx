@@ -231,3 +231,30 @@ test('une demande d’échange ouvre son écran', async () => {
     exchangeId: 'ex-1',
   });
 });
+
+test('un rythme à valider ouvre son écran', async () => {
+  toDoApi.get.mockResolvedValue({
+    mine: [
+      {
+        id: 't4',
+        kind: 'CUSTODY_SCHEDULE',
+        targetId: 's1',
+        subject: 'Rythme : une semaine sur deux',
+        requestedBy: 'Julien',
+        assignee: 'Camille',
+        requestedAt: '2026-11-10T07:00:00Z',
+        lastNudgedAt: null,
+      },
+    ],
+    theirs: [],
+  });
+  await renderScreen();
+  await fireEvent.press(
+    await screen.findByRole('button', {
+      name: /^Rythme : une semaine sur deux/,
+    }),
+  );
+  expect(navigate).toHaveBeenCalledWith('ScheduleProposal', {
+    scheduleId: 's1',
+  });
+});

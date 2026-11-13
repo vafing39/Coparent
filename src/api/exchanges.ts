@@ -15,7 +15,7 @@ export function exchangePeriod(from: string, to: string): string {
 }
 
 /** Texte du serveur (champ `detail`, en français), absent si l'erreur n'en a pas. */
-function serverDetail(error: ApiError): string | null {
+export function serverDetail(error: ApiError): string | null {
   const { message } = error;
   return message &&
     message !== 'API error' &&

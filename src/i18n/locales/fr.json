@@ -682,5 +682,25 @@
       "gone": "Cette demande d'échange n'existe plus.",
       "invalid": "Vérifiez les dates de l'échange."
     }
+  },
+  "scheduleProposal": {
+    "title": "Rythme proposé",
+    "modifyTitle": "Proposer une modification",
+    "fromOther": "{{name}} propose ce rythme de garde. Il s'appliquera une fois que vous l'aurez validé.",
+    "fromMe": "En attente de validation par {{name}}.",
+    "decided": "Ce rythme n'attend plus de validation.",
+    "proposedBy": "Proposé par",
+    "pattern": "Rythme",
+    "handover": "Passage de garde",
+    "handoverValue": "Le {{weekday}} à {{time}}",
+    "shortBreaks": "Petites vacances",
+    "shortBreaksValue": "{{name}} a la 1re moitié les années paires",
+    "summer": "Été",
+    "accept": "Valider ce rythme",
+    "modify": "Proposer une modification",
+    "modifyHint": "Votre version remplacera celle-ci, et {{name}} devra la valider.",
+    "errors": {
+      "gone": "Ce rythme n'existe plus."
+    }
   }
 }

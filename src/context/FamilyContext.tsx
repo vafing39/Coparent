@@ -11,7 +11,9 @@ import { LoadError } from '../components/LoadError';
 import { ScreenSkeleton } from '../components/ScreenSkeleton';
 import { apiClient } from '../api/client';
 import { ApiError } from '../api/errors';
+import { custodyKeys } from '../api/custody';
 import { familyKeys } from '../api/family';
+import { toDoKeys } from '../api/toDo';
 import type {
   Child,
   CustodySchedule,
@@ -305,8 +307,13 @@ export function FamilyProvider({ children }: { children: React.ReactNode }) {
   } = useMutation({
     mutationFn: (schedule: CustodyScheduleRequest) =>
       proposeScheduleRequest(requireFamily(family).id, schedule),
-    onSuccess: custodySchedule =>
-      patchFamily(current => ({ ...current, custodySchedule })),
+    onSuccess: custodySchedule => {
+      patchFamily(current => ({ ...current, custodySchedule }));
+      // Avec deux parents, une proposition (ou contre-proposition) change « À traiter ».
+      const familyId = requireFamily(family).id;
+      queryClient.invalidateQueries({ queryKey: toDoKeys.list(familyId) });
+      queryClient.invalidateQueries({ queryKey: custodyKeys.all(familyId) });
+    },
   });
 
   const {

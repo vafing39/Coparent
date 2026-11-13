@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { EventDetailScreen } from '../features/events/EventDetailScreen';
 import { EventFormScreen } from '../features/events/EventFormScreen';
+import { ScheduleProposalScreen } from '../features/custody/ScheduleProposalScreen';
 import { ExchangeDetailScreen } from '../features/exchanges/ExchangeDetailScreen';
 import { ExchangeFormScreen } from '../features/exchanges/ExchangeFormScreen';
 import { ATraiterScreen } from '../features/home/ATraiterScreen';
@@ -32,6 +33,10 @@ export function AppNavigator() {
         name="ExchangeForm"
         component={ExchangeFormScreen}
         options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="ScheduleProposal"
+        component={ScheduleProposalScreen}
       />
       <Stack.Screen name="Conversation" component={ConversationScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />

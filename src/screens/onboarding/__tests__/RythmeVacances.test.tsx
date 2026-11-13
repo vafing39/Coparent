@@ -58,6 +58,8 @@ beforeEach(() => {
         id: 's1',
         customSequence: null,
         status: 'PROPOSED',
+        proposedById: 'u1',
+        proposedByFirstName: 'Camille',
         ...body,
       } as CustodySchedule),
   );
@@ -199,6 +201,8 @@ test('rythme déjà proposé : écrans préremplis', async () => {
         holidayFirstHalfEvenYears: 'PARENT_B',
         summerSplit: 'MONTHS',
         status: 'PROPOSED',
+        proposedById: 'u1',
+        proposedByFirstName: 'Camille',
       },
     }),
   );
