@@ -6,6 +6,7 @@ import { LoadError } from '../../components/LoadError';
 import { ChevronLeftIcon } from '../../components/icons';
 import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
 import { useToDo } from '../../hooks/useToDo';
+import type { ToDoItem } from '../../api/types';
 import type { AppScreenProps } from '../../navigation/types';
 import { useTheme } from '../../theme/ThemeProvider';
 import { ToDoSection } from './ToDoSection';
@@ -13,13 +14,19 @@ import { ToDoSection } from './ToDoSection';
 /**
  * « À traiter » : tout ce qui attend une réponse (cahier des charges, 8), de moi puis de
  * l'autre parent (depuis quand, ce qui se passe sans réponse, « Relancer » une fois par
- * jour). Les lignes ne mènent encore nulle part.
+ * jour). Une demande d'échange de garde ouvre son écran ; les autres lignes ne mènent encore
+ * nulle part.
  */
 export function ATraiterScreen({ navigation }: AppScreenProps<'ATraiter'>) {
   const { t } = useTranslation();
   const { color } = useTheme();
   const { toDo, toDoError, reloadToDo, resetNudgeToDo } = useToDo();
   useResetOnUnmount(resetNudgeToDo);
+  const openItem = (item: ToDoItem) => {
+    if (item.targetId) {
+      navigation.navigate('ExchangeDetail', { exchangeId: item.targetId });
+    }
+  };
 
   let body: React.ReactNode;
   if (toDo) {
@@ -38,6 +45,7 @@ export function ATraiterScreen({ navigation }: AppScreenProps<'ATraiter'>) {
             title={t('home.toDo.mine', { count: toDo.mine.length })}
             items={toDo.mine}
             side="mine"
+            onOpen={openItem}
           />
         ) : null}
         {toDo.theirs.length > 0 ? (
@@ -49,6 +57,7 @@ export function ATraiterScreen({ navigation }: AppScreenProps<'ATraiter'>) {
               })}
               items={toDo.theirs}
               side="theirs"
+              onOpen={openItem}
             />
             <Text className="mx-1 font-regular text-[13px] leading-[18px] text-text-secondary">
               {t('home.toDo.nudgeRule')}

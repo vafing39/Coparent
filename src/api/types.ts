@@ -104,8 +104,8 @@ export type Family = {
   custodySchedule: CustodySchedule | null;
 };
 
-/** Ce qui décide du parent pour une nuit : le rythme habituel, des petites vacances ou l'été. */
-export type CustodyPeriod = 'REGULAR' | 'SHORT_HOLIDAY' | 'SUMMER';
+/** Ce qui décide du parent pour une nuit : le rythme habituel, des petites vacances, l'été ou un échange accepté. */
+export type CustodyPeriod = 'REGULAR' | 'SHORT_HOLIDAY' | 'SUMMER' | 'EXCHANGE';
 
 /** CustodyNightResponse côté backend : la nuit qui commence le `date` (« AAAA-MM-JJ »). */
 export type CustodyNight = {
@@ -170,12 +170,14 @@ export type ToDoKind =
   | 'PENSION';
 
 /**
- * ToDoItemResponse côté backend. `requestedBy` : prénom de qui a demandé (null si compte
- * supprimé) ; `assignee` : prénom du parent qui doit répondre. Dates : instants ISO 8601.
+ * ToDoItemResponse côté backend. `targetId` : l'objet concerné (ex. l'échange de garde), null
+ * sinon ; `requestedBy` : prénom de qui a demandé (null si compte supprimé) ; `assignee` :
+ * prénom du parent qui doit répondre. Dates : instants ISO 8601.
  */
 export type ToDoItem = {
   id: string;
   kind: ToDoKind;
+  targetId: string | null;
   subject: string;
   requestedBy: string | null;
   assignee: string;
@@ -281,3 +283,35 @@ export type Conversation = {
 
 /** Nouvelle discussion : sujet et premier message. */
 export type CreateConversationBody = { subject: string; body: string };
+
+/** ExchangeStatus côté backend. */
+export type ExchangeStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED';
+
+/**
+ * ExchangeResponse côté backend : une demande d'échange de garde. Le demandeur prend les nuits
+ * `takeFrom`..`takeTo` (« AAAA-MM-JJ », incluses) et laisse en option `giveFrom`..`giveTo`.
+ * `mine` : c'est ma demande (je peux l'annuler), sinon j'y réponds.
+ */
+export type Exchange = {
+  id: string;
+  status: ExchangeStatus;
+  requesterRole: FamilyRole;
+  requestedByFirstName: string | null;
+  mine: boolean;
+  takeFrom: string;
+  takeTo: string;
+  giveFrom: string | null;
+  giveTo: string | null;
+  message: string | null;
+  createdAt: string;
+  answeredAt: string | null;
+};
+
+/** ExchangeRequest côté backend. */
+export type ExchangeBody = {
+  takeFrom: string;
+  takeTo: string;
+  giveFrom?: string;
+  giveTo?: string;
+  message?: string;
+};

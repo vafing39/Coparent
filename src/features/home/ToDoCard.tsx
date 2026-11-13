@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/Button';
+import type { ToDoItem } from '../../api/types';
 import { useToDo } from '../../hooks/useToDo';
 import { HomeCard } from './HomeCard';
 import { ToDoRow } from './ToDoRow';
@@ -10,7 +11,14 @@ import { ToDoRow } from './ToDoRow';
 const PREVIEW_COUNT = 2;
 
 /** « À traiter » sur l'accueil : les premières demandes (les miennes d'abord) et « Tout voir (n) ». */
-export function ToDoCard({ onSeeAll }: { onSeeAll: () => void }) {
+export function ToDoCard({
+  onSeeAll,
+  onOpen,
+}: {
+  onSeeAll: () => void;
+  /** Ouvre l'écran d'une demande (échange de garde). */
+  onOpen?: (item: ToDoItem) => void;
+}) {
   const { t } = useTranslation();
   const { toDo, toDoError, reloadToDo } = useToDo();
   const total = toDo ? toDo.mine.length + toDo.theirs.length : 0;
@@ -69,6 +77,7 @@ export function ToDoCard({ onSeeAll }: { onSeeAll: () => void }) {
               item={item}
               side={side}
               divider={index > 0}
+              onOpen={onOpen ? () => onOpen(item) : undefined}
             />
           ))}
         </View>

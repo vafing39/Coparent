@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { ToDoItem, ToDoKind } from '../../api/types';
 import { ClockIcon } from '../../components/icons';
@@ -47,8 +47,15 @@ const KIND_TEXT = {
   { tag: string; label: string; noAnswer: string }
 >;
 
+/** L'écran qui permet de répondre, quand il existe : pour l'instant, l'échange de garde. */
+export function canOpen(item: ToDoItem): boolean {
+  return item.kind === 'EXCHANGE' && item.targetId !== null;
+}
+
 type Props = {
   item: ToDoItem;
+  /** Ouvre l'écran de la demande (seulement si `canOpen(item)`). */
+  onOpen?: () => void;
   /** mine : j'ai à répondre (on nomme qui demande) ; theirs : on attend l'autre parent. */
   side: 'mine' | 'theirs';
   /** Trait de séparation au-dessus (toutes les lignes sauf la première). */
@@ -63,11 +70,12 @@ type Props = {
 
 /**
  * Une demande en attente : son type (une horloge quand on attend l'autre parent), son objet,
- * puis qui la demande (ou depuis quand on attend). Ne mène encore à aucun écran : les
- * fonctions concernées ne sont pas construites.
+ * puis qui la demande (ou depuis quand on attend). Un appui ouvre l'écran de la demande quand
+ * il existe (échange de garde) ; les autres lignes ne mènent encore nulle part.
  */
 export function ToDoRow({
   item,
+  onOpen,
   side,
   divider = false,
   detailed = false,
@@ -95,8 +103,8 @@ export function ToDoRow({
         })
       : t('home.toDo.theirsMeta', { label: t(text.label), when });
 
-  const header = (
-    <View accessible className="flex-row items-center gap-3">
+  const headerContent = (
+    <>
       <View className="h-9 w-9 items-center justify-center rounded-full bg-surface">
         {side === 'theirs' ? (
           <ClockIcon size={18} color={color('pending')} strokeWidth={2.2} />
@@ -115,8 +123,23 @@ export function ToDoRow({
           {meta}
         </Text>
       </View>
-    </View>
+    </>
   );
+  const header =
+    onOpen && canOpen(item) ? (
+      <Pressable
+        onPress={onOpen}
+        accessibilityRole="button"
+        accessibilityLabel={`${item.subject}, ${meta}`}
+        className="flex-row items-center gap-3 active:opacity-70"
+      >
+        {headerContent}
+      </Pressable>
+    ) : (
+      <View accessible className="flex-row items-center gap-3">
+        {headerContent}
+      </View>
+    );
 
   return (
     <View

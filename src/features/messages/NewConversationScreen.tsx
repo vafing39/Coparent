@@ -15,9 +15,13 @@ import {
   ConversationValues,
 } from '../../schemas/conversation';
 
-/** Nouvelle discussion : un sujet et le premier message, puis la discussion s'ouvre. */
+/**
+ * Nouvelle discussion : un sujet (pré-rempli quand on vient d'une demande d'échange) et le
+ * premier message, puis la discussion s'ouvre.
+ */
 export function NewConversationScreen({
   navigation,
+  route,
 }: AppScreenProps<'NewConversation'>) {
   const { t } = useTranslation();
   const {
@@ -30,7 +34,7 @@ export function NewConversationScreen({
 
   const { control, handleSubmit } = useForm<ConversationValues>({
     resolver: zodResolver(conversationSchema),
-    defaultValues: { subject: '', body: '' },
+    defaultValues: { subject: route.params?.subject ?? '', body: '' },
   });
 
   const onSubmit = handleSubmit(values =>

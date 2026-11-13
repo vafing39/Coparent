@@ -4,6 +4,8 @@ import type {
   Bag,
   CalendarEvent,
   EventBody,
+  Exchange,
+  ExchangeBody,
   Conversation,
   CreateConversationBody,
   Message,
@@ -86,6 +88,16 @@ export const eventApi = {
 };
 
 /**
+ * Échanges de garde : une demande (familyId, exchangeId), création (familyId, corps), réponse
+ * (familyId, exchangeId, 'accept' | 'decline' | 'cancel').
+ */
+export const exchangeApi = {
+  get: jest.fn<Promise<Exchange>, [string, string]>(),
+  create: jest.fn<Promise<Exchange>, [string, ExchangeBody]>(),
+  answer: jest.fn<Promise<Exchange>, [string, string, string]>(),
+};
+
+/**
  * Messagerie par discussions : liste des discussions (familyId ; [] tant qu'un test ne la simule
  * pas), création (familyId, corps), messages d'une discussion (familyId, conversationId, before ;
  * vide par défaut), envoi (familyId, conversationId, texte), lecture (familyId, conversationId, upToSeq).
@@ -138,6 +150,10 @@ const CUSTODY =
 const EVENTS_RANGE =
   /^\/api\/v1\/families\/([^/]+)\/events\?from=([\d-]+)&to=([\d-]+)$/;
 const EVENTS = /^\/api\/v1\/families\/([^/]+)\/events$/;
+const EXCHANGES = /^\/api\/v1\/families\/([^/]+)\/exchanges$/;
+const EXCHANGE = /^\/api\/v1\/families\/([^/]+)\/exchanges\/([^/]+)$/;
+const EXCHANGE_ANSWER =
+  /^\/api\/v1\/families\/([^/]+)\/exchanges\/([^/]+)\/(accept|decline|cancel)$/;
 const EVENT = /^\/api\/v1\/families\/([^/]+)\/events\/([^/?]+)$/;
 const CONVERSATIONS = /^\/api\/v1\/families\/([^/]+)\/conversations$/;
 const CONVERSATION_MESSAGES =
@@ -282,6 +298,15 @@ async function route(method: string, url: string, body?: unknown) {
       match[2],
       (body as { upToSeq: number }).upToSeq,
     );
+  }
+  if (method === 'GET' && (match = url.match(EXCHANGE))) {
+    return exchangeApi.get(match[1], match[2]);
+  }
+  if (method === 'POST' && (match = url.match(EXCHANGES))) {
+    return exchangeApi.create(match[1], body as ExchangeBody);
+  }
+  if (method === 'POST' && (match = url.match(EXCHANGE_ANSWER))) {
+    return exchangeApi.answer(match[1], match[2], match[3]);
   }
   throw new Error(`Requête non simulée : ${method} ${url}`);
 }

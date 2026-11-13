@@ -275,6 +275,34 @@ test('vue semaine : un jour par ligne, l’heure du passage', async () => {
   ).toBeOnTheScreen();
 });
 
+test('nuit échangée : « échange » lu, « Échange » en vue semaine ; « Demander un échange »', async () => {
+  familyApi.custody.mockImplementation(async (_id, from, to) => {
+    const base = custody(from, to);
+    return {
+      ...base,
+      nights: base.nights.map(night =>
+        night.date === '2026-11-14'
+          ? {
+              ...night,
+              parent: 'PARENT_B' as const,
+              period: 'EXCHANGE' as const,
+            }
+          : night,
+      ),
+    };
+  });
+  await renderScreen();
+  expect(
+    await screen.findByLabelText('samedi 14 novembre, chez Julien, échange'),
+  ).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Semaine' }));
+  expect(await screen.findByText('Échange')).toBeOnTheScreen();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Demander un échange' }),
+  );
+  expect(navigate).toHaveBeenCalledWith('ExchangeForm');
+});
+
 test('rythme proposé, en mode solo', async () => {
   familyApi.fetchMyFamily.mockResolvedValue(family({ solo: true }));
   familyApi.custody.mockImplementation(async (_id, from, to) => ({
@@ -287,6 +315,9 @@ test('rythme proposé, en mode solo', async () => {
       "Rythme proposé : l'autre parent le validera à son arrivée.",
     ),
   ).toBeOnTheScreen();
+  expect(
+    screen.queryByRole('button', { name: 'Demander un échange' }),
+  ).toBeNull();
 });
 
 test('aucun rythme enregistré', async () => {

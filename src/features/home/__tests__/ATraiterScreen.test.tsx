@@ -20,8 +20,9 @@ jest.mock('../../../api/client', () =>
 );
 
 const goBack = jest.fn();
+const navigate = jest.fn();
 const props = {
-  navigation: { goBack },
+  navigation: { goBack, navigate },
   route: { key: 'ATraiter', name: 'ATraiter' },
 } as unknown as React.ComponentProps<typeof ATraiterScreen>;
 
@@ -33,6 +34,7 @@ const TO_DO: ToDo = {
     {
       id: 't1',
       kind: 'EXPENSE',
+      targetId: null,
       subject: 'Cantine de novembre · 64,20 €',
       requestedBy: 'Julien',
       assignee: 'Camille',
@@ -42,6 +44,7 @@ const TO_DO: ToDo = {
     {
       id: 't2',
       kind: 'EXCHANGE',
+      targetId: 'ex-1',
       subject: 'Échange du week-end 21-22 nov.',
       requestedBy: null,
       assignee: 'Camille',
@@ -53,6 +56,7 @@ const TO_DO: ToDo = {
     {
       id: 't3',
       kind: 'PUBLICATION_REMOVAL',
+      targetId: null,
       subject: 'Photo publiée par Odile',
       requestedBy: 'Camille',
       assignee: 'Julien',
@@ -88,7 +92,7 @@ afterEach(() => {
 test('les deux sections, avec qui demande et depuis quand', async () => {
   await renderScreen();
   expect(
-    await screen.findByRole('header', { name: 'À vous de répondre · 2' }),
+    await screen.findByRole('header', { name: 'Demandes reçues · 2' }),
   ).toBeOnTheScreen();
   expect(screen.getByText('Cantine de novembre · 64,20 €')).toBeOnTheScreen();
   expect(
@@ -134,7 +138,7 @@ test('seulement des demandes de l’autre parent : pas de section vide', async (
   expect(
     await screen.findByRole('header', { name: 'En attente de Julien · 1' }),
   ).toBeOnTheScreen();
-  expect(screen.queryByText(/À vous de répondre/)).toBeNull();
+  expect(screen.queryByText(/Demandes reçues/)).toBeNull();
 });
 
 test('vide', async () => {
@@ -156,7 +160,7 @@ test('erreur de chargement puis « Réessayer »', async () => {
   ).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole('button', { name: 'Réessayer' }));
   expect(
-    await screen.findByRole('header', { name: 'À vous de répondre · 2' }),
+    await screen.findByRole('header', { name: 'Demandes reçues · 2' }),
   ).toBeOnTheScreen();
 });
 
@@ -186,6 +190,7 @@ test('relancé hier : le bouton revient ; relancé aujourd’hui : non', async (
         id: 't4',
         subject: 'Tablette de Hugo',
         kind: 'DEVICE',
+        targetId: null,
         lastNudgedAt: '2026-11-09T23:30:00Z', // 0 h 30 à Paris, le 10
       },
     ],
@@ -213,4 +218,16 @@ test('« Relancer » refusé (déjà relancé) : message sous le bouton', async 
   expect(
     await screen.findByText('Une relance par jour au maximum.'),
   ).toBeOnTheScreen();
+});
+
+test('une demande d’échange ouvre son écran', async () => {
+  await renderScreen();
+  await fireEvent.press(
+    await screen.findByRole('button', {
+      name: /^Échange du week-end 21-22 nov\./,
+    }),
+  );
+  expect(navigate).toHaveBeenCalledWith('ExchangeDetail', {
+    exchangeId: 'ex-1',
+  });
 });

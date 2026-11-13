@@ -50,8 +50,12 @@ export type AppStackParamList = {
   EventDetail: { event: CalendarEvent };
   /** Une discussion avec l'autre parent (sujet affiché tout de suite). */
   Conversation: { conversationId: string; subject: string };
-  /** Nouvelle discussion : sujet et premier message. */
-  NewConversation: undefined;
+  /** Nouvelle discussion : sujet (pré-rempli si donné) et premier message. */
+  NewConversation: { subject?: string } | undefined;
+  /** Nouvelle demande d'échange de garde. */
+  ExchangeForm: undefined;
+  /** Une demande d'échange de garde : y répondre ou l'annuler. */
+  ExchangeDetail: { exchangeId: string };
   /** Discussion « Bienvenue » épinglée : un message de Coparent, affiché par l'app. */
   Welcome: undefined;
 };

@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiError } from '../../api/errors';
 import type { CalendarEvent, FamilyRole } from '../../api/types';
+import { Button } from '../../components/Button';
 import { LoadError } from '../../components/LoadError';
 import {
   ChevronLeftIcon,
@@ -49,7 +50,8 @@ function notOver(event: CalendarEvent, now: string): boolean {
  * Onglet Calendrier : la garde calculée par le backend, en vue mois ou semaine (cahier des
  * charges, 4), et les événements (5). Une couleur par parent, toujours avec l'initiale ; les
  * jours de passage sont coupés en deux ; un événement partagé est marqué d'une pastille
- * violette, un événement privé d'un cadenas.
+ * violette, un événement privé d'un cadenas. « Demander un échange » (6) ouvre une demande d'échange
+ * de garde, une fois les deux parents présents.
  */
 export function CalendrierScreen({ navigation }: TabScreenProps<'Calendrier'>) {
   const { t } = useTranslation();
@@ -152,6 +154,13 @@ export function CalendrierScreen({ navigation }: TabScreenProps<'Calendrier'>) {
           </Text>
         ) : null}
         <CalendarLegend family={family} />
+        {family.solo ? null : (
+          <Button
+            label={t('exchanges.request')}
+            variant="secondary"
+            onPress={() => navigation.navigate('ExchangeForm')}
+          />
+        )}
         {upcomingCustody ? (
           <Upcoming
             family={family}

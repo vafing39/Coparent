@@ -5,85 +5,25 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { eventErrorMessage } from '../../api/events';
-import type {
-  CalendarEvent,
-  EventBody,
-  EventReminder,
-  EventType,
-  EventVisibility,
-  Family,
-} from '../../api/types';
+import { SwitchRow } from '../../components/SwitchRow';
 import { ErrorText } from '../../components/ErrorText';
 import { TextField } from '../../components/TextField';
-import { CheckIcon } from '../../components/icons';
 import { useEvents } from '../../hooks/useEvents';
 import { useFamily } from '../../hooks/useFamily';
 import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
-import { todayInParis } from '../../lib/dates';
 import type { AppScreenProps } from '../../navigation/types';
 import { EventInput, EventValues, eventSchema } from '../../schemas/event';
-import { useTheme } from '../../theme/ThemeProvider';
 import { TimeField } from '../custody/TimeField';
+import { ChildChip } from './ChildChip';
+import { ChipGroup } from './ChipGroup';
 import { DateField } from './DateField';
-
-const TYPES: EventType[] = ['APPOINTMENT', 'ACTIVITY', 'SCHOOL', 'OTHER'];
-const REMINDERS: EventReminder[] = [
-  'NONE',
-  'ONE_HOUR',
-  'DAY_BEFORE',
-  'TWO_DAYS',
-];
-const VISIBILITIES: EventVisibility[] = ['SHARED', 'PRIVATE'];
-
-/** Valeurs de départ : l'événement à modifier, ou un nouvel événement le jour donné. */
-function defaults(
-  family: Family | null,
-  event: CalendarEvent | undefined,
-  date: string | undefined,
-): EventInput {
-  if (event) {
-    return {
-      title: event.title,
-      type: event.type,
-      childIds: event.children.map(child => child.id),
-      allDay: event.allDay,
-      date: event.date,
-      startTime: event.startTime?.slice(0, 5) ?? '09:00',
-      endTime: event.endTime?.slice(0, 5) ?? '10:00',
-      location: event.location ?? '',
-      reminder: event.reminder,
-      visibility: event.visibility,
-    };
-  }
-  const children = family?.children ?? [];
-  return {
-    title: '',
-    type: 'APPOINTMENT',
-    childIds: children.length === 1 ? [children[0].id] : [],
-    allDay: false,
-    date: date ?? todayInParis(),
-    startTime: '09:00',
-    endTime: '10:00',
-    location: '',
-    reminder: 'NONE',
-    visibility: 'SHARED',
-  };
-}
-
-function toBody(values: EventValues): EventBody {
-  return {
-    title: values.title,
-    type: values.type,
-    childIds: values.childIds,
-    date: values.date,
-    allDay: values.allDay,
-    startTime: values.allDay ? null : values.startTime,
-    endTime: values.allDay ? null : values.endTime,
-    location: values.location === '' ? null : values.location,
-    reminder: values.reminder,
-    visibility: values.visibility,
-  };
-}
+import {
+  defaults,
+  REMINDERS,
+  toBody,
+  TYPES,
+  VISIBILITIES,
+} from './eventFormValues';
 
 /**
  * Nouvel événement, ou modification d'un événement (cahier des charges, 5), sans répétition
@@ -256,7 +196,7 @@ export function EventFormScreen({
             control={control}
             name="allDay"
             render={({ field }) => (
-              <AllDaySwitch
+              <SwitchRow
                 label={t('events.allDay')}
                 value={field.value}
                 onChange={field.onChange}
@@ -391,119 +331,5 @@ export function EventFormScreen({
         </Text>
       </ScrollView>
     </SafeAreaView>
-  );
-}
-
-/** Choix unique en pastilles (type, rappel). */
-function ChipGroup<T extends string>({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: { value: T; label: string }[];
-  value: T;
-  onChange: (value: T) => void;
-}) {
-  return (
-    <View className="gap-1.5">
-      <Text className="font-bold text-[13px] text-text">{label}</Text>
-      <View
-        accessibilityRole="radiogroup"
-        accessibilityLabel={label}
-        className="flex-row flex-wrap gap-1.5"
-      >
-        {options.map(option => {
-          const selected = option.value === value;
-          return (
-            <Pressable
-              key={option.value}
-              onPress={() => onChange(option.value)}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: selected }}
-              className={`min-h-[40px] justify-center rounded-full border px-3.5 ${
-                selected ? 'border-primary bg-primary' : 'border-border bg-card'
-              }`}
-            >
-              <Text
-                className={`font-bold text-[13px] ${
-                  selected ? 'text-on-primary' : 'text-text'
-                }`}
-              >
-                {option.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
-
-/** Enfant concerné : une pastille cochable. */
-function ChildChip({
-  label,
-  checked,
-  onPress,
-}: {
-  label: string;
-  checked: boolean;
-  onPress: () => void;
-}) {
-  const { color } = useTheme();
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked }}
-      accessibilityLabel={label}
-      className={`min-h-[44px] flex-row items-center gap-2 rounded-full pl-2 pr-3.5 ${
-        checked
-          ? 'border-2 border-primary bg-primary-soft'
-          : 'border-[1.5px] border-border bg-card'
-      }`}
-    >
-      <View
-        className={`h-[26px] w-[26px] items-center justify-center rounded-full border-2 bg-card ${
-          checked ? 'border-primary' : 'border-text-secondary'
-        }`}
-      >
-        {checked ? (
-          <CheckIcon size={14} color={color('primary')} strokeWidth={3} />
-        ) : null}
-      </View>
-      <Text className="font-bold text-[15px] text-text">{label}</Text>
-    </Pressable>
-  );
-}
-
-/** « Toute la journée » : interrupteur. */
-function AllDaySwitch({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: boolean;
-  onChange: (value: boolean) => void;
-}) {
-  return (
-    <Pressable
-      onPress={() => onChange(!value)}
-      accessibilityRole="switch"
-      accessibilityState={{ checked: value }}
-      accessibilityLabel={label}
-      className="min-h-[44px] flex-row items-center"
-    >
-      <Text className="flex-1 font-bold text-[15px] text-text">{label}</Text>
-      <View
-        className={`h-7 w-12 justify-center rounded-full px-[3px] ${
-          value ? 'items-end bg-primary' : 'items-start bg-text-secondary'
-        }`}
-      >
-        <View className="h-[22px] w-[22px] rounded-full bg-card" />
-      </View>
-    </Pressable>
   );
 }

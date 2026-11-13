@@ -12,10 +12,13 @@ export function ToDoSection({
   title,
   items,
   side,
+  onOpen,
 }: {
   title: string;
   items: ToDoItem[];
   side: 'mine' | 'theirs';
+  /** Ouvre l'écran d'une demande (échange de garde). */
+  onOpen?: (item: ToDoItem) => void;
 }) {
   return (
     <View className="gap-1.5">
@@ -32,6 +35,7 @@ export function ToDoSection({
               key={item.id}
               item={item}
               side={side}
+              onOpen={onOpen ? () => onOpen(item) : undefined}
               divider={index > 0}
               detailed
             >
@@ -42,6 +46,7 @@ export function ToDoSection({
               key={item.id}
               item={item}
               side={side}
+              onOpen={onOpen ? () => onOpen(item) : undefined}
               divider={index > 0}
             />
           ),

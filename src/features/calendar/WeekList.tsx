@@ -126,6 +126,11 @@ function WeekRow({
               {day.holiday}
             </Text>
           ) : null}
+          {day.exchange ? (
+            <Text className="font-semibold text-[13px] text-text-secondary">
+              {t('calendar.exchangeTag')}
+            </Text>
+          ) : null}
         </View>
         {day.events.map(event => (
           <EventLine

@@ -265,6 +265,7 @@ test('« À traiter » : les deux premières demandes, les miennes d’abord, et
       {
         id: 't1',
         kind: 'EXCHANGE',
+        targetId: 'ex-1',
         subject: 'Échange du week-end 21-22 nov.',
         requestedBy: 'Julien',
         assignee: 'Camille',
@@ -276,6 +277,7 @@ test('« À traiter » : les deux premières demandes, les miennes d’abord, et
       {
         id: 't2',
         kind: 'DEVICE',
+        targetId: null,
         subject: 'Tablette de Hugo',
         requestedBy: 'Camille',
         assignee: 'Julien',
@@ -285,6 +287,7 @@ test('« À traiter » : les deux premières demandes, les miennes d’abord, et
       {
         id: 't3',
         kind: 'PENSION',
+        targetId: null,
         subject: 'Pension de novembre',
         requestedBy: 'Camille',
         assignee: 'Julien',
@@ -306,6 +309,16 @@ test('« À traiter » : les deux premières demandes, les miennes d’abord, et
   expect(screen.queryByText("Rien à traiter pour l'instant.")).toBeNull();
   await fireEvent.press(screen.getByRole('link', { name: 'Tout voir (3)' }));
   expect(navigate).toHaveBeenCalledWith('ATraiter');
+  // Une demande d'échange ouvre son écran ; les autres lignes ne sont pas des boutons
+  await fireEvent.press(
+    screen.getByRole('button', { name: /^Échange du week-end 21-22 nov\./ }),
+  );
+  expect(navigate).toHaveBeenCalledWith('ExchangeDetail', {
+    exchangeId: 'ex-1',
+  });
+  expect(
+    screen.queryByRole('button', { name: /^Tablette de Hugo/ }),
+  ).toBeNull();
 });
 
 test('« À traiter » en erreur puis « Réessayer »', async () => {

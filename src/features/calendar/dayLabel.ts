@@ -10,8 +10,8 @@ import type { CalendarDay } from './calendarDays';
 
 /**
  * Libellé lu par le lecteur d'écran pour un jour : « vendredi 13 novembre, passage de garde
- * de Julien à Camille à 17 h 50 », précédé de « Aujourd'hui » et suivi des vacances et des
- * événements (« Judo, partagé »).
+ * de Julien à Camille à 17 h 50 », précédé de « Aujourd'hui » et suivi des vacances, d'un
+ * échange de garde et des événements (« Judo, partagé »).
  */
 export function dayLabel(
   family: Family,
@@ -35,6 +35,9 @@ export function dayLabel(
   }
   if (day.holiday) {
     label = `${label}, ${day.holiday}`;
+  }
+  if (day.exchange) {
+    label = `${label}, ${i18n.t('calendar.exchange')}`;
   }
   for (const event of day.events) {
     label = `${label}, ${i18n.t(

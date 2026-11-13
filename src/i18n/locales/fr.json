@@ -417,7 +417,7 @@
       "seeAll": "Tout voir",
       "seeAllCount": "Tout voir ({{count}})",
       "loadFailed": "Impossible de charger les demandes. Vérifiez votre connexion.",
-      "mine": "À vous de répondre · {{count}}",
+      "mine": "Demandes reçues · {{count}}",
       "theirs": "En attente de {{name}} · {{count}}",
       "mineMeta": "{{label}} · {{name}}, {{when}}",
       "theirsMeta": "{{label}} · {{when}}",
@@ -502,7 +502,9 @@
     "legendShared": "Partagé",
     "legendPrivate": "Privé",
     "eventShared": "{{title}}, partagé",
-    "eventPrivate": "{{title}}, privé"
+    "eventPrivate": "{{title}}, privé",
+    "exchange": "échange",
+    "exchangeTag": "Échange"
   },
   "messages": {
     "title": "Messages",
@@ -632,5 +634,53 @@
     },
     "loadFailed": "Impossible de charger les événements. Tirez vers le bas pour réessayer.",
     "you": "vous"
+  },
+  "exchanges": {
+    "request": "Demander un échange",
+    "form": {
+      "title": "Demander un échange",
+      "send": "Envoyer",
+      "take": "Je prends (nuits chez {{name}})",
+      "firstNight": "Première nuit",
+      "lastNight": "Dernière nuit",
+      "give": "En retour, je laisse des nuits",
+      "giveHint": "Les nuits qui passent chez {{name}} à la place.",
+      "message": "Message (facultatif)",
+      "messagePlaceholder": "Ex. : mariage de ma sœur ce week-end-là",
+      "hint": "{{name}} pourra accepter, refuser ou proposer une autre date. Le calendrier ne change qu'une fois l'échange accepté.",
+      "endBeforeStart": "La dernière nuit doit suivre la première.",
+      "tooManyNights": "{{max}} nuits au maximum.",
+      "overlap": "Les deux périodes ne peuvent pas se chevaucher.",
+      "tooLong": "{{max}} caractères au maximum."
+    },
+    "detail": {
+      "title": "Échange de garde",
+      "youTake": "Vous prenez (nuits chez {{name}})",
+      "theyTake": "{{name}} prend (vos nuits)",
+      "youGive": "Vous laissez à {{name}}",
+      "theyGive": "{{name}} vous laisse",
+      "inReturn": "En retour",
+      "nothingInReturn": "Rien",
+      "message": "Message de {{name}}",
+      "accept": "Accepter",
+      "otherDate": "Proposer une autre date",
+      "otherDateHint": "Une discussion s'ouvre ; la demande reste en attente de votre réponse.",
+      "discussionSubject": "Échange du {{period}}",
+      "decline": "Refuser",
+      "declineConfirm": "Refuser cet échange ?",
+      "cancel": "Annuler la demande",
+      "cancelConfirm": "Annuler cette demande d'échange ?"
+    },
+    "status": {
+      "waitingOther": "En attente de la réponse de {{name}}.",
+      "waitingMe": "{{name}} attend votre réponse.",
+      "accepted": "Échange accepté : le calendrier est à jour.",
+      "declined": "Échange refusé.",
+      "cancelled": "Demande annulée."
+    },
+    "errors": {
+      "gone": "Cette demande d'échange n'existe plus.",
+      "invalid": "Vérifiez les dates de l'échange."
+    }
   }
 }

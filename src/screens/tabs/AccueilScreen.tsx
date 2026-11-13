@@ -40,7 +40,16 @@ export function AccueilScreen({ navigation }: TabScreenProps<'Accueil'>) {
         <TodayCard
           onOpenEvent={event => navigation.navigate('EventDetail', { event })}
         />
-        <ToDoCard onSeeAll={() => navigation.navigate('ATraiter')} />
+        <ToDoCard
+          onSeeAll={() => navigation.navigate('ATraiter')}
+          onOpen={item => {
+            if (item.targetId) {
+              navigation.navigate('ExchangeDetail', {
+                exchangeId: item.targetId,
+              });
+            }
+          }}
+        />
       </ScrollView>
     </SafeAreaView>
   );

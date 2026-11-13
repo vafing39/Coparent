@@ -25,6 +25,8 @@ export type CalendarDay = {
   handover: Handover | null;
   /** Nom des vacances scolaires de cette nuit, sinon null. */
   holiday: string | null;
+  /** Nuit attribuée par un échange de garde accepté. */
+  exchange: boolean;
   /** Événements de ce jour, dans l'ordre reçu du backend (par heure de début). */
   events: CalendarEvent[];
 };
@@ -123,6 +125,7 @@ export function buildDays(
       parent: night?.parent ?? null,
       handover: handovers.get(date) ?? null,
       holiday: night?.holiday ?? null,
+      exchange: night?.period === 'EXCHANGE',
       events: events.filter(event => event.date === date),
     };
   });

@@ -80,7 +80,7 @@ const CUSTODY: Custody = {
   nextHandover: null,
 };
 
-test('chaque jour : parent de la nuit, passage et vacances', () => {
+test('chaque jour : parent de la nuit, passage, vacances et échange', () => {
   expect(
     buildDays(CUSTODY, [
       '2026-11-12',
@@ -94,6 +94,7 @@ test('chaque jour : parent de la nuit, passage et vacances', () => {
       parent: 'PARENT_B',
       handover: null,
       holiday: null,
+      exchange: false,
       events: [],
     },
     {
@@ -101,6 +102,7 @@ test('chaque jour : parent de la nuit, passage et vacances', () => {
       parent: 'PARENT_A',
       handover: CUSTODY.handovers[0],
       holiday: null,
+      exchange: false,
       events: [],
     },
     {
@@ -108,6 +110,7 @@ test('chaque jour : parent de la nuit, passage et vacances', () => {
       parent: 'PARENT_A',
       handover: null,
       holiday: 'Vacances de Noël',
+      exchange: false,
       events: [],
     },
     {
@@ -115,9 +118,28 @@ test('chaque jour : parent de la nuit, passage et vacances', () => {
       parent: null,
       handover: null,
       holiday: null,
+      exchange: false,
       events: [],
     },
   ]);
+});
+
+test('nuit attribuée par un échange accepté', () => {
+  const custody = {
+    ...CUSTODY,
+    nights: [
+      {
+        date: '2026-11-20',
+        parent: 'PARENT_A' as const,
+        period: 'EXCHANGE' as const,
+        holiday: null,
+      },
+    ],
+  };
+  expect(buildDays(custody, ['2026-11-20'])[0]).toMatchObject({
+    parent: 'PARENT_A',
+    exchange: true,
+  });
 });
 
 test('prochains passages : seulement après maintenant (heure de Paris)', () => {
