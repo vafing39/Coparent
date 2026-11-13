@@ -65,6 +65,10 @@ export type AppStackParamList = {
   ScheduleProposal: { scheduleId: string };
   /** Discussion « Bienvenue » épinglée : un message de Coparent, affiché par l'app. */
   Welcome: undefined;
+  /** « Compte et famille », ouvert par l'avatar de l'accueil. */
+  CompteFamille: undefined;
+  /** Réglages de ce téléphone : apparence, couleurs des parents. */
+  Reglages: undefined;
 };
 
 export type AuthScreenProps<T extends keyof AuthStackParamList> =

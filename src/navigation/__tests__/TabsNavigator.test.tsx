@@ -58,7 +58,7 @@ beforeEach(async () => {
 
 test('affiche les 5 onglets, Accueil sélectionné', async () => {
   await renderTabs();
-  await screen.findByRole('header', { name: /Camille$/ });
+  await screen.findByRole('button', { name: 'Compte et famille' });
   for (const name of TABS) {
     expect(screen.getByRole('button', { name })).toBeOnTheScreen();
   }
@@ -67,7 +67,7 @@ test('affiche les 5 onglets, Accueil sélectionné', async () => {
 
 test('l’onglet Calendrier ouvre le calendrier de garde', async () => {
   await renderTabs();
-  await screen.findByRole('header', { name: /Camille$/ });
+  await screen.findByRole('button', { name: 'Compte et famille' });
   await fireEvent.press(screen.getByRole('button', { name: 'Calendrier' }));
   expect(
     await screen.findByRole('header', { name: 'Calendrier' }),
@@ -89,7 +89,7 @@ test.each([
   ['Dépenses', 'Bientôt, partagez ici les dépenses des enfants.'],
 ])('l’onglet %s ouvre son écran', async (name, text) => {
   await renderTabs();
-  await screen.findByRole('header', { name: /Camille$/ });
+  await screen.findByRole('button', { name: 'Compte et famille' });
   await fireEvent.press(screen.getByRole('button', { name }));
   expect(await screen.findByRole('header', { name })).toBeOnTheScreen();
   expect(screen.getByText(text)).toBeOnTheScreen();
@@ -112,7 +112,7 @@ test('Messages : la liste des discussions garde la barre d’onglets', async () 
     }),
   );
   await renderTabs();
-  await screen.findByRole('header', { name: /Camille$/ });
+  await screen.findByRole('button', { name: 'Compte et famille' });
   await fireEvent.press(screen.getByRole('button', { name: 'Messages' }));
   expect(
     await screen.findByRole('button', { name: 'Nouvelle discussion' }),
@@ -147,6 +147,6 @@ test('« Tout voir » ouvre « À traiter » par-dessus les onglets, puis retour
   ).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole('button', { name: 'Retour' }));
   expect(
-    await screen.findByRole('header', { name: /Camille$/ }),
+    await screen.findByRole('button', { name: 'Compte et famille' }),
   ).toBeOnTheScreen();
 });

@@ -1,54 +1,36 @@
 import React from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { formatLongDate, hourInParis, todayInParis } from '../../lib/dates';
-
-/** Heure (Paris) à partir de laquelle on dit « Bonsoir ». */
-const EVENING_HOUR = 18;
+import { GearIcon } from '../../components/icons';
+import { useTheme } from '../../theme/ThemeProvider';
+import { formatLongDate, todayInParis } from '../../lib/dates';
 
 type Props = {
-  firstName: string;
   now: Date;
-  onSignOut: () => void;
+  onOpenAccount: () => void;
 };
 
-/**
- * Date du jour, salutation et avatar. PROVISOIRE : l'avatar ouvre un menu de déconnexion,
- * en attendant l'écran « Compte et famille ».
- */
-export function HomeHeader({ firstName, now, onSignOut }: Props) {
+/** Date du jour et roue dentée (ouvre « Compte et famille »). */
+export function HomeHeader({ now, onOpenAccount }: Props) {
   const { t } = useTranslation();
-  const greeting =
-    hourInParis(now) >= EVENING_HOUR ? 'home.greetingEvening' : 'home.greeting';
-
-  const openAccountMenu = () =>
-    Alert.alert(t('home.account.title'), undefined, [
-      { text: t('common.cancel'), style: 'cancel' },
-      { text: t('common.signOut'), style: 'destructive', onPress: onSignOut },
-    ]);
+  const { color } = useTheme();
 
   return (
-    <View className="flex-row items-end justify-between gap-3 pt-2">
-      <View className="flex-1 gap-0.5">
-        <Text className="font-semibold text-[13px] text-text-secondary">
-          {formatLongDate(todayInParis(now))}
-        </Text>
-        <Text
-          accessibilityRole="header"
-          className="font-extrabold text-[30px] leading-[36px] text-text"
-        >
-          {t(greeting, { firstName })}
-        </Text>
-      </View>
+    <View className="flex-row items-center justify-between gap-3 pt-2">
+      <Text
+        accessibilityRole="header"
+        className="flex-1 font-semibold text-[13px] text-text-secondary"
+      >
+        {formatLongDate(todayInParis(now))}
+      </Text>
       <Pressable
-        onPress={openAccountMenu}
+        onPress={onOpenAccount}
         accessibilityRole="button"
         accessibilityLabel={t('home.account.label')}
+        accessibilityHint={t('home.account.hint')}
         className="h-12 w-12 items-center justify-center rounded-full bg-primary-soft"
       >
-        <Text className="font-extrabold text-[17px] text-primary">
-          {firstName.charAt(0).toUpperCase()}
-        </Text>
+        <GearIcon size={24} color={color('primary')} />
       </Pressable>
     </View>
   );

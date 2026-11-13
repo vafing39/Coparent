@@ -10,12 +10,14 @@ import { SacAPreparerScreen } from '../features/home/SacAPreparerScreen';
 import { ConversationScreen } from '../features/messages/ConversationScreen';
 import { NewConversationScreen } from '../features/messages/NewConversationScreen';
 import { WelcomeScreen } from '../features/messages/WelcomeScreen';
+import { CompteFamilleScreen } from '../screens/account/CompteFamilleScreen';
+import { ReglagesScreen } from '../screens/account/ReglagesScreen';
 import { TabsNavigator } from './TabsNavigator';
 import type { AppStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
-/** Espace connecté : les onglets, et par-dessus les écrans sans barre d'onglets (« À traiter », « Sac à préparer », événements, échanges, discussions). */
+/** Espace connecté : les onglets, et par-dessus les écrans sans barre d'onglets (« À traiter », « Sac à préparer », événements, échanges, discussions, compte et réglages). */
 export function AppNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -40,6 +42,8 @@ export function AppNavigator() {
       />
       <Stack.Screen name="Conversation" component={ConversationScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
+      <Stack.Screen name="CompteFamille" component={CompteFamilleScreen} />
+      <Stack.Screen name="Reglages" component={ReglagesScreen} />
       <Stack.Screen
         name="NewConversation"
         component={NewConversationScreen}

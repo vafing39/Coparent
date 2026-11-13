@@ -53,3 +53,8 @@ jest.mock('@react-native-clipboard/clipboard', () =>
 jest.mock('./src/lib/realtime', () =>
   jest.requireActual('./src/test-utils/fakeRealtime'),
 );
+
+// Stockage local des préférences (AsyncStorage) simulé en mémoire.
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest'),
+);

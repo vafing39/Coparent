@@ -158,7 +158,7 @@ describe('lien ouvert sans être connecté', () => {
     await press('Se connecter');
 
     expect(
-      await screen.findByRole('header', { name: 'Bonjour Julien' }),
+      await screen.findByRole('button', { name: 'Compte et famille' }),
     ).toBeOnTheScreen();
     expect(invitationApi.accept).toHaveBeenCalledWith(INVITATION_TOKEN);
   });
@@ -173,7 +173,7 @@ describe('lien ouvert en étant connecté', () => {
 
     await press('Rejoindre la famille');
     expect(
-      await screen.findByRole('header', { name: 'Bonjour Julien' }),
+      await screen.findByRole('button', { name: 'Compte et famille' }),
     ).toBeOnTheScreen();
     expect(invitationApi.accept).toHaveBeenCalledTimes(1);
   });
@@ -209,7 +209,7 @@ describe('lien ouvert en étant connecté', () => {
 
     await press('Continuer');
     expect(
-      await screen.findByRole('header', { name: 'Bonjour Julien' }),
+      await screen.findByRole('button', { name: 'Compte et famille' }),
     ).toBeOnTheScreen();
   });
 });

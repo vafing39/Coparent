@@ -41,9 +41,26 @@ export type ColorToken = keyof typeof colors;
 
 export const colorTokenNames = Object.keys(colors) as ColorToken[];
 
+/** Jetons échangés quand les couleurs des parents sont interverties (cahier des charges, 4). */
+const SWAPPED: Partial<Record<ColorToken, ColorToken>> = {
+  'parent-a': 'parent-b',
+  'parent-b': 'parent-a',
+  'parent-a-soft': 'parent-b-soft',
+  'parent-b-soft': 'parent-a-soft',
+};
+
+/** Jeton dont on prend la valeur : celui de l'autre parent si les couleurs sont interverties. */
+export function swappedToken(token: ColorToken, swap: boolean): ColorToken {
+  return swap ? SWAPPED[token] ?? token : token;
+}
+
 /** Couleur résolue d'un jeton pour un thème (pour les API sans className). */
-export function color(token: ColorToken, scheme: ColorScheme): string {
-  return colors[token][scheme];
+export function color(
+  token: ColorToken,
+  scheme: ColorScheme,
+  swap = false,
+): string {
+  return colors[swappedToken(token, swap)][scheme];
 }
 
 /** « #3F6B5C » → « 63 107 92 », format attendu par `rgb(var(--x) / <alpha-value>)`. */
@@ -53,11 +70,14 @@ export function hexToRgbChannels(hex: string): string {
 }
 
 /** Variables CSS d'un thème : { '--color-primary': '63 107 92', … }. */
-export function colorVariables(scheme: ColorScheme): Record<string, string> {
+export function colorVariables(
+  scheme: ColorScheme,
+  swap = false,
+): Record<string, string> {
   return Object.fromEntries(
     colorTokenNames.map(name => [
       `--color-${name}`,
-      hexToRgbChannels(colors[name][scheme]),
+      hexToRgbChannels(color(name, scheme, swap)),
     ]),
   );
 }

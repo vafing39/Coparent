@@ -1,5 +1,4 @@
 import React from 'react';
-import { Alert } from 'react-native';
 import { fireEvent, screen } from '@testing-library/react-native';
 import { AccueilScreen } from '../AccueilScreen';
 import { ApiError } from '../../../api/errors';
@@ -108,9 +107,9 @@ test('famille à deux : ce soir, prochain passage et cartes vides', async () => 
   ).toBeOnTheScreen();
   expect(familyApi.custody).toHaveBeenCalledWith(TWO_PARENTS.id, TODAY, TODAY);
   expect(
-    screen.getByRole('header', { name: 'Bonsoir Camille' }),
+    screen.getByRole('header', { name: 'mardi 10 novembre' }),
   ).toBeOnTheScreen();
-  expect(screen.getByText('mardi 10 novembre')).toBeOnTheScreen();
+  expect(screen.queryByText(/Bonjour|Bonsoir/)).toBeNull();
   expect(screen.getByText('Ce soir')).toBeOnTheScreen();
   expect(
     screen.getByText("Jusqu'au vendredi 13 novembre, 17 h 50"),
@@ -123,14 +122,6 @@ test('famille à deux : ce soir, prochain passage et cartes vides', async () => 
   expect(
     screen.queryByText("L'autre parent n'a pas encore rejoint la famille."),
   ).toBeNull();
-});
-
-test('le matin : « Bonjour »', async () => {
-  jest.setSystemTime(new Date('2026-11-10T08:00:00Z'));
-  await renderScreen(TWO_PARENTS);
-  expect(
-    await screen.findByRole('header', { name: 'Bonjour Camille' }),
-  ).toBeOnTheScreen();
 });
 
 test('mode solo : bannière, rythme proposé, « l’autre parent »', async () => {
@@ -210,19 +201,12 @@ test('erreur de chargement puis « Réessayer »', async () => {
   ).toBeOnTheScreen();
 });
 
-test('l’avatar ouvre le menu de déconnexion', async () => {
-  const alert = jest.spyOn(Alert, 'alert');
+test('l’avatar ouvre « Compte et famille »', async () => {
   await renderScreen(TWO_PARENTS);
   await fireEvent.press(
     await screen.findByRole('button', { name: 'Compte et famille' }),
   );
-  const buttons = alert.mock.calls[0][2] ?? [];
-  const signOut = buttons.find(b => b.text === 'Se déconnecter');
-  expect(signOut?.style).toBe('destructive');
-  await signOut?.onPress?.();
-  await screen.findByText('Léa et Hugo sont chez Julien');
-  expect(authApi.logout).toHaveBeenCalledWith('refresh-1');
-  alert.mockRestore();
+  expect(navigate).toHaveBeenCalledWith('CompteFamille');
 });
 
 test('« Tout voir » ouvre l’écran « À traiter »', async () => {

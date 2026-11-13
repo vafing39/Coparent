@@ -7,7 +7,6 @@ import { HomeHeader } from '../../features/home/HomeHeader';
 import { SoloBanner } from '../../features/home/SoloBanner';
 import { ToDoCard } from '../../features/home/ToDoCard';
 import { TodayCard } from '../../features/home/TodayCard';
-import { useAuth } from '../../hooks/useAuth';
 import { useFamily } from '../../hooks/useFamily';
 import { openToDoItem } from '../../features/home/openToDoItem';
 import type { TabScreenProps } from '../../navigation/types';
@@ -17,7 +16,6 @@ import type { TabScreenProps } from '../../navigation/types';
  * backend, les événements du jour et l'aperçu de « À traiter » (« Tout voir » ouvre son écran).
  */
 export function AccueilScreen({ navigation }: TabScreenProps<'Accueil'>) {
-  const { user, signOut } = useAuth();
   const { family } = useFamily();
   const now = new Date();
 
@@ -32,9 +30,8 @@ export function AccueilScreen({ navigation }: TabScreenProps<'Accueil'>) {
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <ScrollView contentContainerClassName="gap-4 px-4 pt-5 pb-8">
         <HomeHeader
-          firstName={user?.firstName ?? ''}
           now={now}
-          onSignOut={() => signOut()}
+          onOpenAccount={() => navigation.navigate('CompteFamille')}
         />
         {family.solo ? <SoloBanner otherRole={otherRole} /> : null}
         <CustodyCards onOpenBag={() => navigation.navigate('SacAPreparer')} />

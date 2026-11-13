@@ -118,11 +118,6 @@ export function daysBetween(fromIso: string, toIso: string): number {
   return calendarDay(toIso).diff(calendarDay(fromIso), 'day');
 }
 
-/** Heure (0 à 23) à Paris. */
-export function hourInParis(now: Date = new Date()): number {
-  return inParis(now).hour();
-}
-
 /** Instant ISO → jour de Paris « AAAA-MM-JJ ». */
 export function parisDayOf(instant: string): string {
   return inParis(instant).format(ISO_DATE);

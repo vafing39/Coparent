@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useMemo } from 'react';
-import { useColorScheme, View } from 'react-native';
+import React, { createContext, useContext, useEffect, useMemo } from 'react';
+import { Appearance, useColorScheme, View } from 'react-native';
 import { vars } from 'nativewind';
+import { usePreferences } from '../stores/preferences';
 import { color, colorVariables, ColorScheme, ColorToken } from './tokens';
 
 type Theme = {
@@ -14,22 +15,51 @@ const ThemeContext = createContext<Theme>({
   color: token => color(token, 'light'),
 });
 
+/** Variables NativeWind par thème, couleurs des parents interverties ou non. */
 const themeVariables = {
-  light: vars(colorVariables('light')),
-  dark: vars(colorVariables('dark')),
+  light: {
+    normal: vars(colorVariables('light')),
+    swapped: vars(colorVariables('light', true)),
+  },
+  dark: {
+    normal: vars(colorVariables('dark')),
+    swapped: vars(colorVariables('dark', true)),
+  },
 };
 
-/** Expose les jetons du thème courant (clair/sombre via useColorScheme) à NativeWind. */
+/**
+ * Expose les jetons du thème courant à NativeWind : clair ou sombre selon le téléphone
+ * (useColorScheme) ou le choix des réglages, couleurs des parents interverties si demandé.
+ */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const scheme: ColorScheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const appearance = usePreferences(state => state.appearance);
+  const swap = usePreferences(state => state.swapParentColors);
+  const systemScheme = useColorScheme();
+
+  useEffect(() => {
+    // Les éléments natifs (sélecteur d'heure, alertes) suivent le choix des réglages.
+    Appearance.setColorScheme?.(
+      appearance === 'system' ? 'unspecified' : appearance,
+    );
+  }, [appearance]);
+
+  const scheme: ColorScheme =
+    appearance === 'system'
+      ? systemScheme === 'dark'
+        ? 'dark'
+        : 'light'
+      : appearance;
   const theme = useMemo<Theme>(
-    () => ({ scheme, color: token => color(token, scheme) }),
-    [scheme],
+    () => ({ scheme, color: token => color(token, scheme, swap) }),
+    [scheme, swap],
   );
 
   return (
     <ThemeContext.Provider value={theme}>
-      <View className="flex-1" style={themeVariables[scheme]}>
+      <View
+        className="flex-1"
+        style={themeVariables[scheme][swap ? 'swapped' : 'normal']}
+      >
         {children}
       </View>
     </ThemeContext.Provider>

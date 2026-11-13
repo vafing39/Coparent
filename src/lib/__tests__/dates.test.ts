@@ -3,7 +3,6 @@ import {
   formatDateInput,
   formatLongDate,
   formatShortDate,
-  hourInParis,
   splitLocalDateTime,
   formatTime,
   isoWeekday,
@@ -71,10 +70,4 @@ test('daysBetween traverse le changement d’heure', () => {
   expect(daysBetween('2026-11-10', '2026-11-13')).toBe(3);
   expect(daysBetween('2026-10-24', '2026-10-26')).toBe(2);
   expect(daysBetween('2026-11-13', '2026-11-10')).toBe(-3);
-});
-
-test('hourInParis suit le fuseau de Paris', () => {
-  expect(hourInParis(new Date('2026-11-10T17:30:00Z'))).toBe(18);
-  expect(hourInParis(new Date('2026-07-10T16:30:00Z'))).toBe(18);
-  expect(hourInParis(new Date('2026-11-10T23:30:00Z'))).toBe(0);
 });

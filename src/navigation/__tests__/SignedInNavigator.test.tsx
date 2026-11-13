@@ -41,7 +41,7 @@ test('famille avec enfants et rythme : ouvre l’app', async () => {
   );
   await renderNavigator();
   expect(
-    await screen.findByRole('header', { name: 'Bonjour Camille' }),
+    await screen.findByRole('button', { name: 'Compte et famille' }),
   ).toBeOnTheScreen();
 });
 

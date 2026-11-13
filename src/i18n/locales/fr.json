@@ -356,11 +356,9 @@
     "depenses": "Dépenses"
   },
   "home": {
-    "greeting": "Bonjour {{firstName}}",
-    "greetingEvening": "Bonsoir {{firstName}}",
     "account": {
       "label": "Compte et famille",
-      "title": "Compte"
+      "hint": "Famille, réglages et déconnexion"
     },
     "solo": "L'autre parent n'a pas encore rejoint la famille.",
     "otherParent": "l'autre parent",
@@ -853,6 +851,37 @@
     "modifyHint": "Votre version remplacera celle-ci, et {{name}} devra la valider.",
     "errors": {
       "gone": "Ce rythme n'existe plus."
+    }
+  },
+  "account": {
+    "title": "Compte et famille",
+    "family": {
+      "with": "{{me}} et {{other}}",
+      "solo": "Mode solo : {{other}} n'a pas encore rejoint la famille."
+    },
+    "myPhone": "Ce téléphone",
+    "settingsHint": "Apparence et couleurs du calendrier",
+    "familyTabNote": "Les fiches des enfants et les documents arriveront dans l'onglet Famille.",
+    "signOut": {
+      "title": "Se déconnecter ?",
+      "body": "Vos données restent enregistrées. Vous pourrez vous reconnecter avec votre adresse email."
+    }
+  },
+  "settings": {
+    "title": "Réglages",
+    "appearance": {
+      "title": "Apparence",
+      "system": "Automatique",
+      "systemHint": "Suit le réglage du téléphone",
+      "light": "Clair",
+      "dark": "Sombre"
+    },
+    "colors": {
+      "title": "Couleurs du calendrier",
+      "swap": "Intervertir les couleurs",
+      "swapHint": "Chaque parent prend la couleur de l'autre",
+      "swappedHint": "Couleurs interverties : rend à chaque parent sa couleur d'origine",
+      "note": "Ce choix ne s'applique qu'à votre téléphone."
     }
   }
 }
