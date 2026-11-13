@@ -1,7 +1,12 @@
 import i18n from '../../i18n';
 import type { Message } from '../../api/types';
 import { addDays } from '../calendar/calendarDays';
-import { formatShortDate, parisDayOf, todayInParis } from '../../lib/dates';
+import {
+  formatInstantTime,
+  formatShortDate,
+  parisDayOf,
+  todayInParis,
+} from '../../lib/dates';
 
 /** Une ligne de la conversation : un séparateur de jour ou un message. */
 export type MessageRow =
@@ -43,4 +48,11 @@ export function messageRows(
     rows.push({ kind: 'message', key: message.id, message });
   }
   return rows.reverse();
+}
+
+/** Heure d'un message dans la liste des discussions : « 18 h 12 » aujourd'hui, « Hier », sinon « mar. 10 nov. ». */
+export function listTime(instant: string, now: Date = new Date()): string {
+  const day = parisDayOf(instant);
+  const today = todayInParis(now);
+  return day === today ? formatInstantTime(instant) : dayLabel(day, today);
 }

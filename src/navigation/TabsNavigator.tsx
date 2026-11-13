@@ -14,7 +14,6 @@ import { CalendrierScreen } from '../screens/tabs/CalendrierScreen';
 import { DepensesScreen } from '../screens/tabs/DepensesScreen';
 import { FamilleOngletScreen } from '../screens/tabs/FamilleOngletScreen';
 import { MessagesScreen } from '../screens/tabs/MessagesScreen';
-import { useFamily } from '../hooks/useFamily';
 import { useTheme } from '../theme/ThemeProvider';
 import type { TabsParamList } from './types';
 
@@ -62,7 +61,6 @@ const euroIcon = tabIcon(EuroIcon);
 export function TabsNavigator() {
   const { color } = useTheme();
   const { t } = useTranslation();
-  const { family } = useFamily();
 
   const tab = (label: string, icon: ReturnType<typeof tabIcon>) => ({
     title: label,
@@ -73,8 +71,6 @@ export function TabsNavigator() {
 
   return (
     <Tab.Navigator
-      // « Retour » (flèche de Messages, bouton Android) ramène à l'onglet précédent.
-      backBehavior="history"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: color('primary'),
@@ -100,12 +96,7 @@ export function TabsNavigator() {
       <Tab.Screen
         name="Messages"
         component={MessagesScreen}
-        options={{
-          ...tab(t('tabs.messages'), messageIcon),
-          // Conversation plein écran, sans barre d'onglets (écart voulu avec la maquette) ;
-          // en solo, l'écran d'attente garde la barre.
-          ...(family?.solo === false && { tabBarStyle: { display: 'none' } }),
-        }}
+        options={tab(t('tabs.messages'), messageIcon)}
       />
       <Tab.Screen
         name="Famille"

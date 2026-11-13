@@ -4,6 +4,8 @@ import type {
   Bag,
   CalendarEvent,
   EventBody,
+  Conversation,
+  CreateConversationBody,
   Message,
   MessagePage,
   ToDo,
@@ -84,13 +86,19 @@ export const eventApi = {
 };
 
 /**
- * Messagerie : liste (familyId, before ou undefined ; une conversation vide tant qu'un test ne
- * la simule pas), envoi (familyId, texte) et lecture (familyId, upToSeq).
+ * Messagerie par discussions : liste des discussions (familyId ; [] tant qu'un test ne la simule
+ * pas), création (familyId, corps), messages d'une discussion (familyId, conversationId, before ;
+ * vide par défaut), envoi (familyId, conversationId, texte), lecture (familyId, conversationId, upToSeq).
  */
 export const messageApi = {
-  list: jest.fn<Promise<MessagePage>, [string, number | undefined]>(),
-  send: jest.fn<Promise<Message>, [string, string]>(),
-  read: jest.fn<Promise<void>, [string, number]>(),
+  conversations: jest.fn<Promise<Conversation[]>, [string]>(),
+  createConversation: jest.fn<
+    Promise<Conversation>,
+    [string, CreateConversationBody]
+  >(),
+  list: jest.fn<Promise<MessagePage>, [string, string, number | undefined]>(),
+  send: jest.fn<Promise<Message>, [string, string, string]>(),
+  read: jest.fn<Promise<void>, [string, string, number]>(),
 };
 
 /** Une fonction simulée par route d'authentification (paramètres utiles du corps). */
@@ -131,10 +139,11 @@ const EVENTS_RANGE =
   /^\/api\/v1\/families\/([^/]+)\/events\?from=([\d-]+)&to=([\d-]+)$/;
 const EVENTS = /^\/api\/v1\/families\/([^/]+)\/events$/;
 const EVENT = /^\/api\/v1\/families\/([^/]+)\/events\/([^/?]+)$/;
-const MESSAGES_LIST =
-  /^\/api\/v1\/families\/([^/]+)\/messages(?:\?before=(\d+))?$/;
-const MESSAGES = /^\/api\/v1\/families\/([^/]+)\/messages$/;
-const MESSAGES_READ = /^\/api\/v1\/families\/([^/]+)\/messages\/read$/;
+const CONVERSATIONS = /^\/api\/v1\/families\/([^/]+)\/conversations$/;
+const CONVERSATION_MESSAGES =
+  /^\/api\/v1\/families\/([^/]+)\/conversations\/([^/]+)\/messages(?:\?before=(\d+))?$/;
+const CONVERSATION_READ =
+  /^\/api\/v1\/families\/([^/]+)\/conversations\/([^/]+)\/read$/;
 
 function authRoute(url: string, body: unknown) {
   const { refreshToken, code, email } = (body ?? {}) as {
@@ -246,20 +255,33 @@ async function route(method: string, url: string, body?: unknown) {
   if (method === 'DELETE' && (match = url.match(EVENT))) {
     return eventApi.remove(match[1], match[2]);
   }
-  if (method === 'GET' && (match = url.match(MESSAGES_LIST))) {
-    const before = match[2] === undefined ? undefined : Number(match[2]);
+  if (method === 'GET' && (match = url.match(CONVERSATIONS))) {
+    return (await messageApi.conversations(match[1])) ?? [];
+  }
+  if (method === 'POST' && (match = url.match(CONVERSATIONS))) {
+    return messageApi.createConversation(
+      match[1],
+      body as CreateConversationBody,
+    );
+  }
+  if (method === 'GET' && (match = url.match(CONVERSATION_MESSAGES))) {
+    const before = match[3] === undefined ? undefined : Number(match[3]);
     return (
-      (await messageApi.list(match[1], before)) ?? {
+      (await messageApi.list(match[1], match[2], before)) ?? {
         messages: [],
         hasMore: false,
       }
     );
   }
-  if (method === 'POST' && (match = url.match(MESSAGES))) {
-    return messageApi.send(match[1], (body as { body: string }).body);
+  if (method === 'POST' && (match = url.match(CONVERSATION_MESSAGES))) {
+    return messageApi.send(match[1], match[2], (body as { body: string }).body);
   }
-  if (method === 'POST' && (match = url.match(MESSAGES_READ))) {
-    return messageApi.read(match[1], (body as { upToSeq: number }).upToSeq);
+  if (method === 'POST' && (match = url.match(CONVERSATION_READ))) {
+    return messageApi.read(
+      match[1],
+      match[2],
+      (body as { upToSeq: number }).upToSeq,
+    );
   }
   throw new Error(`Requête non simulée : ${method} ${url}`);
 }

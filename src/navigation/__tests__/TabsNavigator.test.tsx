@@ -96,7 +96,7 @@ test.each([
   expect(screen.getByRole('button', { name })).toBeSelected();
 });
 
-test('Messages : conversation sans barre d’onglets, « Retour » ramène à l’onglet précédent', async () => {
+test('Messages : la liste des discussions garde la barre d’onglets', async () => {
   familyApi.fetchMyFamily.mockResolvedValue(
     family({
       solo: false,
@@ -113,22 +113,14 @@ test('Messages : conversation sans barre d’onglets, « Retour » ramène à l�
   );
   await renderTabs();
   await screen.findByRole('header', { name: /Camille$/ });
-  await fireEvent.press(screen.getByRole('button', { name: 'Calendrier' }));
-  await screen.findByRole('header', { name: 'Calendrier' });
   await fireEvent.press(screen.getByRole('button', { name: 'Messages' }));
-
   expect(
-    await screen.findByRole('header', { name: 'Julien' }),
+    await screen.findByRole('button', { name: 'Nouvelle discussion' }),
   ).toBeOnTheScreen();
   for (const name of TABS) {
-    expect(screen.queryByRole('button', { name })).toBeNull();
+    expect(screen.getByRole('button', { name })).toBeOnTheScreen();
   }
-
-  await fireEvent.press(screen.getByRole('button', { name: 'Retour' }));
-  expect(
-    await screen.findByRole('header', { name: 'Calendrier' }),
-  ).toBeOnTheScreen();
-  expect(screen.getByRole('button', { name: 'Calendrier' })).toBeSelected();
+  expect(screen.getByRole('button', { name: 'Messages' })).toBeSelected();
 });
 
 test('« Tout voir » ouvre « À traiter » par-dessus les onglets, puis retour', async () => {

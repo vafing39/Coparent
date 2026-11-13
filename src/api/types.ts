@@ -238,6 +238,8 @@ export type EventBody = {
 /** Message entre parents (immuable). `readAt` : lu par le destinataire, sinon null. */
 export type Message = {
   id: string;
+  conversationId: string;
+  /** Ordre dans la famille (toutes discussions confondues). */
   seq: number;
   /** null si le compte de l'expéditeur a été supprimé. */
   senderId: string | null;
@@ -255,7 +257,27 @@ export type MessagePage = {
   hasMore: boolean;
 };
 
-/** Reçu en temps réel : un nouveau message, ou des messages lus par `readerId` jusqu'à `upToSeq`. */
+/** Reçu en temps réel : un nouveau message, ou des messages d'une discussion lus par `readerId` jusqu'à `upToSeq`. */
 export type MessageRealtimeEvent =
-  | { type: 'MESSAGE'; message: Message }
-  | { type: 'READ'; readerId: string; upToSeq: number; readAt: string };
+  | { type: 'MESSAGE'; conversationId: string; message: Message }
+  | {
+      type: 'READ';
+      conversationId: string;
+      readerId: string;
+      upToSeq: number;
+      readAt: string;
+    };
+
+/** Discussion sur un sujet avec l'autre parent. Elle a toujours au moins un message. */
+export type Conversation = {
+  id: string;
+  subject: string;
+  authorFirstName: string | null;
+  createdAt: string;
+  lastMessage: Message;
+  /** Messages de l'autre parent que je n'ai pas encore lus. */
+  unreadCount: number;
+};
+
+/** Nouvelle discussion : sujet et premier message. */
+export type CreateConversationBody = { subject: string; body: string };

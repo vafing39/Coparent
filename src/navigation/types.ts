@@ -48,6 +48,10 @@ export type AppStackParamList = {
   EventForm: { event?: CalendarEvent; date?: string } | undefined;
   /** Détail d'un événement. */
   EventDetail: { event: CalendarEvent };
+  /** Une discussion avec l'autre parent (sujet affiché tout de suite). */
+  Conversation: { conversationId: string; subject: string };
+  /** Nouvelle discussion : sujet et premier message. */
+  NewConversation: undefined;
 };
 
 export type AuthScreenProps<T extends keyof AuthStackParamList> =

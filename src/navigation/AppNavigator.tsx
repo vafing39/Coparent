@@ -4,12 +4,14 @@ import { EventDetailScreen } from '../features/events/EventDetailScreen';
 import { EventFormScreen } from '../features/events/EventFormScreen';
 import { ATraiterScreen } from '../features/home/ATraiterScreen';
 import { SacAPreparerScreen } from '../features/home/SacAPreparerScreen';
+import { ConversationScreen } from '../features/messages/ConversationScreen';
+import { NewConversationScreen } from '../features/messages/NewConversationScreen';
 import { TabsNavigator } from './TabsNavigator';
 import type { AppStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
-/** Espace connecté : les onglets, et par-dessus les écrans sans barre d'onglets (« À traiter », « Sac à préparer », événements). */
+/** Espace connecté : les onglets, et par-dessus les écrans sans barre d'onglets (« À traiter », « Sac à préparer », événements, discussions). */
 export function AppNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -20,6 +22,12 @@ export function AppNavigator() {
       <Stack.Screen
         name="EventForm"
         component={EventFormScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen name="Conversation" component={ConversationScreen} />
+      <Stack.Screen
+        name="NewConversation"
+        component={NewConversationScreen}
         options={{ presentation: 'modal' }}
       />
     </Stack.Navigator>
