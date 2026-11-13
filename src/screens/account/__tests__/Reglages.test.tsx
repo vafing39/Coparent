@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react-native';
-import { ReglagesScreen } from '../ReglagesScreen';
+import { AppearanceScreen } from '../AppearanceScreen';
+import { CalendarColorsScreen } from '../CalendarColorsScreen';
 import type { Family } from '../../../api/types';
 import { FamilyProvider } from '../../../context/FamilyContext';
 import { usePreferences } from '../../../stores/preferences';
@@ -23,18 +24,11 @@ const TWO_PARENTS: Family = family({
 });
 
 const goBack = jest.fn();
-const props = {
-  navigation: { goBack },
-  route: { key: 'Reglages', name: 'Reglages' },
-} as unknown as React.ComponentProps<typeof ReglagesScreen>;
-
-async function renderScreen() {
-  await renderWithProviders(
-    <FamilyProvider>
-      <ReglagesScreen {...props} />
-    </FamilyProvider>,
-  );
-  await screen.findByRole('header', { name: 'Réglages' });
+function props<T>(name: string): T {
+  return {
+    navigation: { goBack },
+    route: { key: name, name },
+  } as unknown as T;
 }
 
 beforeEach(async () => {
@@ -44,23 +38,40 @@ beforeEach(async () => {
   await useSession.getState().signIn(authResponse());
 });
 
-test('apparence : « Automatique » par défaut, « Sombre » choisi', async () => {
-  await renderScreen();
+test('apparence : « Automatique » par défaut, « Sombre » choisi, retour', async () => {
+  await renderWithProviders(
+    <AppearanceScreen
+      {...props<React.ComponentProps<typeof AppearanceScreen>>('Apparence')}
+    />,
+  );
+  expect(screen.getByRole('header', { name: 'Apparence' })).toBeOnTheScreen();
   expect(screen.getByRole('radio', { name: 'Automatique' })).toBeChecked();
   await fireEvent.press(screen.getByRole('radio', { name: 'Sombre' }));
   expect(screen.getByRole('radio', { name: 'Sombre' })).toBeChecked();
   expect(screen.getByRole('radio', { name: 'Automatique' })).not.toBeChecked();
   expect(usePreferences.getState().appearance).toBe('dark');
+  await fireEvent.press(screen.getByRole('button', { name: 'Retour' }));
+  expect(goBack).toHaveBeenCalled();
 });
 
 test('couleurs du calendrier : les deux parents, intervertir, sur ce téléphone seulement', async () => {
-  await renderScreen();
+  await renderWithProviders(
+    <FamilyProvider>
+      <CalendarColorsScreen
+        {...props<React.ComponentProps<typeof CalendarColorsScreen>>(
+          'CouleursCalendrier',
+        )}
+      />
+    </FamilyProvider>,
+  );
+  expect(
+    await screen.findByRole('header', { name: 'Couleurs du calendrier' }),
+  ).toBeOnTheScreen();
   expect(screen.getByText('Camille')).toBeOnTheScreen();
   expect(screen.getByText('Julien')).toBeOnTheScreen();
   expect(
     screen.getByText("Ce choix ne s'applique qu'à votre téléphone."),
   ).toBeOnTheScreen();
-
   await fireEvent.press(
     screen.getByRole('button', { name: 'Intervertir les couleurs' }),
   );
@@ -69,10 +80,4 @@ test('couleurs du calendrier : les deux parents, intervertir, sur ce téléphone
     screen.getByRole('button', { name: 'Intervertir les couleurs' }),
   );
   expect(usePreferences.getState().swapParentColors).toBe(false);
-});
-
-test('retour', async () => {
-  await renderScreen();
-  await fireEvent.press(screen.getByRole('button', { name: 'Retour' }));
-  expect(goBack).toHaveBeenCalled();
 });

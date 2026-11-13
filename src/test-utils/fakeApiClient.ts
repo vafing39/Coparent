@@ -145,6 +145,16 @@ export const authApi = {
   resetPassword: jest.fn<Promise<void>, [ResetPasswordValues]>(),
 };
 
+/** « Mon compte » : une fonction simulée par route (corps utile). */
+export const accountApi = {
+  changePassword: jest.fn<
+    Promise<AuthResponse>,
+    [{ currentPassword: string; newPassword: string; confirmPassword: string }]
+  >(),
+  requestDataExport: jest.fn<Promise<void>, []>(),
+  deleteAccount: jest.fn<Promise<void>, [string]>(),
+};
+
 /** Invitation côté invité : aperçu public (null simule le 404 « plus valide ») et acceptation. */
 export const invitationApi = {
   preview: jest.fn<Promise<InvitationPreview | null>, [string]>(),
@@ -223,6 +233,17 @@ async function route(method: string, url: string, body?: unknown) {
     if (response) {
       return response;
     }
+  }
+  if (method === 'POST' && url === '/api/v1/users/me/password') {
+    return accountApi.changePassword(
+      body as Parameters<typeof accountApi.changePassword>[0],
+    );
+  }
+  if (method === 'POST' && url === '/api/v1/users/me/data-export') {
+    return accountApi.requestDataExport();
+  }
+  if (method === 'DELETE' && url === '/api/v1/users/me') {
+    return accountApi.deleteAccount((body as { password: string }).password);
   }
   if (method === 'GET' && (match = url.match(INVITATION_PREVIEW))) {
     const preview = await invitationApi.preview(decodeURIComponent(match[1]));
@@ -374,5 +395,6 @@ export const apiClient = {
   get: (url: string) => respond('GET', url),
   post: (url: string, body?: unknown) => respond('POST', url, body),
   put: (url: string, body?: unknown) => respond('PUT', url, body),
-  delete: (url: string) => respond('DELETE', url),
+  delete: (url: string, config?: { data?: unknown }) =>
+    respond('DELETE', url, config?.data),
 };

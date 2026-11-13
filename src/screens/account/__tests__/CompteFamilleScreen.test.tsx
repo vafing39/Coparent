@@ -61,10 +61,36 @@ test('la famille en mode solo', async () => {
   ).toBeOnTheScreen();
 });
 
-test('« Réglages » ouvre les réglages, la flèche revient', async () => {
+test('« Mon compte » : l’adresse et les trois actions', async () => {
   await renderScreen(TWO_PARENTS);
-  await fireEvent.press(screen.getByRole('button', { name: 'Réglages' }));
-  expect(navigate).toHaveBeenCalledWith('Reglages');
+  expect(screen.getByText('camille@exemple.fr')).toBeOnTheScreen();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Modifier le mot de passe' }),
+  );
+  expect(navigate).toHaveBeenCalledWith('ModifierMotDePasse');
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Télécharger mes données' }),
+  );
+  expect(navigate).toHaveBeenCalledWith('MesDonnees');
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Supprimer mon compte' }),
+  );
+  expect(navigate).toHaveBeenCalledWith('SupprimerCompte');
+});
+
+test('« Réglages » : apparence et couleurs du calendrier ouvrent leur page', async () => {
+  await renderScreen(TWO_PARENTS);
+  expect(screen.getByRole('header', { name: 'Réglages' })).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Apparence' }));
+  expect(navigate).toHaveBeenCalledWith('Apparence');
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Couleurs du calendrier' }),
+  );
+  expect(navigate).toHaveBeenCalledWith('CouleursCalendrier');
+});
+
+test('la flèche revient', async () => {
+  await renderScreen(TWO_PARENTS);
   await fireEvent.press(screen.getByRole('button', { name: 'Retour' }));
   expect(goBack).toHaveBeenCalled();
 });

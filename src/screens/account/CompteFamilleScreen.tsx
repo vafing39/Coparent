@@ -14,16 +14,15 @@ import type { AppScreenProps } from '../../navigation/types';
 import { useTheme } from '../../theme/ThemeProvider';
 
 /**
- * « Compte et famille » (cahier des charges, 12), ouvert par l'avatar de l'accueil : la famille,
- * les réglages de ce téléphone et la déconnexion. Le compte (mot de passe, données, suppression)
- * viendra ensuite.
+ * « Compte et famille » (cahier des charges, 12), ouvert par la roue dentée de l'accueil : la
+ * famille, « Mon compte » (mot de passe, données, suppression), « Réglages » (apparence, couleurs
+ * du calendrier) et la déconnexion.
  */
 export function CompteFamilleScreen({
   navigation,
 }: AppScreenProps<'CompteFamille'>) {
   const { t } = useTranslation();
-  const { color } = useTheme();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const { family } = useFamily();
 
   if (!family) {
@@ -73,25 +72,39 @@ export function CompteFamilleScreen({
           </View>
         </View>
 
-        <View className="gap-1.5">
-          <Text
-            accessibilityRole="header"
-            className="mx-1 font-bold text-[13px] text-text-secondary"
-          >
-            {t('account.myPhone')}
-          </Text>
-          <Pressable
-            onPress={() => navigation.navigate('Reglages')}
-            accessibilityRole="button"
-            accessibilityHint={t('account.settingsHint')}
-            className="min-h-[56px] flex-row items-center justify-between rounded-[20px] border border-border bg-card px-4 active:opacity-80"
-          >
-            <Text className="font-bold text-[15px] text-text">
-              {t('settings.title')}
+        <Section title={t('account.myAccount')}>
+          {user ? (
+            <Text className="px-4 pt-3 font-regular text-[13px] text-text-secondary">
+              {user.email}
             </Text>
-            <ChevronRightIcon color={color('text-secondary')} />
-          </Pressable>
-        </View>
+          ) : null}
+          <MenuRow
+            label={t('account.password.title')}
+            onPress={() => navigation.navigate('ModifierMotDePasse')}
+          />
+          <MenuRow
+            label={t('account.data.title')}
+            onPress={() => navigation.navigate('MesDonnees')}
+            separated
+          />
+          <MenuRow
+            label={t('account.delete.title')}
+            onPress={() => navigation.navigate('SupprimerCompte')}
+            separated
+          />
+        </Section>
+
+        <Section title={t('settings.title')}>
+          <MenuRow
+            label={t('settings.appearance.title')}
+            onPress={() => navigation.navigate('Apparence')}
+          />
+          <MenuRow
+            label={t('settings.colors.title')}
+            onPress={() => navigation.navigate('CouleursCalendrier')}
+            separated
+          />
+        </Section>
 
         <Text className="mx-1 font-regular text-[13px] leading-[19px] text-text-secondary">
           {t('account.familyTabNote')}
@@ -104,5 +117,55 @@ export function CompteFamilleScreen({
         />
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <View className="gap-1.5">
+      <Text
+        accessibilityRole="header"
+        className="mx-1 font-bold text-[13px] text-text-secondary"
+      >
+        {title}
+      </Text>
+      <View className="rounded-[20px] border border-border bg-card">
+        {children}
+      </View>
+    </View>
+  );
+}
+
+/** Ligne d'une section, avec chevron : ouvre un écran. */
+function MenuRow({
+  label,
+  hint,
+  onPress,
+  separated = false,
+}: {
+  label: string;
+  hint?: string;
+  onPress: () => void;
+  separated?: boolean;
+}) {
+  const { color } = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityHint={hint}
+      className={`min-h-[56px] flex-row items-center justify-between px-4 active:opacity-80 ${
+        separated ? 'border-t border-border' : ''
+      }`}
+    >
+      <Text className="font-bold text-[15px] text-text">{label}</Text>
+      <ChevronRightIcon color={color('text-secondary')} />
+    </Pressable>
   );
 }

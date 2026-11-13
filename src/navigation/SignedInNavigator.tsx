@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import type { Family } from '../api/types';
+import { AccountProvider } from '../context/AccountContext';
 import { BagProvider } from '../context/BagContext';
 import { CalendarProvider } from '../context/CalendarContext';
 import { CustodyProvider } from '../context/CustodyContext';
@@ -72,7 +73,9 @@ function SignedInContent({ emailVerified }: { emailVerified: boolean }) {
                 <ExchangesProvider>
                   <ScheduleProposalProvider>
                     <MessagesProvider>
-                      <AppNavigator />
+                      <AccountProvider>
+                        <AppNavigator />
+                      </AccountProvider>
                     </MessagesProvider>
                   </ScheduleProposalProvider>
                 </ExchangesProvider>

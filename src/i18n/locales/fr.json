@@ -859,12 +859,57 @@
       "with": "{{me}} et {{other}}",
       "solo": "Mode solo : {{other}} n'a pas encore rejoint la famille."
     },
-    "myPhone": "Ce téléphone",
-    "settingsHint": "Apparence et couleurs du calendrier",
     "familyTabNote": "Les fiches des enfants et les documents arriveront dans l'onglet Famille.",
     "signOut": {
       "title": "Se déconnecter ?",
       "body": "Vos données restent enregistrées. Vous pourrez vous reconnecter avec votre adresse email."
+    },
+    "myAccount": "Mon compte",
+    "password": {
+      "title": "Modifier le mot de passe",
+      "current": {
+        "label": "Mot de passe actuel",
+        "required": "Saisissez votre mot de passe actuel.",
+        "wrong": "Mot de passe actuel incorrect."
+      },
+      "new": "Nouveau mot de passe",
+      "submit": "Enregistrer",
+      "done": "Votre mot de passe a été modifié. Vos autres appareils ont été déconnectés.",
+      "back": "Retour au compte"
+    },
+    "data": {
+      "title": "Télécharger mes données",
+      "intro": "Nous vous envoyons par email un fichier (JSON) avec vos données :",
+      "items": {
+        "account": "votre compte : adresse email, prénom, dates",
+        "family": "la famille, les enfants et le rythme de garde",
+        "events": "les événements que vous voyez dans le calendrier",
+        "messages": "les discussions et leurs messages",
+        "other": "les échanges de garde, le sac à préparer et les demandes en cours"
+      },
+      "privacy": "Les événements privés de l'autre parent n'y figurent pas.",
+      "submit": "Recevoir mes données par email",
+      "sent": "Envoyé à <bold>{{email}}</bold>. L'email peut mettre quelques minutes à arriver.",
+      "tooMany": "Vous avez déjà demandé vos données trois fois aujourd'hui. Réessayez demain."
+    },
+    "delete": {
+      "title": "Supprimer mon compte",
+      "intro": "Ce qui se passe :",
+      "consequences": {
+        "signOut": "vous êtes déconnecté et ne pouvez plus vous connecter avec ce compte ;",
+        "data": "vos données personnelles sont supprimées sous 30 jours ;",
+        "messages": "les messages déjà envoyés restent visibles par l'autre parent ;",
+        "family": "la famille, les enfants et le calendrier restent accessibles à l'autre parent."
+      },
+      "subscription": "Si vous avez un abonnement, pensez à l'annuler aussi dans l'App Store ou Google Play.",
+      "passwordHint": "Saisissez votre mot de passe pour confirmer.",
+      "submit": "Supprimer mon compte",
+      "confirm": {
+        "title": "Supprimer votre compte ?",
+        "body": "Vous serez déconnecté tout de suite.",
+        "ok": "Supprimer"
+      },
+      "wrongPassword": "Mot de passe incorrect."
     }
   },
   "settings": {
