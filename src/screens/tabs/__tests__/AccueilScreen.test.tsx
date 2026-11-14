@@ -139,6 +139,32 @@ test('mode solo : bannière, rythme proposé, « l’autre parent »', async () 
     screen.getByText("Ce soir, d'après le rythme proposé"),
   ).toBeOnTheScreen();
   expect(screen.getByText("l'autre parent vers Camille")).toBeOnTheScreen();
+  await fireEvent.press(
+    screen.getByRole('button', { name: "Inviter l'autre parent" }),
+  );
+  expect(navigate).toHaveBeenCalledWith('InviterParent');
+});
+
+test('mode solo : où en est l’invitation, « Renvoyer l’invitation »', async () => {
+  await renderScreen(
+    family({
+      children: [CHILDREN[0]],
+      invitation: {
+        inviteeFirstName: 'Julien',
+        sentAt: '2026-11-01T10:00:00Z',
+        expiresAt: '2026-11-08T10:00:00Z',
+        expired: true,
+      },
+    }),
+    custody({ scheduleStatus: 'PROPOSED' }),
+  );
+  expect(
+    await screen.findByText('Le lien envoyé à Julien le 1 novembre a expiré.'),
+  ).toBeOnTheScreen();
+  await fireEvent.press(
+    screen.getByRole('button', { name: "Renvoyer l'invitation" }),
+  );
+  expect(navigate).toHaveBeenCalledWith('InviterParent');
 });
 
 test('passage demain', async () => {

@@ -71,6 +71,8 @@ export type AppStackParamList = {
   Apparence: undefined;
   /** Réglages de ce téléphone : intervertir les couleurs des parents. */
   CouleursCalendrier: undefined;
+  /** Mode solo : inviter l'autre parent (nouveau lien, remplace le précédent). */
+  InviterParent: undefined;
   /** « Mon compte » : modifier le mot de passe. */
   ModifierMotDePasse: undefined;
   /** « Mon compte » : recevoir ses données par email. */

@@ -33,7 +33,13 @@ export function AccueilScreen({ navigation }: TabScreenProps<'Accueil'>) {
           now={now}
           onOpenAccount={() => navigation.navigate('CompteFamille')}
         />
-        {family.solo ? <SoloBanner otherRole={otherRole} /> : null}
+        {family.solo ? (
+          <SoloBanner
+            otherRole={otherRole}
+            invitation={family.invitation}
+            onInvite={() => navigation.navigate('InviterParent')}
+          />
+        ) : null}
         <CustodyCards onOpenBag={() => navigation.navigate('SacAPreparer')} />
         <TodayCard
           onOpenEvent={event => navigation.navigate('EventDetail', { event })}

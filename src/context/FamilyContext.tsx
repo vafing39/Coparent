@@ -324,6 +324,8 @@ export function FamilyProvider({ children }: { children: React.ReactNode }) {
   } = useMutation({
     mutationFn: (inviteeFirstName: string) =>
       createInvitationRequest(requireFamily(family).id, inviteeFirstName),
+    // L'état de l'invitation (prénom, validité) est dans la famille.
+    onSuccess: reloadFamily,
   });
 
   const {

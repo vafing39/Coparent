@@ -928,5 +928,13 @@
       "swappedHint": "Couleurs interverties : rend à chaque parent sa couleur d'origine",
       "note": "Ce choix ne s'applique qu'à votre téléphone."
     }
+  },
+  "invite": {
+    "title": "Inviter l'autre parent",
+    "resend": "Renvoyer l'invitation",
+    "sent": "Invitation envoyée à {{name}} le {{sentAt}}, valable jusqu'au {{expiresAt}}.",
+    "expired": "Le lien envoyé à {{name}} le {{sentAt}} a expiré.",
+    "replaces": "Un nouveau lien remplace le précédent, qui ne fonctionnera plus.",
+    "done": "Terminé"
   }
 }

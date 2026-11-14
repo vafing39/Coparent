@@ -17,6 +17,7 @@ export function family(overrides: Partial<Family> = {}): Family {
     ],
     children: [],
     custodySchedule: null,
+    invitation: null,
     ...overrides,
   };
 }

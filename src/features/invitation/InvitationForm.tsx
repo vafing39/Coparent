@@ -41,8 +41,15 @@ const renderCopyIcon = (color: string) => <CopyIcon color={color} />;
 
 type Props = {
   family: Family;
-  /** Fin de la première connexion (lien partagé ou étape passée). */
+  /** Fin de la première connexion (lien partagé ou étape passée), ou retour (renvoi). */
   onDone: () => void;
+  /**
+   * onboarding : étape 5 (titre, « Passer cette étape ») ; resend : page « Inviter l'autre
+   * parent » en mode solo (prénom déjà envoyé repris, pas d'étape à passer).
+   */
+  variant?: 'onboarding' | 'resend';
+  /** Remplace les avatars et le titre (variante resend). */
+  intro?: React.ReactNode;
 };
 
 /** Lien créé, et le prénom pour lequel il l'a été (un autre prénom en crée un nouveau). */
@@ -52,7 +59,12 @@ type CreatedLink = { firstName: string; link: string };
  * Étape 5 : prénom de l'autre parent, puis lien d'invitation à partager ou à copier.
  * Le lien n'est créé qu'au premier partage ou à la première copie.
  */
-export function InvitationForm({ family, onDone }: Props) {
+export function InvitationForm({
+  family,
+  onDone,
+  variant = 'onboarding',
+  intro,
+}: Props) {
   const { t } = useTranslation();
   const { color } = useTheme();
   const { user } = useAuth();
@@ -71,7 +83,7 @@ export function InvitationForm({ family, onDone }: Props) {
     InvitationValues
   >({
     resolver: zodResolver(invitationSchema),
-    defaultValues: { firstName: '' },
+    defaultValues: { firstName: family.invitation?.inviteeFirstName ?? '' },
   });
 
   const renderCopiedIcon = useCallback(
@@ -127,19 +139,25 @@ export function InvitationForm({ family, onDone }: Props) {
         contentContainerClassName="grow px-6 pt-6 pb-8 gap-5"
         keyboardShouldPersistTaps="handled"
       >
-        <ParentAvatars initial={myName} role={family.myRole} />
+        {variant === 'resend' ? (
+          intro
+        ) : (
+          <>
+            <ParentAvatars initial={myName} role={family.myRole} />
 
-        <View className="gap-1.5">
-          <Text
-            accessibilityRole="header"
-            className="font-extrabold text-[28px] leading-[34px] text-text"
-          >
-            {t('onboarding.invitation.title')}
-          </Text>
-          <Text className="font-regular text-[15px] leading-[21px] text-text-secondary">
-            {t('onboarding.invitation.subtitle')}
-          </Text>
-        </View>
+            <View className="gap-1.5">
+              <Text
+                accessibilityRole="header"
+                className="font-extrabold text-[28px] leading-[34px] text-text"
+              >
+                {t('onboarding.invitation.title')}
+              </Text>
+              <Text className="font-regular text-[15px] leading-[21px] text-text-secondary">
+                {t('onboarding.invitation.subtitle')}
+              </Text>
+            </View>
+          </>
+        )}
 
         <Controller
           control={control}
@@ -190,7 +208,9 @@ export function InvitationForm({ family, onDone }: Props) {
         <View className="flex-row gap-2 rounded-md bg-card px-3.5 py-3">
           <InfoIcon size={16} color={color('primary')} />
           <Text className="flex-1 font-regular text-[13px] leading-[18px] text-text">
-            {t('onboarding.invitation.validity')}
+            {variant === 'resend' && family.invitation && !created
+              ? `${t('onboarding.invitation.validity')} ${t('invite.replaces')}`
+              : t('onboarding.invitation.validity')}
           </Text>
         </View>
 
@@ -198,11 +218,15 @@ export function InvitationForm({ family, onDone }: Props) {
           {created ? (
             <View className="self-stretch">
               <Button
-                label={t('onboarding.invitation.done')}
+                label={t(
+                  variant === 'resend'
+                    ? 'invite.done'
+                    : 'onboarding.invitation.done',
+                )}
                 onPress={onDone}
               />
             </View>
-          ) : (
+          ) : variant === 'resend' ? null : (
             <>
               <Pressable
                 onPress={onDone}

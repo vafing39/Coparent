@@ -11,6 +11,7 @@ import { parentOf } from '../../features/custody/parents';
 import { useAuth } from '../../hooks/useAuth';
 import { useFamily } from '../../hooks/useFamily';
 import type { AppScreenProps } from '../../navigation/types';
+import { invitationStatus } from '../../features/invitation/invitationStatus';
 import { useTheme } from '../../theme/ThemeProvider';
 
 /**
@@ -50,26 +51,42 @@ export function CompteFamilleScreen({
         onBack={() => navigation.goBack()}
       />
       <ScrollView contentContainerClassName="gap-5 px-4 pt-2 pb-8">
-        <View
-          accessible
-          className="flex-row items-center gap-3.5 rounded-[20px] border border-border bg-card p-4"
-        >
-          <View className="flex-row">
-            <ParentRing role={family.myRole} initial={me.initial} />
-            <View className="-ml-2.5">
-              <ParentRing role={otherRole} initial={other.initial} />
+        <View className="rounded-[20px] border border-border bg-card">
+          <View accessible className="flex-row items-center gap-3.5 p-4">
+            <View className="flex-row">
+              <ParentRing role={family.myRole} initial={me.initial} />
+              <View className="-ml-2.5">
+                <ParentRing role={otherRole} initial={other.initial} />
+              </View>
+            </View>
+            <View className="flex-1 gap-0.5">
+              <Text className="font-extrabold text-[17px] text-text">
+                {family.name}
+              </Text>
+              <Text className="font-regular text-[13px] text-text-secondary">
+                {family.solo
+                  ? t('account.family.solo', { other: other.name })
+                  : t('account.family.with', {
+                      me: me.name,
+                      other: other.name,
+                    })}
+              </Text>
             </View>
           </View>
-          <View className="flex-1 gap-0.5">
-            <Text className="font-extrabold text-[17px] text-text">
-              {family.name}
-            </Text>
-            <Text className="font-regular text-[13px] text-text-secondary">
-              {family.solo
-                ? t('account.family.solo', { other: other.name })
-                : t('account.family.with', { me: me.name, other: other.name })}
-            </Text>
-          </View>
+          {family.solo ? (
+            <View className="gap-1 border-t border-border px-4 pt-3">
+              {family.invitation ? (
+                <Text className="font-regular text-[13px] leading-[18px] text-text-secondary">
+                  {invitationStatus(family.invitation)}
+                </Text>
+              ) : null}
+              <MenuRow
+                label={t(family.invitation ? 'invite.resend' : 'invite.title')}
+                onPress={() => navigation.navigate('InviterParent')}
+                flush
+              />
+            </View>
+          ) : null}
         </View>
 
         <Section title={t('account.myAccount')}>
@@ -148,11 +165,14 @@ function MenuRow({
   hint,
   onPress,
   separated = false,
+  flush = false,
 }: {
   label: string;
   hint?: string;
   onPress: () => void;
   separated?: boolean;
+  /** Sans marge intérieure (déjà dans un bloc qui en a une). */
+  flush?: boolean;
 }) {
   const { color } = useTheme();
   return (
@@ -160,9 +180,9 @@ function MenuRow({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityHint={hint}
-      className={`min-h-[56px] flex-row items-center justify-between px-4 active:opacity-80 ${
-        separated ? 'border-t border-border' : ''
-      }`}
+      className={`min-h-[56px] flex-row items-center justify-between active:opacity-80 ${
+        flush ? '' : 'px-4'
+      } ${separated ? 'border-t border-border' : ''}`}
     >
       <Text className="font-bold text-[15px] text-text">{label}</Text>
       <ChevronRightIcon color={color('text-secondary')} />

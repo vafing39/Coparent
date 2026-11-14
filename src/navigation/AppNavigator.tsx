@@ -13,6 +13,7 @@ import { WelcomeScreen } from '../features/messages/WelcomeScreen';
 import { CompteFamilleScreen } from '../screens/account/CompteFamilleScreen';
 import { AppearanceScreen } from '../screens/account/AppearanceScreen';
 import { CalendarColorsScreen } from '../screens/account/CalendarColorsScreen';
+import { InviteParentScreen } from '../screens/account/InviteParentScreen';
 import { ChangePasswordScreen } from '../screens/account/ChangePasswordScreen';
 import { DataExportScreen } from '../screens/account/DataExportScreen';
 import { DeleteAccountScreen } from '../screens/account/DeleteAccountScreen';
@@ -47,6 +48,7 @@ export function AppNavigator() {
       <Stack.Screen name="Conversation" component={ConversationScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="CompteFamille" component={CompteFamilleScreen} />
+      <Stack.Screen name="InviterParent" component={InviteParentScreen} />
       <Stack.Screen name="Apparence" component={AppearanceScreen} />
       <Stack.Screen
         name="CouleursCalendrier"

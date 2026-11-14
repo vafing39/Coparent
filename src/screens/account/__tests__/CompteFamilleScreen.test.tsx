@@ -52,13 +52,46 @@ test('la famille à deux parents', async () => {
   expect(screen.getByText('Camille et Julien')).toBeOnTheScreen();
 });
 
-test('la famille en mode solo', async () => {
+test('la famille en mode solo : inviter l’autre parent', async () => {
   await renderScreen(family());
   expect(
     screen.getByText(
       "Mode solo : l'autre parent n'a pas encore rejoint la famille.",
     ),
   ).toBeOnTheScreen();
+  await fireEvent.press(
+    screen.getByRole('button', { name: "Inviter l'autre parent" }),
+  );
+  expect(navigate).toHaveBeenCalledWith('InviterParent');
+});
+
+test('mode solo avec un lien envoyé : son état et « Renvoyer l’invitation »', async () => {
+  await renderScreen(
+    family({
+      invitation: {
+        inviteeFirstName: 'Julien',
+        sentAt: '2026-11-10T10:00:00Z',
+        expiresAt: '2026-11-17T10:00:00Z',
+        expired: false,
+      },
+    }),
+  );
+  expect(
+    screen.getByText(
+      "Invitation envoyée à Julien le 10 novembre, valable jusqu'au 17 novembre.",
+    ),
+  ).toBeOnTheScreen();
+  await fireEvent.press(
+    screen.getByRole('button', { name: "Renvoyer l'invitation" }),
+  );
+  expect(navigate).toHaveBeenCalledWith('InviterParent');
+});
+
+test('à deux parents : rien à inviter', async () => {
+  await renderScreen(TWO_PARENTS);
+  expect(
+    screen.queryByRole('button', { name: "Inviter l'autre parent" }),
+  ).toBeNull();
 });
 
 test('« Mon compte » : l’adresse et les trois actions', async () => {

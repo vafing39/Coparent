@@ -105,6 +105,17 @@ export type Family = {
   members: FamilyMember[];
   children: Child[];
   custodySchedule: CustodySchedule | null;
+  /** Mode solo : le dernier lien envoyé à l'autre parent (le lien lui-même n'est plus lisible). */
+  invitation: PendingInvitation | null;
+};
+
+/** Lien d'invitation pas encore accepté ni remplacé (mode solo). */
+export type PendingInvitation = {
+  inviteeFirstName: string;
+  /** Instants ISO. */
+  sentAt: string;
+  expiresAt: string;
+  expired: boolean;
 };
 
 /** Ce qui décide du parent pour une nuit : le rythme habituel, des petites vacances, l'été ou un échange accepté. */
