@@ -4,6 +4,7 @@ import { AccountProvider } from '../context/AccountContext';
 import { BagProvider } from '../context/BagContext';
 import { CalendarProvider } from '../context/CalendarContext';
 import { CustodyProvider } from '../context/CustodyContext';
+import { DocumentsProvider } from '../context/DocumentsContext';
 import { EventsProvider } from '../context/EventsContext';
 import { ExchangesProvider } from '../context/ExchangesContext';
 import { ExpensesProvider } from '../context/ExpensesContext';
@@ -75,9 +76,11 @@ function SignedInContent({ emailVerified }: { emailVerified: boolean }) {
                   <ScheduleProposalProvider>
                     <MessagesProvider>
                       <ExpensesProvider>
-                        <AccountProvider>
-                          <AppNavigator />
-                        </AccountProvider>
+                        <DocumentsProvider>
+                          <AccountProvider>
+                            <AppNavigator />
+                          </AccountProvider>
+                        </DocumentsProvider>
                       </ExpensesProvider>
                     </MessagesProvider>
                   </ScheduleProposalProvider>

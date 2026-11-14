@@ -415,3 +415,29 @@ export function ReceiptIcon(props: StrokeIconProps) {
     </TabIcon>
   );
 }
+
+/** Page de document (liste des documents, « Choisir un fichier »). */
+export function FileIcon(props: StrokeIconProps) {
+  return (
+    <TabIcon size={20} {...props}>
+      <Path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <Path d="M14 2v6h6" />
+    </TabIcon>
+  );
+}
+
+export function ChevronDownIcon(props: StrokeIconProps) {
+  return (
+    <TabIcon size={18} {...props}>
+      <Path d="M6 9l6 6 6-6" />
+    </TabIcon>
+  );
+}
+
+export function ChevronUpIcon(props: StrokeIconProps) {
+  return (
+    <TabIcon size={18} {...props}>
+      <Path d="M6 15l6-6 6 6" />
+    </TabIcon>
+  );
+}

@@ -571,7 +571,15 @@
     }
   },
   "familyTab": {
-    "empty": "Bientôt, retrouvez ici les membres de la famille et les informations des enfants."
+    "title": "Famille",
+    "sections": {
+      "label": "Sections de la famille",
+      "feed": "Fil",
+      "children": "Enfants",
+      "documents": "Documents"
+    },
+    "feedSoon": "Bientôt : le fil de la famille, pour partager photos et nouvelles des enfants.",
+    "childrenSoon": "Bientôt : la fiche de chaque enfant (santé, école, contacts)."
   },
   "expenses": {
     "title": "Dépenses",
@@ -1094,5 +1102,74 @@
     "expired": "Le lien envoyé à {{name}} le {{sentAt}} a expiré.",
     "replaces": "Un nouveau lien remplace le précédent, qui ne fonctionnera plus.",
     "done": "Terminé"
+  },
+  "documents": {
+    "add": "Ajouter un document",
+    "loadFailed": "Impossible de charger les documents.",
+    "filters": {
+      "label": "Catégories",
+      "ALL": "Tous"
+    },
+    "categories": {
+      "SCHOOL": "École",
+      "INSURANCE": "Assurance",
+      "IDENTITY": "Identité",
+      "JUDGMENT": "Jugement",
+      "OTHER": "Autre"
+    },
+    "list": {
+      "label": "Liste des documents",
+      "none": "Aucun document",
+      "empty": "Aucun document dans cette catégorie",
+      "hint": "Ajoutez un document pour le partager avec {{name}}."
+    },
+    "row": {
+      "meta": "{{category}} · ajouté par {{name}}, {{date}}",
+      "metaChild": "{{category}} · {{child}} · ajouté par {{name}}, {{date}}",
+      "open": "Ouvrir le document",
+      "openLabel": "Ouvrir {{title}}",
+      "views": "Consultations",
+      "viewsCount": "Consultations ({{count}})",
+      "noViews": "Aucune consultation",
+      "viewLine": "{{name}} · {{date}}",
+      "deletedLine": "Supprimé par {{name}} · {{date}}",
+      "deleted": "Supprimé par {{name}}, {{date}}",
+      "delete": "Supprimer",
+      "deleteLabel": "Supprimer {{title}}",
+      "deleteTitle": "Supprimer ce document ?",
+      "deleteBody": "« {{title}} » ne pourra plus être ouvert. {{name}} verra qu'il a été supprimé, avec l'historique des consultations.",
+      "deleteConfirm": "Supprimer",
+      "cannotOpen": "Le document n'a pas pu être ouvert."
+    },
+    "note": "Chaque ouverture passe par un lien temporaire et apparaît dans l'historique, visible par les deux parents.",
+    "form": {
+      "title": "Nouveau document",
+      "send": "Envoyer",
+      "photo": "Photographier",
+      "file": "Choisir un fichier",
+      "photoTitle": "Photographier",
+      "takePhoto": "Prendre une photo",
+      "pickPhoto": "Choisir dans la photothèque",
+      "cancel": "Annuler",
+      "photoName": "Photo",
+      "fileRequired": "Choisissez un fichier ou prenez une photo.",
+      "tooLarge": "Ce fichier dépasse 20 Mo.",
+      "name": "Nom du document",
+      "namePlaceholder": "Ex. : Attestation d'assurance scolaire",
+      "category": "Catégorie",
+      "child": "Enfant",
+      "allChildren": "Tous",
+      "hint": "Visible par {{name}}. Chaque ouverture sera enregistrée dans l'historique.",
+      "soloHint": "Visible par {{name}} à son arrivée. Chaque ouverture sera enregistrée dans l'historique.",
+      "titleRequired": "Indiquez le nom du document.",
+      "titleTooLong": "{{max}} caractères au plus.",
+      "cameraUnavailable": "L'appareil photo n'est pas disponible sur cet appareil.",
+      "permission": "Autorisez l'accès à l'appareil photo ou aux photos dans les Réglages.",
+      "pickFailed": "Le fichier n'a pas pu être chargé. Réessayez."
+    },
+    "errors": {
+      "gone": "Ce document n'existe plus.",
+      "tooLarge": "Le document ne peut pas dépasser 20 Mo."
+    }
   }
 }

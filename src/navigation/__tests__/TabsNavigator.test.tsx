@@ -6,6 +6,7 @@ import { TabsNavigator } from '../TabsNavigator';
 import { BagProvider } from '../../context/BagContext';
 import { CalendarProvider } from '../../context/CalendarContext';
 import { CustodyProvider } from '../../context/CustodyContext';
+import { DocumentsProvider } from '../../context/DocumentsContext';
 import { ExpensesProvider } from '../../context/ExpensesContext';
 import { FamilyProvider } from '../../context/FamilyContext';
 import { MessagesProvider } from '../../context/MessagesContext';
@@ -31,9 +32,11 @@ async function renderTabs() {
             <ToDoProvider>
               <MessagesProvider>
                 <ExpensesProvider>
-                  <NavigationContainer>
-                    <TabsNavigator />
-                  </NavigationContainer>
+                  <DocumentsProvider>
+                    <NavigationContainer>
+                      <TabsNavigator />
+                    </NavigationContainer>
+                  </DocumentsProvider>
                 </ExpensesProvider>
               </MessagesProvider>
             </ToDoProvider>
@@ -85,10 +88,7 @@ test.each([
     'Messages',
     'Vos échanges seront conservés, datés et impossibles à modifier, pour vous deux.',
   ],
-  [
-    'Famille',
-    'Bientôt, retrouvez ici les membres de la famille et les informations des enfants.',
-  ],
+  ['Famille', 'Aucun document'],
   ['Dépenses', "Aucune dépense pour l'instant"],
 ])('l’onglet %s ouvre son écran', async (name, text) => {
   await renderTabs();

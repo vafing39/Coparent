@@ -5,6 +5,8 @@ import type {
   Balance,
   Expense,
   ExpenseBody,
+  DocumentLink,
+  FamilyDocument,
   Settlement,
   CalendarEvent,
   EventBody,
@@ -142,6 +144,17 @@ export const expenseApi = {
   deleteReceipt: jest.fn<Promise<Expense>, [string, string]>(),
 };
 
+/**
+ * Documents : liste (familyId ; [] sans réponse prévue), envoi (familyId, parties du FormData),
+ * ouverture (familyId, documentId) et suppression (familyId, documentId).
+ */
+export const documentApi = {
+  list: jest.fn<Promise<FamilyDocument[] | undefined>, [string]>(),
+  upload: jest.fn<Promise<FamilyDocument>, [string, unknown]>(),
+  open: jest.fn<Promise<DocumentLink>, [string, string]>(),
+  remove: jest.fn<Promise<void>, [string, string]>(),
+};
+
 /** Rythme à valider. Paramètres : (familyId, scheduleId). */
 export const scheduleApi = {
   get: jest.fn<Promise<CustodySchedule>, [string, string]>(),
@@ -221,6 +234,10 @@ const SETTLEMENTS = /^\/api\/v1\/families\/([^/]+)\/expenses\/settlements$/;
 const SETTLEMENT_ANSWER =
   /^\/api\/v1\/families\/([^/]+)\/expenses\/settlements\/([^/]+)\/(confirm|not-received|cancel)$/;
 const EXPENSE = /^\/api\/v1\/families\/([^/]+)\/expenses\/([^/]+)$/;
+const DOCUMENTS = /^\/api\/v1\/families\/([^/]+)\/documents$/;
+const DOCUMENT = /^\/api\/v1\/families\/([^/]+)\/documents\/([^/]+)$/;
+const DOCUMENT_OPEN =
+  /^\/api\/v1\/families\/([^/]+)\/documents\/([^/]+)\/open$/;
 const EXPENSE_RECEIPT =
   /^\/api\/v1\/families\/([^/]+)\/expenses\/([^/]+)\/receipt$/;
 const EXPENSE_ANSWER =
@@ -451,6 +468,19 @@ async function route(method: string, url: string, body?: unknown) {
   }
   if (method === 'POST' && (match = url.match(EXPENSE_ANSWER))) {
     return expenseApi.answer(match[1], match[2], match[3], body);
+  }
+  if (method === 'GET' && (match = url.match(DOCUMENTS))) {
+    return (await documentApi.list(match[1])) ?? [];
+  }
+  if (method === 'POST' && (match = url.match(DOCUMENTS))) {
+    const parts = (body as { getParts: () => unknown[] }).getParts();
+    return documentApi.upload(match[1], parts);
+  }
+  if (method === 'POST' && (match = url.match(DOCUMENT_OPEN))) {
+    return documentApi.open(match[1], match[2]);
+  }
+  if (method === 'DELETE' && (match = url.match(DOCUMENT))) {
+    return documentApi.remove(match[1], match[2]);
   }
   throw new Error(`Requête non simulée : ${method} ${url}`);
 }

@@ -8,6 +8,7 @@ import { ExchangeFormScreen } from '../features/exchanges/ExchangeFormScreen';
 import { ATraiterScreen } from '../features/home/ATraiterScreen';
 import { BalanceScreen } from '../features/expenses/BalanceScreen';
 import { ContestExpenseScreen } from '../features/expenses/ContestExpenseScreen';
+import { DocumentFormScreen } from '../features/documents/DocumentFormScreen';
 import { ExpenseFormScreen } from '../features/expenses/ExpenseFormScreen';
 import { ReceiptScreen } from '../features/expenses/ReceiptScreen';
 import { SacAPreparerScreen } from '../features/home/SacAPreparerScreen';
@@ -71,6 +72,11 @@ export function AppNavigator() {
       />
       <Stack.Screen name="ContestExpense" component={ContestExpenseScreen} />
       <Stack.Screen name="Balance" component={BalanceScreen} />
+      <Stack.Screen
+        name="DocumentForm"
+        component={DocumentFormScreen}
+        options={{ presentation: 'modal' }}
+      />
       <Stack.Screen
         name="Receipt"
         component={ReceiptScreen}

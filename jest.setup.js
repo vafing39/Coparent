@@ -69,3 +69,14 @@ jest.mock('react-native-image-picker', () => ({
   launchCamera: jest.fn(async () => ({ didCancel: true })),
   launchImageLibrary: jest.fn(async () => ({ didCancel: true })),
 }));
+
+// Sélecteur de fichiers natif : chaque test choisit la réponse de pick.
+jest.mock('@react-native-documents/picker', () => ({
+  pick: jest.fn(async () => {
+    const error = new Error('canceled');
+    error.code = 'OPERATION_CANCELED';
+    throw error;
+  }),
+  errorCodes: { OPERATION_CANCELED: 'OPERATION_CANCELED' },
+  isErrorWithCode: error => error instanceof Error && 'code' in error,
+}));

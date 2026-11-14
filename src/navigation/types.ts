@@ -87,6 +87,8 @@ export type AppStackParamList = {
   Balance: undefined;
   /** Justificatif photo d'une dépense, en plein écran. */
   Receipt: { expenseId: string };
+  /** Onglet Famille : envoyer un nouveau document. */
+  DocumentForm: undefined;
 };
 
 export type AuthScreenProps<T extends keyof AuthStackParamList> =

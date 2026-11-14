@@ -123,6 +123,16 @@ export function parisDayOf(instant: string): string {
   return inParis(instant).format(ISO_DATE);
 }
 
+/** Instant ISO → « 2 sept. », à Paris. */
+export function formatShortDayMonth(instant: string): string {
+  return inParis(instant).format('D MMM');
+}
+
+/** Instant ISO → « lun. 9 nov., 21 h 04 », à Paris. */
+export function formatShortDateTime(instant: string): string {
+  return inParis(instant).format('ddd D MMM, H [h] mm');
+}
+
 /** Instant ISO → heure à Paris « 18 h 12 ». */
 export function formatInstantTime(instant: string): string {
   return inParis(instant).format('H [h] mm');

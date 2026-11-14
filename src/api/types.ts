@@ -521,3 +521,44 @@ export type Balance = {
   lines: BalanceLine[];
   openSettlement: Settlement | null;
 };
+
+/** Catégorie d'un document : École, Assurance, Identité, Jugement, Autre. */
+export type DocumentCategory =
+  | 'SCHOOL'
+  | 'INSURANCE'
+  | 'IDENTITY'
+  | 'JUDGMENT'
+  | 'OTHER';
+
+/** Une ligne de l'historique d'un document : une ouverture, ou sa suppression. */
+export type DocumentHistoryLine = {
+  kind: 'VIEWED' | 'DELETED';
+  role: FamilyRole;
+  /** Null si le compte a été supprimé. */
+  firstName: string | null;
+  at: string;
+};
+
+/** DocumentResponse côté backend. `childId` null : tous les enfants. */
+export type FamilyDocument = {
+  id: string;
+  title: string;
+  category: DocumentCategory;
+  childId: string | null;
+  childFirstName: string | null;
+  contentType: string;
+  sizeBytes: number;
+  authorRole: FamilyRole;
+  authorFirstName: string | null;
+  canDelete: boolean;
+  createdAt: string;
+  /** Supprimé par son auteur : plus de fichier, l'historique reste. */
+  deletedAt: string | null;
+  deletedByRole: FamilyRole | null;
+  /** La plus récente d'abord. */
+  history: DocumentHistoryLine[];
+};
+
+/** Lien temporaire vers le fichier d'un document (quelques minutes). */
+/** Lien temporaire : chemin relatif (`/api/v1/document-files/{jeton}`), à préfixer par `API_URL`. */
+export type DocumentLink = { path: string; expiresAt: string };
