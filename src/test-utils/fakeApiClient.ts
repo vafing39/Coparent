@@ -137,6 +137,9 @@ export const expenseApi = {
   answer: jest.fn<Promise<Expense>, [string, string, string, unknown]>(),
   declare: jest.fn<Promise<Settlement>, [string, number]>(),
   answerSettlement: jest.fn<Promise<Settlement>, [string, string, string]>(),
+  /** Justificatif envoyé : (familyId, expenseId, parties du FormData). */
+  putReceipt: jest.fn<Promise<Expense>, [string, string, unknown]>(),
+  deleteReceipt: jest.fn<Promise<Expense>, [string, string]>(),
 };
 
 /** Rythme à valider. Paramètres : (familyId, scheduleId). */
@@ -218,6 +221,8 @@ const SETTLEMENTS = /^\/api\/v1\/families\/([^/]+)\/expenses\/settlements$/;
 const SETTLEMENT_ANSWER =
   /^\/api\/v1\/families\/([^/]+)\/expenses\/settlements\/([^/]+)\/(confirm|not-received|cancel)$/;
 const EXPENSE = /^\/api\/v1\/families\/([^/]+)\/expenses\/([^/]+)$/;
+const EXPENSE_RECEIPT =
+  /^\/api\/v1\/families\/([^/]+)\/expenses\/([^/]+)\/receipt$/;
 const EXPENSE_ANSWER =
   /^\/api\/v1\/families\/([^/]+)\/expenses\/([^/]+)\/(accept|contest|withdraw)$/;
 const EXCHANGES = /^\/api\/v1\/families\/([^/]+)\/exchanges$/;
@@ -433,6 +438,13 @@ async function route(method: string, url: string, body?: unknown) {
   }
   if (method === 'POST' && (match = url.match(EXPENSES))) {
     return expenseApi.create(match[1], body as ExpenseBody);
+  }
+  if (method === 'PUT' && (match = url.match(EXPENSE_RECEIPT))) {
+    const parts = (body as { getParts: () => unknown[] }).getParts();
+    return expenseApi.putReceipt(match[1], match[2], parts);
+  }
+  if (method === 'DELETE' && (match = url.match(EXPENSE_RECEIPT))) {
+    return expenseApi.deleteReceipt(match[1], match[2]);
   }
   if (method === 'PUT' && (match = url.match(EXPENSE))) {
     return expenseApi.update(match[1], match[2], body as ExpenseBody);

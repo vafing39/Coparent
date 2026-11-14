@@ -706,6 +706,27 @@
     "errors": {
       "gone": "Cette dépense n'existe plus.",
       "invalid": "Vérifiez les informations saisies."
+    },
+    "receipt": {
+      "add": "Photographier le justificatif",
+      "privacy": "Position GPS et métadonnées retirées avant l'envoi",
+      "chooseTitle": "Justificatif",
+      "takePhoto": "Prendre une photo",
+      "pickPhoto": "Choisir dans la photothèque",
+      "cancel": "Annuler",
+      "replace": "Remplacer",
+      "remove": "Retirer",
+      "thumbnail": "Justificatif joint",
+      "cameraUnavailable": "L'appareil photo n'est pas disponible sur cet appareil.",
+      "permission": "Autorisez l'accès à l'appareil photo ou aux photos dans les Réglages.",
+      "pickFailed": "La photo n'a pas pu être chargée. Réessayez.",
+      "view": "Justificatif",
+      "viewLabel": "Voir le justificatif de {{label}}",
+      "title": "Justificatif",
+      "close": "Fermer",
+      "loadFailed": "Le justificatif n'a pas pu être chargé.",
+      "retry": "Réessayer",
+      "uploadFailed": "La dépense est enregistrée, mais pas le justificatif. Réessayez."
     }
   },
   "events": {

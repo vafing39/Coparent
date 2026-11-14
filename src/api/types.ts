@@ -462,6 +462,8 @@ export type Expense = {
   canEdit: boolean;
   contestReason: ContestReason | null;
   contestNote: string | null;
+  /** Date du justificatif photo, null sans justificatif (sert aussi à rafraîchir l'image). */
+  receiptUpdatedAt: string | null;
   createdAt: string;
   answeredAt: string | null;
 };

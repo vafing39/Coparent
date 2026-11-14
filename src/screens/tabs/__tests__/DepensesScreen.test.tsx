@@ -180,6 +180,19 @@ test('accepter, contester, corriger et retirer', async () => {
   alert.mockRestore();
 });
 
+test('une dépense avec justificatif : le lien ouvre la photo', async () => {
+  expenseApi.list.mockResolvedValue([
+    expense({ receiptUpdatedAt: '2026-11-08T10:05:00Z' }),
+  ]);
+  await renderScreen(TWO_PARENTS);
+  await fireEvent.press(
+    await screen.findByRole('link', {
+      name: 'Voir le justificatif de Licence de judo',
+    }),
+  );
+  expect(navigate).toHaveBeenCalledWith('Receipt', { expenseId: 'exp-1' });
+});
+
 test('en solo : le total enregistré, sans solde', async () => {
   expenseApi.list.mockResolvedValue([
     expense({ amountCents: 8500 }),

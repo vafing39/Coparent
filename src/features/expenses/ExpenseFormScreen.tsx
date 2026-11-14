@@ -10,6 +10,8 @@ import {
   nameOf,
   otherRole,
   parseAmount,
+  ReceiptPhoto,
+  ReceiptUploadError,
 } from '../../api/expenses';
 import type { Expense, Family } from '../../api/types';
 import { ErrorText } from '../../components/ErrorText';
@@ -22,11 +24,13 @@ import { todayInParis } from '../../lib/dates';
 import type { AppScreenProps } from '../../navigation/types';
 import { expenseSchema, ExpenseValues } from '../../schemas/expense';
 import { ExpenseFields } from './ExpenseFields';
+import { ReceiptField } from './ReceiptField';
 import { SplitSheet } from './SplitSheet';
+import { useReceiptSource } from './useReceiptSource';
 
 /**
- * Nouvelle dépense, ou correction par son auteur (elle repasse en attente). Enregistrée, l'écran
- * se ferme.
+ * Nouvelle dépense, ou correction par son auteur (elle repasse en attente), avec son justificatif
+ * photo facultatif. Enregistrée, l'écran se ferme.
  */
 export function ExpenseFormScreen({
   navigation,
@@ -69,6 +73,13 @@ function ExpenseForm({
     useExpenses();
   useResetOnUnmount(resetSaveExpense);
   const [splitOpen, setSplitOpen] = useState(false);
+  // Photo choisie (envoyée après la dépense), 'remove' pour retirer le justificatif, ou inchangé.
+  const [receipt, setReceipt] = useState<ReceiptPhoto | 'remove'>();
+  // Une nouvelle dépense enregistrée sans son justificatif : réessayer la corrige, sans doublon.
+  const [savedId, setSavedId] = useState(editing?.id);
+  const savedReceipt = useReceiptSource(editing);
+  const preview =
+    receipt === 'remove' ? null : receipt ? { uri: receipt.uri } : savedReceipt;
 
   const today = todayInParis();
   const { control, handleSubmit, watch, setValue } = useForm<ExpenseValues>({
@@ -100,7 +111,8 @@ function ExpenseForm({
   const onSubmit = handleSubmit(values => {
     saveExpense(
       {
-        id: editing?.id,
+        id: savedId,
+        receipt,
         body: {
           label: values.label,
           amountCents: parseAmount(values.amount) ?? 0,
@@ -111,7 +123,14 @@ function ExpenseForm({
           payerSharePercent: values.payerSharePercent,
         },
       },
-      { onSuccess: onDone },
+      {
+        onSuccess: onDone,
+        onError: error => {
+          if (error instanceof ReceiptUploadError) {
+            setSavedId(error.expense.id);
+          }
+        },
+      },
     );
   });
   const send = () => {
@@ -138,6 +157,13 @@ function ExpenseForm({
         {saveExpenseError ? (
           <ErrorText text={expenseErrorMessage(saveExpenseError)} />
         ) : null}
+        <ReceiptField
+          preview={preview}
+          onPick={setReceipt}
+          onRemove={() =>
+            setReceipt(editing?.receiptUpdatedAt ? 'remove' : undefined)
+          }
+        />
         <ExpenseFields
           control={control}
           family={family}

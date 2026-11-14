@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -9,12 +9,14 @@ import type { ContestReason } from '../../api/types';
 import { BackHeader } from '../../components/BackHeader';
 import { Button } from '../../components/Button';
 import { ErrorText } from '../../components/ErrorText';
+import { ReceiptIcon } from '../../components/icons';
 import { RadioCard } from '../../components/RadioCard';
 import { TextField } from '../../components/TextField';
 import { useExpenses } from '../../hooks/useExpenses';
 import { useFamily } from '../../hooks/useFamily';
 import { useResetOnUnmount } from '../../hooks/useResetOnUnmount';
 import type { AppScreenProps } from '../../navigation/types';
+import { useTheme } from '../../theme/ThemeProvider';
 import {
   CONTEST_NOTE_MAX_LENGTH,
   contestSchema,
@@ -33,6 +35,7 @@ export function ContestExpenseScreen({
   route,
 }: AppScreenProps<'ContestExpense'>) {
   const { t } = useTranslation();
+  const { color } = useTheme();
   const { family } = useFamily();
   const {
     expenses,
@@ -95,6 +98,23 @@ export function ContestExpenseScreen({
             {formatEuros(expense.amountCents)}
           </Text>
         </View>
+        {expense.receiptUpdatedAt ? (
+          <Pressable
+            onPress={() =>
+              navigation.navigate('Receipt', { expenseId: expense.id })
+            }
+            accessibilityRole="link"
+            accessibilityLabel={t('expenses.receipt.viewLabel', {
+              label: expense.label,
+            })}
+            className="min-h-[48px] flex-row items-center gap-2 rounded-[20px] bg-card px-4"
+          >
+            <ReceiptIcon color={color('primary')} />
+            <Text className="font-bold text-[15px] text-primary">
+              {t('expenses.receipt.view')}
+            </Text>
+          </Pressable>
+        ) : null}
 
         <Controller
           control={control}

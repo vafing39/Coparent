@@ -9,6 +9,7 @@ import { ATraiterScreen } from '../features/home/ATraiterScreen';
 import { BalanceScreen } from '../features/expenses/BalanceScreen';
 import { ContestExpenseScreen } from '../features/expenses/ContestExpenseScreen';
 import { ExpenseFormScreen } from '../features/expenses/ExpenseFormScreen';
+import { ReceiptScreen } from '../features/expenses/ReceiptScreen';
 import { SacAPreparerScreen } from '../features/home/SacAPreparerScreen';
 import { ConversationScreen } from '../features/messages/ConversationScreen';
 import { NewConversationScreen } from '../features/messages/NewConversationScreen';
@@ -70,6 +71,11 @@ export function AppNavigator() {
       />
       <Stack.Screen name="ContestExpense" component={ContestExpenseScreen} />
       <Stack.Screen name="Balance" component={BalanceScreen} />
+      <Stack.Screen
+        name="Receipt"
+        component={ReceiptScreen}
+        options={{ presentation: 'fullScreenModal' }}
+      />
       <Stack.Screen
         name="NewConversation"
         component={NewConversationScreen}

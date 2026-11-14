@@ -74,6 +74,9 @@ export function DepensesScreen({ navigation }: TabScreenProps<'Depenses'>) {
         navigation.navigate('ExpenseForm', { expenseId: expense.id })
       }
       onWithdraw={withdraw}
+      onViewReceipt={expense =>
+        navigation.navigate('Receipt', { expenseId: expense.id })
+      }
     />
   );
 

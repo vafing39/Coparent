@@ -20,6 +20,7 @@ export function expense(overrides: Partial<Expense> = {}): Expense {
     canEdit: true,
     contestReason: null,
     contestNote: null,
+    receiptUpdatedAt: null,
     createdAt: '2026-11-08T10:00:00Z',
     answeredAt: null,
     ...overrides,

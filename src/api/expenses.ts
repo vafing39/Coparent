@@ -1,5 +1,5 @@
 import i18n from '../i18n';
-import type { Family, FamilyRole } from './types';
+import type { Expense, Family, FamilyRole } from './types';
 import { ApiError } from './errors';
 import { serverDetail } from './exchanges';
 
@@ -8,6 +8,28 @@ export const expenseKeys = {
   list: (familyId: string) => ['expenses', familyId, 'list'] as const,
   balance: (familyId: string) => ['expenses', familyId, 'balance'] as const,
 };
+
+/** Image du justificatif d'une dépense (GET pour la voir, PUT multipart pour l'envoyer). */
+export function receiptPath(familyId: string, expenseId: string): string {
+  return `/api/v1/families/${familyId}/expenses/${expenseId}/receipt`;
+}
+
+/**
+ * Photo choisie pour le justificatif, pas encore envoyée : fichier local (déjà réduit et
+ * réencodé en JPEG par le sélecteur).
+ */
+export type ReceiptPhoto = { uri: string; type: string; fileName: string };
+
+/**
+ * La dépense est enregistrée mais pas son justificatif : le formulaire reste ouvert, sur cette
+ * dépense, pour réessayer sans la créer deux fois.
+ */
+export class ReceiptUploadError extends Error {
+  constructor(readonly expense: Expense, readonly cause: unknown) {
+    super('receipt upload failed');
+    this.name = 'ReceiptUploadError';
+  }
+}
 
 /** Montant maximal d'une dépense, vérifié aussi par le serveur : 100 000 €. */
 export const MAX_AMOUNT_CENTS = 10_000_000;
@@ -97,6 +119,13 @@ export function nameOf(family: Family, role: FamilyRole): string {
  * montant, répartition, dépense déjà traitée…) ont un texte précis, affiché tel quel.
  */
 export function expenseErrorMessage(error: unknown): string {
+  if (error instanceof ReceiptUploadError) {
+    const detail =
+      error.cause instanceof ApiError && error.cause.status === 400
+        ? serverDetail(error.cause)
+        : null;
+    return detail ?? i18n.t('expenses.receipt.uploadFailed');
+  }
   if (error instanceof ApiError) {
     if (error.status === 404) {
       return i18n.t('expenses.errors.gone');

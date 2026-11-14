@@ -1,8 +1,11 @@
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { Alert } from 'react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { BalanceScreen } from '../BalanceScreen';
 import { ContestExpenseScreen } from '../ContestExpenseScreen';
 import { ExpenseFormScreen } from '../ExpenseFormScreen';
+import { ReceiptScreen } from '../ReceiptScreen';
 import { ApiError } from '../../../api/errors';
 import type { Balance, Family } from '../../../api/types';
 import { ExpensesProvider } from '../../../context/ExpensesContext';
@@ -62,6 +65,8 @@ beforeEach(async () => {
   expenseApi.answer.mockReset().mockResolvedValue(expense());
   expenseApi.declare.mockReset();
   expenseApi.answerSettlement.mockReset();
+  expenseApi.putReceipt.mockReset();
+  expenseApi.deleteReceipt.mockReset();
   await useSession.getState().signIn(authResponse());
 });
 
@@ -322,5 +327,214 @@ describe('solde et règlement', () => {
     });
     expect(await screen.findByText('Solde réglé · 0,00 €')).toBeTruthy();
     expect(screen.getByText("Rien à régler pour l'instant.")).toBeTruthy();
+  });
+});
+
+describe('justificatif', () => {
+  const PHOTO = {
+    assets: [
+      {
+        uri: 'file:///tmp/IMG_0042.jpg',
+        type: 'image/jpeg',
+        fileName: 'IMG_0042.jpg',
+      },
+    ],
+  };
+  const WITH_RECEIPT = expense({ receiptUpdatedAt: '2026-11-08T10:05:00Z' });
+
+  /** Appuie sur le bouton du justificatif, puis sur un choix de l'alerte. */
+  async function choose(button: string, option: string) {
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    await fireEvent.press(screen.getByRole('button', { name: button }));
+    const buttons = alert.mock.calls[0][2] ?? [];
+    await act(async () => {
+      buttons.find(b => b.text === option)?.onPress?.();
+    });
+    alert.mockRestore();
+  }
+
+  async function fillNewExpense() {
+    await renderScreen(
+      <ExpenseFormScreen
+        {...props<React.ComponentProps<typeof ExpenseFormScreen>>(
+          'ExpenseForm',
+        )}
+      />,
+      'Nouvelle dépense',
+    );
+    await fireEvent.changeText(screen.getByLabelText('Libellé'), 'Pharmacie');
+    await fireEvent.changeText(screen.getByLabelText('Montant (€)'), '18,40');
+  }
+
+  test('photo choisie dans la photothèque : envoyée après la dépense', async () => {
+    jest.mocked(launchImageLibrary).mockResolvedValueOnce(PHOTO);
+    expenseApi.putReceipt.mockResolvedValue(WITH_RECEIPT);
+    await fillNewExpense();
+    expect(
+      screen.getByText("Position GPS et métadonnées retirées avant l'envoi"),
+    ).toBeTruthy();
+
+    await choose(
+      'Photographier le justificatif',
+      'Choisir dans la photothèque',
+    );
+    expect(launchImageLibrary).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mediaType: 'photo',
+        maxWidth: 2000,
+        includeExtra: false,
+      }),
+    );
+    expect(screen.getByLabelText('Justificatif joint')).toBeTruthy();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Ajouter' }));
+    await waitFor(() =>
+      expect(expenseApi.putReceipt).toHaveBeenCalledWith(
+        TWO_PARENTS.id,
+        'exp-1',
+        [
+          expect.objectContaining({
+            fieldName: 'file',
+            uri: 'file:///tmp/IMG_0042.jpg',
+            type: 'image/jpeg',
+            name: 'IMG_0042.jpg',
+          }),
+        ],
+      ),
+    );
+    expect(expenseApi.create).toHaveBeenCalledTimes(1);
+    expect(goBack).toHaveBeenCalled();
+  });
+
+  test('photo non envoyée : la dépense est gardée, réessayer ne la recrée pas', async () => {
+    jest.mocked(launchImageLibrary).mockResolvedValueOnce(PHOTO);
+    expenseApi.putReceipt
+      .mockRejectedValueOnce(new ApiError(null))
+      .mockResolvedValue(WITH_RECEIPT);
+    await fillNewExpense();
+    await choose(
+      'Photographier le justificatif',
+      'Choisir dans la photothèque',
+    );
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Ajouter' }));
+    expect(
+      await screen.findByText(
+        'La dépense est enregistrée, mais pas le justificatif. Réessayez.',
+      ),
+    ).toBeTruthy();
+    expect(goBack).not.toHaveBeenCalled();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Ajouter' }));
+    await waitFor(() => expect(goBack).toHaveBeenCalled());
+    expect(expenseApi.create).toHaveBeenCalledTimes(1);
+    expect(expenseApi.update).toHaveBeenCalledWith(
+      TWO_PARENTS.id,
+      'exp-1',
+      expect.objectContaining({ label: 'Pharmacie' }),
+    );
+    expect(expenseApi.putReceipt).toHaveBeenCalledTimes(2);
+  });
+
+  test('appareil photo indisponible : un message, rien de joint', async () => {
+    jest
+      .mocked(launchCamera)
+      .mockResolvedValueOnce({ errorCode: 'camera_unavailable' });
+    await fillNewExpense();
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Photographier le justificatif' }),
+    );
+    const buttons = alert.mock.calls[0][2] ?? [];
+    await act(async () => {
+      buttons.find(b => b.text === 'Prendre une photo')?.onPress?.();
+    });
+    await waitFor(() =>
+      expect(alert).toHaveBeenLastCalledWith(
+        "L'appareil photo n'est pas disponible sur cet appareil.",
+      ),
+    );
+    alert.mockRestore();
+    expect(screen.queryByLabelText('Justificatif joint')).toBeNull();
+  });
+
+  test('corriger : le justificatif envoyé s’affiche, et peut être retiré', async () => {
+    expenseApi.list.mockResolvedValue([WITH_RECEIPT]);
+    expenseApi.deleteReceipt.mockResolvedValue(expense());
+    await renderScreen(
+      <ExpenseFormScreen
+        {...props<React.ComponentProps<typeof ExpenseFormScreen>>(
+          'ExpenseForm',
+          { expenseId: 'exp-1' },
+        )}
+      />,
+      'Corriger la dépense',
+    );
+    const thumbnail = screen.getByLabelText('Justificatif joint');
+    expect(thumbnail.props.source).toEqual({
+      uri: expect.stringContaining(
+        `/api/v1/families/${TWO_PARENTS.id}/expenses/exp-1/receipt?v=`,
+      ),
+      headers: { Authorization: `Bearer ${authResponse().accessToken}` },
+    });
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Retirer' }));
+    expect(
+      screen.getByRole('button', { name: 'Photographier le justificatif' }),
+    ).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Enregistrer' }));
+    await waitFor(() =>
+      expect(expenseApi.deleteReceipt).toHaveBeenCalledWith(
+        TWO_PARENTS.id,
+        'exp-1',
+      ),
+    );
+    expect(expenseApi.putReceipt).not.toHaveBeenCalled();
+  });
+
+  test('sans changement de photo, rien n’est envoyé en plus', async () => {
+    expenseApi.list.mockResolvedValue([WITH_RECEIPT]);
+    await renderScreen(
+      <ExpenseFormScreen
+        {...props<React.ComponentProps<typeof ExpenseFormScreen>>(
+          'ExpenseForm',
+          { expenseId: 'exp-1' },
+        )}
+      />,
+      'Corriger la dépense',
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Enregistrer' }));
+    await waitFor(() => expect(goBack).toHaveBeenCalled());
+    expect(expenseApi.putReceipt).not.toHaveBeenCalled();
+    expect(expenseApi.deleteReceipt).not.toHaveBeenCalled();
+  });
+
+  test('écran du justificatif : l’image avec le jeton, ou une erreur', async () => {
+    expenseApi.list.mockResolvedValue([WITH_RECEIPT]);
+    await renderScreen(
+      <ReceiptScreen
+        {...props<React.ComponentProps<typeof ReceiptScreen>>('Receipt', {
+          expenseId: 'exp-1',
+        })}
+      />,
+      'Justificatif',
+    );
+    const image = await screen.findByLabelText(
+      'Voir le justificatif de Licence de judo',
+    );
+    expect(image.props.source.uri).toContain(
+      'exp-1/receipt?v=2026-11-08T10%3A05%3A00Z',
+    );
+
+    await act(async () => {
+      image.props.onError();
+    });
+    expect(
+      screen.getByText("Le justificatif n'a pas pu être chargé."),
+    ).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Réessayer' }));
+    expect(
+      screen.getByLabelText('Voir le justificatif de Licence de judo'),
+    ).toBeTruthy();
   });
 });

@@ -1,9 +1,14 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { formatEuros } from '../../api/expenses';
 import type { Expense, Family } from '../../api/types';
-import { CheckIcon, ClockIcon, InfoIcon } from '../../components/icons';
+import {
+  CheckIcon,
+  ClockIcon,
+  InfoIcon,
+  ReceiptIcon,
+} from '../../components/icons';
 import { useTheme } from '../../theme/ThemeProvider';
 import { ExpenseActions } from './ExpenseActions';
 import { contestText, expenseMeta, expenseStatus } from './expenseText';
@@ -17,12 +22,13 @@ type Props = {
   onContest: () => void;
   onEdit: () => void;
   onWithdraw: () => void;
+  onViewReceipt: () => void;
 };
 
 /**
  * Une dépense : initiale de la catégorie, libellé, enfants, répartition et payeur, statut (et
  * motif si contestée), montant. Selon le cas : « Accepter » et « Contester » (l'autre parent),
- * « Corriger » et « Retirer » (l'auteur).
+ * « Corriger » et « Retirer » (l'auteur). Avec un justificatif : le lien pour le voir.
  */
 export function ExpenseRow({
   family,
@@ -33,6 +39,7 @@ export function ExpenseRow({
   onContest,
   onEdit,
   onWithdraw,
+  onViewReceipt,
 }: Props) {
   const { t } = useTranslation();
   const { color } = useTheme();
@@ -88,6 +95,22 @@ export function ExpenseRow({
               {status}
             </Text>
           </View>
+          {expense.receiptUpdatedAt ? (
+            <Pressable
+              onPress={onViewReceipt}
+              accessibilityRole="link"
+              accessibilityLabel={t('expenses.receipt.viewLabel', {
+                label: expense.label,
+              })}
+              hitSlop={8}
+              className="mt-0.5 flex-row items-center gap-1 self-start"
+            >
+              <ReceiptIcon color={color('primary')} />
+              <Text className="font-bold text-[13px] text-primary">
+                {t('expenses.receipt.view')}
+              </Text>
+            </Pressable>
+          ) : null}
           {contest ? (
             <Text className="mt-1 rounded-[10px] bg-background px-2.5 py-2 font-regular text-[13px] leading-[18px] text-text">
               {contest}

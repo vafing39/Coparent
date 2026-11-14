@@ -85,6 +85,8 @@ export type AppStackParamList = {
   ContestExpense: { expenseId: string };
   /** Détail du solde et règlement (virement déclaré, confirmé). */
   Balance: undefined;
+  /** Justificatif photo d'une dépense, en plein écran. */
+  Receipt: { expenseId: string };
 };
 
 export type AuthScreenProps<T extends keyof AuthStackParamList> =

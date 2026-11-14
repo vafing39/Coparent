@@ -58,3 +58,14 @@ jest.mock('./src/lib/realtime', () =>
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest'),
 );
+
+// FormData de React Native (celui de Node perd le fichier { uri, type, name } d'un envoi).
+global.FormData = jest.requireActual(
+  'react-native/Libraries/Network/FormData',
+).default;
+
+// Sélecteur photo natif : chaque test choisit la réponse de launchCamera / launchImageLibrary.
+jest.mock('react-native-image-picker', () => ({
+  launchCamera: jest.fn(async () => ({ didCancel: true })),
+  launchImageLibrary: jest.fn(async () => ({ didCancel: true })),
+}));

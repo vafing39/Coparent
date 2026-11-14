@@ -6,7 +6,12 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
-import { expenseKeys } from '../api/expenses';
+import {
+  expenseKeys,
+  receiptPath,
+  ReceiptPhoto,
+  ReceiptUploadError,
+} from '../api/expenses';
 import { toDoKeys } from '../api/toDo';
 import type {
   Balance,
@@ -37,11 +42,50 @@ async function fetchBalance(familyId: string): Promise<Balance> {
 
 async function saveExpenseRequest(
   familyId: string,
-  { id, body }: SaveExpenseVariables,
+  { id, body, receipt }: SaveExpenseVariables,
 ): Promise<Expense> {
   const { data } = id
     ? await apiClient.put<Expense>(`${expensesPath(familyId)}/${id}`, body)
     : await apiClient.post<Expense>(expensesPath(familyId), body);
+  if (!receipt) {
+    return data;
+  }
+  try {
+    return receipt === 'remove'
+      ? await deleteReceiptRequest(familyId, data.id)
+      : await putReceiptRequest(familyId, data.id, receipt);
+  } catch (error) {
+    throw new ReceiptUploadError(data, error);
+  }
+}
+
+async function putReceiptRequest(
+  familyId: string,
+  expenseId: string,
+  photo: ReceiptPhoto,
+): Promise<Expense> {
+  const form = new FormData();
+  // React Native envoie le fichier local désigné par son uri.
+  form.append('file', {
+    uri: photo.uri,
+    type: photo.type,
+    name: photo.fileName,
+  } as unknown as Blob);
+  const { data } = await apiClient.put<Expense>(
+    receiptPath(familyId, expenseId),
+    form,
+    { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60_000 },
+  );
+  return data;
+}
+
+async function deleteReceiptRequest(
+  familyId: string,
+  expenseId: string,
+): Promise<Expense> {
+  const { data } = await apiClient.delete<Expense>(
+    receiptPath(familyId, expenseId),
+  );
   return data;
 }
 
@@ -81,8 +125,15 @@ async function answerSettlementRequest(
   return data;
 }
 
-/** Sans `id` : nouvelle dépense ; avec : correction par l'auteur. */
-export type SaveExpenseVariables = { id?: string; body: ExpenseBody };
+/**
+ * Sans `id` : nouvelle dépense ; avec : correction par l'auteur. `receipt` : nouvelle photo à
+ * envoyer après la dépense, ou 'remove' pour retirer le justificatif (absent : inchangé).
+ */
+export type SaveExpenseVariables = {
+  id?: string;
+  body: ExpenseBody;
+  receipt?: ReceiptPhoto | 'remove';
+};
 
 /** Accepter ou contester (l'autre parent), retirer (l'auteur). */
 export type AnswerExpenseVariables =
@@ -171,6 +222,12 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
     mutationFn: (variables: SaveExpenseVariables) =>
       saveExpenseRequest(familyId, variables),
     onSuccess: onChanged,
+    // La dépense est enregistrée même si son justificatif ne l'est pas.
+    onError: error => {
+      if (error instanceof ReceiptUploadError) {
+        onChanged();
+      }
+    },
   });
   const answer = useMutation({
     mutationFn: (variables: AnswerExpenseVariables) =>

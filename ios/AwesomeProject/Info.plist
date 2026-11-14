@@ -44,6 +44,10 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Coparent utilise l'appareil photo pour photographier les justificatifs de dépenses.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Coparent accède à vos photos pour joindre un justificatif à une dépense.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string/>
 	<key>RCTNewArchEnabled</key>

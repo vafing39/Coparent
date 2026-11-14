@@ -15,6 +15,7 @@ type Props = {
   onContest: (expense: Expense) => void;
   onEdit: (expense: Expense) => void;
   onWithdraw: (expense: Expense) => void;
+  onViewReceipt: (expense: Expense) => void;
 };
 
 /** Carte de la liste des dépenses, ou son état vide. */
@@ -28,6 +29,7 @@ export function ExpenseList({
   onContest,
   onEdit,
   onWithdraw,
+  onViewReceipt,
 }: Props) {
   const { t } = useTranslation();
   return (
@@ -58,6 +60,7 @@ export function ExpenseList({
             onContest={() => onContest(expense)}
             onEdit={() => onEdit(expense)}
             onWithdraw={() => onWithdraw(expense)}
+            onViewReceipt={() => onViewReceipt(expense)}
           />
         ))
       )}
