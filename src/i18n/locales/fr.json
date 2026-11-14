@@ -440,6 +440,11 @@
           "label": "Dépense à valider",
           "noAnswer": "Tant que {{name}} n'a pas validé, la dépense n'entre pas dans le solde."
         },
+        "SETTLEMENT": {
+          "tag": "€",
+          "label": "Virement à confirmer",
+          "noAnswer": "Tant que {{name}} n'a pas confirmé la réception, le virement n'est pas déduit du solde."
+        },
         "MEMBER": {
           "tag": "Fam.",
           "label": "Membre à valider",
@@ -569,7 +574,139 @@
     "empty": "Bientôt, retrouvez ici les membres de la famille et les informations des enfants."
   },
   "expenses": {
-    "empty": "Bientôt, partagez ici les dépenses des enfants."
+    "title": "Dépenses",
+    "add": "Ajouter une dépense",
+    "loadFailed": "Impossible de charger les dépenses.",
+    "balance": {
+      "label": "Solde",
+      "owes": "{{debtor}} doit {{amount}} à {{creditor}}",
+      "settled": "Solde réglé · {{amount}}",
+      "note": "Calculé sur les dépenses validées. Les dépenses en attente ou contestées ne sont pas comptées.",
+      "open": "Détail et règlement",
+      "loading": "Chargement du solde",
+      "failed": "Impossible de charger le solde."
+    },
+    "filters": {
+      "label": "Filtrer les dépenses",
+      "ALL": "Toutes",
+      "PENDING": "En attente",
+      "CONTESTED": "Contestées",
+      "VALIDATED": "Validées"
+    },
+    "list": {
+      "label": "Liste des dépenses",
+      "empty": "Aucune dépense dans cette catégorie",
+      "emptyHint": "Changez de filtre ou ajoutez une dépense.",
+      "none": "Aucune dépense pour l'instant",
+      "noneHint": "Ajoutez une dépense payée pour les enfants : {{name}} pourra l'accepter ou la contester.",
+      "meta": "{{children}} · {{split}} · payée par {{payer}}"
+    },
+    "status": {
+      "toAnswer": "En attente de votre réponse",
+      "waiting": "En attente de {{name}}",
+      "contestedByYou": "Contestée par vous",
+      "contestedBy": "Contestée par {{name}}",
+      "validated": "Validée",
+      "toPropose": "À proposer à {{name}}"
+    },
+    "reasonLine": "Motif : {{reason}}",
+    "reasonNote": "Motif : {{reason}} « {{note}} »",
+    "actions": {
+      "accept": "Accepter",
+      "contest": "Contester",
+      "edit": "Corriger",
+      "withdraw": "Retirer",
+      "withdrawTitle": "Retirer cette dépense ?",
+      "withdrawBody": "« {{label}} » disparaîtra de la liste de {{name}}.",
+      "withdrawConfirm": "Retirer"
+    },
+    "solo": {
+      "label": "Total enregistré",
+      "title": "Enregistré en attendant {{name}}",
+      "body": "Aucun solde n'est calculé tant que {{name}} n'a pas rejoint. Ces dépenses lui seront proposées à son arrivée : elles pourront être acceptées ou contestées."
+    },
+    "split": {
+      "even": "50/50",
+      "all": "À la charge de {{name}}",
+      "shares": "{{payer}} {{payerShare}} % · {{other}} {{otherShare}} %"
+    },
+    "categories": {
+      "HEALTH": "Santé",
+      "SCHOOL": "École",
+      "CANTEEN": "Cantine",
+      "ACTIVITIES": "Activités",
+      "CLOTHING": "Vêtements",
+      "OTHER": "Autre"
+    },
+    "form": {
+      "newTitle": "Nouvelle dépense",
+      "editTitle": "Corriger la dépense",
+      "add": "Ajouter",
+      "save": "Enregistrer",
+      "label": "Libellé",
+      "labelPlaceholder": "Ex. : Licence de judo",
+      "amount": "Montant (€)",
+      "amountPlaceholder": "0,00",
+      "category": "Catégorie",
+      "children": "Enfants",
+      "split": "Répartition",
+      "splitTitle": "Répartition",
+      "payer": "Payée par",
+      "paidOn": "Date du paiement",
+      "share": "Part de {{name}}",
+      "hint": "{{name}} pourra accepter ou contester. Le solde n'est mis à jour qu'après son accord. Le montant est calculé par le serveur.",
+      "soloHint": "Elle sera proposée à {{name}} à son arrivée.",
+      "labelRequired": "Indiquez un libellé.",
+      "labelTooLong": "{{max}} caractères au plus.",
+      "amountInvalid": "Indiquez un montant, par exemple 64,20.",
+      "amountTooHigh": "Le montant ne peut pas dépasser 100 000 €.",
+      "childrenRequired": "Choisissez au moins un enfant.",
+      "future": "La date du paiement ne peut pas être dans le futur."
+    },
+    "contest": {
+      "title": "Contester",
+      "addedBy": "Ajoutée par {{name}} · {{children}} · {{split}}",
+      "reason": "Motif",
+      "reasons": {
+        "AMOUNT": "Le montant ne correspond pas",
+        "RECEIPT": "Justificatif manquant ou illisible",
+        "NOT_AGREED": "Dépense non décidée ensemble",
+        "OTHER": "Autre motif"
+      },
+      "note": "Précision pour {{name}}",
+      "notePlaceholder": "Facultatif",
+      "hint": "La dépense passe en « Contestée » et reste hors du solde jusqu'à un accord. {{name}} pourra la corriger ou la retirer.",
+      "send": "Envoyer la contestation",
+      "tooLong": "{{max}} caractères au plus."
+    },
+    "settle": {
+      "title": "Solde et règlement",
+      "how": "Comment il est calculé",
+      "noLines": "Aucune dépense validée pour l'instant.",
+      "expenseLine": "{{label}} · {{amount}}",
+      "expenseMeta": "Payée par {{name}} · {{split}}",
+      "settlementLine": "Virement · {{amount}}",
+      "settlementMeta": "De {{name}}, confirmé le {{date}}",
+      "share": "{{name}} : {{amount}}",
+      "remaining": "Reste à régler",
+      "section": "Règlement",
+      "nothing": "Rien à régler pour l'instant.",
+      "declare": "Déclarer un virement de {{amount}}",
+      "declareHint": "Faites le virement à {{name}}, puis déclarez-le ici : {{name}} confirmera sa réception.",
+      "waitDeclare": "{{name}} pourra déclarer son virement ici, puis vous en confirmerez la réception.",
+      "declaredMine": "Vous avez déclaré un virement de {{amount}} le {{date}}. En attente de la confirmation de {{name}}.",
+      "notReceivedMine": "{{name}} indique que le virement de {{amount}} n'apparaît pas encore.",
+      "declaredOther": "{{name}} a déclaré un virement de {{amount}} le {{date}}.",
+      "notReceivedOther": "Vous avez indiqué que le virement n'apparaît pas encore. Vous pourrez confirmer dès réception.",
+      "confirm": "Confirmer la réception",
+      "notYet": "Je ne l'ai pas encore reçu",
+      "cancel": "Annuler le virement",
+      "note": "L'app n'effectue aucun paiement. Elle garde la trace des virements déclarés et confirmés par les deux parents."
+    },
+    "errors": {
+      "gone": "Cette dépense n'existe plus.",
+      "invalid": "Vérifiez les informations saisies."
+    }
   },
   "events": {
     "add": "Ajouter un événement",

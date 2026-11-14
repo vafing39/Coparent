@@ -2,6 +2,10 @@ import { ApiError } from '../api/errors';
 import type {
   AuthResponse,
   Bag,
+  Balance,
+  Expense,
+  ExpenseBody,
+  Settlement,
   CalendarEvent,
   EventBody,
   EventChange,
@@ -111,6 +115,30 @@ export const exchangeApi = {
   answer: jest.fn<Promise<Exchange>, [string, string, string]>(),
 };
 
+/** Solde vide, renvoyé par GET …/expenses/balance tant qu'un test ne simule pas cette route. */
+export const EMPTY_BALANCE: Balance = {
+  debtorRole: null,
+  amountCents: 0,
+  lines: [],
+  openSettlement: null,
+};
+
+/**
+ * Dépenses : liste et solde (familyId ; vides sans réponse prévue), création (familyId, corps),
+ * correction (familyId, expenseId, corps), réponse (familyId, expenseId, 'accept' | 'contest' |
+ * 'withdraw', corps), virement déclaré (familyId, montant), réponse à un virement (familyId,
+ * settlementId, 'confirm' | 'not-received' | 'cancel').
+ */
+export const expenseApi = {
+  list: jest.fn<Promise<Expense[] | undefined>, [string]>(),
+  balance: jest.fn<Promise<Balance | undefined>, [string]>(),
+  create: jest.fn<Promise<Expense>, [string, ExpenseBody]>(),
+  update: jest.fn<Promise<Expense>, [string, string, ExpenseBody]>(),
+  answer: jest.fn<Promise<Expense>, [string, string, string, unknown]>(),
+  declare: jest.fn<Promise<Settlement>, [string, number]>(),
+  answerSettlement: jest.fn<Promise<Settlement>, [string, string, string]>(),
+};
+
 /** Rythme à valider. Paramètres : (familyId, scheduleId). */
 export const scheduleApi = {
   get: jest.fn<Promise<CustodySchedule>, [string, string]>(),
@@ -184,6 +212,14 @@ const CUSTODY =
 const EVENTS_RANGE =
   /^\/api\/v1\/families\/([^/]+)\/events\?from=([\d-]+)&to=([\d-]+)$/;
 const EVENTS = /^\/api\/v1\/families\/([^/]+)\/events$/;
+const EXPENSES = /^\/api\/v1\/families\/([^/]+)\/expenses$/;
+const EXPENSES_BALANCE = /^\/api\/v1\/families\/([^/]+)\/expenses\/balance$/;
+const SETTLEMENTS = /^\/api\/v1\/families\/([^/]+)\/expenses\/settlements$/;
+const SETTLEMENT_ANSWER =
+  /^\/api\/v1\/families\/([^/]+)\/expenses\/settlements\/([^/]+)\/(confirm|not-received|cancel)$/;
+const EXPENSE = /^\/api\/v1\/families\/([^/]+)\/expenses\/([^/]+)$/;
+const EXPENSE_ANSWER =
+  /^\/api\/v1\/families\/([^/]+)\/expenses\/([^/]+)\/(accept|contest|withdraw)$/;
 const EXCHANGES = /^\/api\/v1\/families\/([^/]+)\/exchanges$/;
 const EXCHANGE = /^\/api\/v1\/families\/([^/]+)\/exchanges\/([^/]+)$/;
 const EXCHANGE_ANSWER =
@@ -379,6 +415,30 @@ async function route(method: string, url: string, body?: unknown) {
   }
   if (method === 'POST' && (match = url.match(EXCHANGE_ANSWER))) {
     return exchangeApi.answer(match[1], match[2], match[3]);
+  }
+  if (method === 'GET' && (match = url.match(EXPENSES))) {
+    return (await expenseApi.list(match[1])) ?? [];
+  }
+  if (method === 'GET' && (match = url.match(EXPENSES_BALANCE))) {
+    return (await expenseApi.balance(match[1])) ?? EMPTY_BALANCE;
+  }
+  if (method === 'POST' && (match = url.match(SETTLEMENTS))) {
+    return expenseApi.declare(
+      match[1],
+      (body as { amountCents: number }).amountCents,
+    );
+  }
+  if (method === 'POST' && (match = url.match(SETTLEMENT_ANSWER))) {
+    return expenseApi.answerSettlement(match[1], match[2], match[3]);
+  }
+  if (method === 'POST' && (match = url.match(EXPENSES))) {
+    return expenseApi.create(match[1], body as ExpenseBody);
+  }
+  if (method === 'PUT' && (match = url.match(EXPENSE))) {
+    return expenseApi.update(match[1], match[2], body as ExpenseBody);
+  }
+  if (method === 'POST' && (match = url.match(EXPENSE_ANSWER))) {
+    return expenseApi.answer(match[1], match[2], match[3], body);
   }
   throw new Error(`Requête non simulée : ${method} ${url}`);
 }

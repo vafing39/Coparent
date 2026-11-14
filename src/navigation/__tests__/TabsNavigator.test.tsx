@@ -6,6 +6,7 @@ import { TabsNavigator } from '../TabsNavigator';
 import { BagProvider } from '../../context/BagContext';
 import { CalendarProvider } from '../../context/CalendarContext';
 import { CustodyProvider } from '../../context/CustodyContext';
+import { ExpensesProvider } from '../../context/ExpensesContext';
 import { FamilyProvider } from '../../context/FamilyContext';
 import { MessagesProvider } from '../../context/MessagesContext';
 import { ToDoProvider } from '../../context/ToDoContext';
@@ -29,9 +30,11 @@ async function renderTabs() {
           <BagProvider>
             <ToDoProvider>
               <MessagesProvider>
-                <NavigationContainer>
-                  <TabsNavigator />
-                </NavigationContainer>
+                <ExpensesProvider>
+                  <NavigationContainer>
+                    <TabsNavigator />
+                  </NavigationContainer>
+                </ExpensesProvider>
               </MessagesProvider>
             </ToDoProvider>
           </BagProvider>
@@ -86,7 +89,7 @@ test.each([
     'Famille',
     'Bientôt, retrouvez ici les membres de la famille et les informations des enfants.',
   ],
-  ['Dépenses', 'Bientôt, partagez ici les dépenses des enfants.'],
+  ['Dépenses', "Aucune dépense pour l'instant"],
 ])('l’onglet %s ouvre son écran', async (name, text) => {
   await renderTabs();
   await screen.findByRole('button', { name: 'Compte et famille' });

@@ -22,6 +22,11 @@ const KIND_TEXT = {
     label: 'home.toDo.kinds.EXPENSE.label',
     noAnswer: 'home.toDo.kinds.EXPENSE.noAnswer',
   },
+  SETTLEMENT: {
+    tag: 'home.toDo.kinds.SETTLEMENT.tag',
+    label: 'home.toDo.kinds.SETTLEMENT.label',
+    noAnswer: 'home.toDo.kinds.SETTLEMENT.noAnswer',
+  },
   MEMBER: {
     tag: 'home.toDo.kinds.MEMBER.tag',
     label: 'home.toDo.kinds.MEMBER.label',
@@ -47,12 +52,19 @@ const KIND_TEXT = {
   { tag: string; label: string; noAnswer: string }
 >;
 
-/** L'écran qui permet de répondre, quand il existe : échange de garde, rythme à valider. */
+const OPENABLE: ToDoKind[] = [
+  'EXCHANGE',
+  'CUSTODY_SCHEDULE',
+  'EXPENSE',
+  'SETTLEMENT',
+];
+
+/**
+ * L'écran qui permet de répondre, quand il existe : échange de garde, rythme à valider,
+ * dépense (onglet Dépenses), virement à confirmer (solde).
+ */
 export function canOpen(item: ToDoItem): boolean {
-  return (
-    (item.kind === 'EXCHANGE' || item.kind === 'CUSTODY_SCHEDULE') &&
-    item.targetId !== null
-  );
+  return OPENABLE.includes(item.kind) && item.targetId !== null;
 }
 
 type Props = {

@@ -6,6 +6,9 @@ import { ScheduleProposalScreen } from '../features/custody/ScheduleProposalScre
 import { ExchangeDetailScreen } from '../features/exchanges/ExchangeDetailScreen';
 import { ExchangeFormScreen } from '../features/exchanges/ExchangeFormScreen';
 import { ATraiterScreen } from '../features/home/ATraiterScreen';
+import { BalanceScreen } from '../features/expenses/BalanceScreen';
+import { ContestExpenseScreen } from '../features/expenses/ContestExpenseScreen';
+import { ExpenseFormScreen } from '../features/expenses/ExpenseFormScreen';
 import { SacAPreparerScreen } from '../features/home/SacAPreparerScreen';
 import { ConversationScreen } from '../features/messages/ConversationScreen';
 import { NewConversationScreen } from '../features/messages/NewConversationScreen';
@@ -60,6 +63,13 @@ export function AppNavigator() {
       />
       <Stack.Screen name="MesDonnees" component={DataExportScreen} />
       <Stack.Screen name="SupprimerCompte" component={DeleteAccountScreen} />
+      <Stack.Screen
+        name="ExpenseForm"
+        component={ExpenseFormScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen name="ContestExpense" component={ContestExpenseScreen} />
+      <Stack.Screen name="Balance" component={BalanceScreen} />
       <Stack.Screen
         name="NewConversation"
         component={NewConversationScreen}

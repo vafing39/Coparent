@@ -178,6 +178,7 @@ export type ToDoKind =
   | 'CUSTODY_SCHEDULE'
   | 'EXCHANGE'
   | 'EXPENSE'
+  | 'SETTLEMENT'
   | 'MEMBER'
   | 'DEVICE'
   | 'PUBLICATION_REMOVAL'
@@ -423,4 +424,98 @@ export type ExchangeBody = {
   giveFrom?: string;
   giveTo?: string;
   message?: string;
+};
+
+export type ExpenseStatus = 'PENDING' | 'CONTESTED' | 'VALIDATED' | 'WITHDRAWN';
+
+export type ExpenseCategory =
+  | 'HEALTH'
+  | 'SCHOOL'
+  | 'CANTEEN'
+  | 'ACTIVITIES'
+  | 'CLOTHING'
+  | 'OTHER';
+
+export type ContestReason = 'AMOUNT' | 'RECEIPT' | 'NOT_AGREED' | 'OTHER';
+
+/**
+ * ExpenseResponse côté backend. Montants en centimes ; `payerSharePercent` : part du payeur ;
+ * `owedCents` : ce que l'autre parent doit au payeur (calculé par le serveur). `mine` : j'en suis
+ * l'auteur ; `canAnswer` : je peux l'accepter ou la contester ; `canEdit` : la corriger ou la
+ * retirer. `paidOn` : « AAAA-MM-JJ ».
+ */
+export type Expense = {
+  id: string;
+  status: ExpenseStatus;
+  label: string;
+  amountCents: number;
+  category: ExpenseCategory;
+  children: { id: string; firstName: string }[];
+  payerRole: FamilyRole;
+  paidOn: string;
+  payerSharePercent: number;
+  owedCents: number;
+  authorRole: FamilyRole;
+  authorFirstName: string | null;
+  mine: boolean;
+  canAnswer: boolean;
+  canEdit: boolean;
+  contestReason: ContestReason | null;
+  contestNote: string | null;
+  createdAt: string;
+  answeredAt: string | null;
+};
+
+/** ExpenseRequest côté backend : nouvelle dépense ou correction. */
+export type ExpenseBody = {
+  label: string;
+  amountCents: number;
+  category: ExpenseCategory;
+  payerRole: FamilyRole;
+  paidOn: string;
+  payerSharePercent: number;
+  childIds: string[];
+};
+
+export type SettlementStatus =
+  | 'DECLARED'
+  | 'NOT_RECEIVED'
+  | 'CONFIRMED'
+  | 'CANCELLED';
+
+/** SettlementResponse côté backend. `mine` : je l'ai déclaré ; sinon je confirme sa réception. */
+export type Settlement = {
+  id: string;
+  payerRole: FamilyRole;
+  amountCents: number;
+  status: SettlementStatus;
+  mine: boolean;
+  declaredAt: string;
+  answeredAt: string | null;
+};
+
+/**
+ * Une ligne du solde : une dépense validée ou un virement confirmé (`label` et
+ * `payerSharePercent` null). `owedCents` : ce que la ligne déplace dans le solde.
+ */
+export type BalanceLine = {
+  kind: 'EXPENSE' | 'SETTLEMENT';
+  id: string;
+  label: string | null;
+  amountCents: number;
+  payerRole: FamilyRole;
+  payerSharePercent: number | null;
+  owedCents: number;
+  date: string;
+};
+
+/**
+ * BalanceResponse côté backend : `debtorRole` doit `amountCents` à l'autre parent (null et 0 :
+ * rien à régler). `openSettlement` : le virement qui attend une confirmation.
+ */
+export type Balance = {
+  debtorRole: FamilyRole | null;
+  amountCents: number;
+  lines: BalanceLine[];
+  openSettlement: Settlement | null;
 };

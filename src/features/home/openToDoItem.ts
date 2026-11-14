@@ -14,5 +14,9 @@ export function openToDoItem(
     navigation.navigate('ExchangeDetail', { exchangeId: item.targetId });
   } else if (item.kind === 'CUSTODY_SCHEDULE') {
     navigation.navigate('ScheduleProposal', { scheduleId: item.targetId });
+  } else if (item.kind === 'EXPENSE') {
+    navigation.navigate('Onglets', { screen: 'Depenses' });
+  } else if (item.kind === 'SETTLEMENT') {
+    navigation.navigate('Balance');
   }
 }

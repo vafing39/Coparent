@@ -79,6 +79,12 @@ export type AppStackParamList = {
   MesDonnees: undefined;
   /** « Mon compte » : supprimer le compte. */
   SupprimerCompte: undefined;
+  /** Nouvelle dépense, ou correction de la dépense `expenseId` par son auteur. */
+  ExpenseForm: { expenseId?: string } | undefined;
+  /** Contester une dépense en attente (l'autre parent). */
+  ContestExpense: { expenseId: string };
+  /** Détail du solde et règlement (virement déclaré, confirmé). */
+  Balance: undefined;
 };
 
 export type AuthScreenProps<T extends keyof AuthStackParamList> =
